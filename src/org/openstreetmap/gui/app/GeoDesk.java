@@ -83,8 +83,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         {
             for( KMLReader.MarkerData lPoint : lData )
             {
-                aMap.addMapMarker(new MapMarkerDot(lPoint.aLatitude, lPoint.aLongitude, 
-                        lPoint.aName, lPoint.aDescription));
+                aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
+                        getName(), lPoint.getDescription()));
             }
         }
         
@@ -229,8 +229,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                         {
                             for( MarkerData lPoint : lData )
                             {
-                                aMap.addMapMarker(new MapMarkerDot(lPoint.aLatitude, lPoint.aLongitude, 
-                                        lPoint.aName, lPoint.aDescription));
+                                aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
+                                        lPoint.getName(), lPoint.getDescription()));
                             }
                         }
                     }

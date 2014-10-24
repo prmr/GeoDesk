@@ -13,7 +13,7 @@ public abstract class AbstractTMSTileSource extends AbstractTileSource {
         this.name = name;
         this.baseUrl = base_url;
         if(baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0,baseUrl.length()-1);
+            baseUrl = baseUrl.substring(0, baseUrl.length()-1);
         }
     }
 

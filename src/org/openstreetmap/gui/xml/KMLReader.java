@@ -10,10 +10,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class KMLReader 
+/**
+ * Utility class to load the marker data from file.
+ */
+public final class KMLReader 
 {
-//    /private static String FILE = "M:\\diary\\travels\\Travels-All-out.xml";
-    
+	private KMLReader()
+	{}
+	
+    /**
+     * Loads the marker data from file.
+     * @param pInput The name of the source file.
+     * @return An array of markerdata loaded from file.
+     * @throws Exception If there's any problem with the load. 
+     */
     public static MarkerData[] extractData(String pInput) throws Exception
     {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -60,50 +70,49 @@ public class KMLReader
         return lReturn;
     }
     
-//    public static void main(String[] args) throws Exception
-//    {
-//        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//        DocumentBuilder db = dbf.newDocumentBuilder();
-//        Document doc = db.parse(new File(FILE));
-//        NodeList lPlacemarks = doc.getElementsByTagName("Placemark");
-//        for( int i = 0; i < lPlacemarks.getLength(); i++ )
-//        {
-//            Node lPlacemark = lPlacemarks.item(i);
-//            NodeList lChildren = lPlacemark.getChildNodes();
-//            MarkerData lMarker = new MarkerData();
-//            for( int j = 0; j < lChildren.getLength(); j++)
-//            {
-//                Node lNode = lChildren.item(j);
-//                if( lNode.getNodeType() == Node.ELEMENT_NODE )
-//                {
-//                    if( lNode.getNodeName().equals("name"))
-//                    {
-//                        lMarker.aName = lNode.getFirstChild().getNodeValue();
-//                    }
-//                    else if( lNode.getNodeName().equals("description"))
-//                    {
-//                        lMarker.aDescription = cleanDescription(lNode.getFirstChild().getNodeValue());
-//                    }
-//                    else if( lNode.getNodeName().equals("Point"))
-//                    {
-//                        Node lCoordsNode = lNode.getFirstChild().getNextSibling();
-//                        String[] lCoords = lCoordsNode.getFirstChild().getNodeValue().split(",");
-//                        lMarker.aLongitude = Double.parseDouble(lCoords[0]);
-//                        lMarker.aLatitude = Double.parseDouble(lCoords[1]);
-//                    }
-//                }
-//            }
-//            System.out.println(lMarker);   
-//        }
-//    }
-    
+    /**
+     * All the data associated with a marker.
+     */
     public static class MarkerData
     {
-        public String aName;
-        public double aLatitude;
-        public double aLongitude;
-        public String aDescription;
+    	private String aName;
+    	private double aLatitude;
+    	private double aLongitude;
+    	private String aDescription;
+    	
+        /**
+		 * @return the name of the location.
+		 */
+		public String getName()
+		{
+			return aName;
+		}
+
+		/**
+		 * @return the latitude of the location.
+		 */
+		public double getLatitude()
+		{
+			return aLatitude;
+		}
+
+		/**
+		 * @return the longitude of the location.
+		 */
+		public double getLongitude()
+		{
+			return aLongitude;
+		}
+
+		/**
+		 * @return the description of the location.
+		 */
+		public String getDescription()
+		{
+			return aDescription;
+		}
         
+        @Override
         public String toString()
         {
             return aName + " (" + aLatitude + "," + aLongitude + "); " + aDescription;

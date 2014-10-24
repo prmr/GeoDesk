@@ -26,8 +26,19 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  * @author Martin P. Robillard
  * Writes a list of marker into an XML file.
  */
-public class XMLWriter
+public final class XMLWriter
 {   
+	private static final int LINE_WIDTH = 65;
+	
+	private XMLWriter()
+	{}
+	
+    /**
+     * Write markers to file.
+     * @param pMarkers The markers to write out.
+     * @param pFileName The name of the destination file.
+     * @throws Exception TODO
+     */
     public static void write(MapMarker[] pMarkers, String pFileName) throws Exception
     {
         try 
@@ -36,7 +47,7 @@ public class XMLWriter
             lFile.createNewFile();
             Document doc = buildDocument(pMarkers);
             OutputFormat format = new OutputFormat(doc);
-            format.setLineWidth(65);
+            format.setLineWidth(LINE_WIDTH);
             format.setIndenting(true);
             format.setIndent(2);
             Writer out = new PrintWriter(lFile);
@@ -79,13 +90,18 @@ public class XMLWriter
             lPlacemark.appendChild(lPoint);
             Element lCoordinates = doc.createElement("coordinates");
             lPoint.appendChild(lCoordinates);
-            text = doc.createTextNode(String.format("%.6f,%.6f,%.6f", marker.getLon(), marker.getLat(),0.0));
+            text = doc.createTextNode(String.format("%.6f,%.6f,%.6f", marker.getLon(), marker.getLat(), 0.0));
             lCoordinates.appendChild(text);
         }
         
         return doc;
     }
 
+    /**
+     * Make a copy (backup) of the current markers file.
+     * @param pFile The file to copy.
+     * @throws IOException If there is any problem with the backup.
+     */
     public static void backup(String pFile) throws IOException
     {
         File lFile = new File(pFile);
@@ -102,16 +118,20 @@ public class XMLWriter
         FileChannel source = null;
         FileChannel destination = null;
     
-        try {
+        try
+        {
             source = new FileInputStream(lFile).getChannel();
             destination = new FileOutputStream(lBackup).getChannel();
             destination.transferFrom(source, 0, source.size());
         }
-        finally {
-            if(source != null) {
+        finally 
+        {
+            if(source != null)
+            {
                 source.close();
             }
-            if(destination != null) {
+            if(destination != null)
+            {
                 destination.close();
             }
         }
