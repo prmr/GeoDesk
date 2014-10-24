@@ -7,7 +7,7 @@ import java.awt.Image;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public abstract class AbstractOsmTileSource extends AbstractTMSTileSource {
+public abstract class AbstractOsmTileSource extends AbstractTileSource {
     public AbstractOsmTileSource(String name, String base_url) {
         super(name, base_url);
     }

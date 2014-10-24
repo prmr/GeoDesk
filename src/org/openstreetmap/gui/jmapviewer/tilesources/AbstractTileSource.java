@@ -1,6 +1,7 @@
 package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.awt.Image;
+import java.io.IOException;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
@@ -13,13 +14,32 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
  */
 public abstract class AbstractTileSource implements TileSource 
 {
-    protected String aAttributionText;
+    private static final int DEFAULT_MAX_ZOOM = 21;
+	private static final int DEFAULT_TILE_SIZE = 256;
+	protected String aAttributionText;
     protected String aAttributionLinkURL;
     protected Image aAttributionImage;
     protected String aAttributionImageURL;
     protected String aTermsOfUseText;
     protected String aTermsOfUseURL;
+	protected String aName;
+	protected String aBaseUrl;
 
+	/**
+	 * Assigns the attribution data, name, and base url.
+	 * @param pName The name of the tile source.
+	 * @param pBaseUrl The base url.
+	 */
+	protected AbstractTileSource(String pName, String pBaseUrl) 
+    {
+        aName = pName;
+        aBaseUrl = pBaseUrl;
+        if(aBaseUrl.endsWith("/"))
+        {
+            aBaseUrl = aBaseUrl.substring(0, aBaseUrl.length()-1);
+        }
+    }
+	
     @Override
     public boolean requiresAttribution() 
     {
@@ -61,4 +81,54 @@ public abstract class AbstractTileSource implements TileSource
     {
         return aTermsOfUseURL;
     }
+
+	@Override
+	public String getName()
+	{
+	    return aName;
+	}
+
+	@Override
+	public int getMaxZoom()
+	{
+	    return DEFAULT_MAX_ZOOM;
+	}
+
+	@Override
+	public int getMinZoom()
+	{
+	    return 0;
+	}
+
+	/**
+	 * @return The base url
+	 */
+	protected String getBaseUrl()
+	{
+	    return aBaseUrl;
+	}
+
+	@Override
+	public String getTileUrl(int pZoom, int pTileX, int pTileY) throws IOException
+	{
+	    return getBaseUrl() + "/" + pZoom + "/" + pTileX + "/" + pTileY + "." + "png";
+	}
+
+	@Override
+	public String toString()
+	{
+	    return getName();
+	}
+
+	@Override
+	public String getTileType()
+	{
+	    return "png";
+	}
+
+	@Override
+	public int getTileSize()
+	{
+	    return DEFAULT_TILE_SIZE;
+	}
 }
