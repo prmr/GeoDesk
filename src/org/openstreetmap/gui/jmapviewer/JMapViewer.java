@@ -735,7 +735,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
                 || zoom == this.zoom)
             return;
         Coordinate zoomPos = getPosition(mapPoint);
-        tileController.cancelOutstandingJobs(); // Clearing outstanding load
+        JobDispatcher.getInstance().cancelOutstandingJobs();
         // requests
         setDisplayPositionByLatLon(mapPoint, zoomPos.getLat(), zoomPos.getLon(), zoom);
 
@@ -883,7 +883,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
         tileController.setTileSource(tileSource);
         zoomSlider.setMinimum(tileSource.getMinZoom());
         zoomSlider.setMaximum(tileSource.getMaxZoom());
-        tileController.cancelOutstandingJobs();
+        JobDispatcher.getInstance().cancelOutstandingJobs();
         if (zoom > tileSource.getMaxZoom()) {
             setZoom(tileSource.getMaxZoom());
         }
@@ -936,14 +936,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
     public void setMapLegendVisible(boolean mapLegendVisible) {
         this.mapLegendVisible = mapLegendVisible;
         repaint();
-    }
-
-    /**
-     * Return tile information caching class
-     * @see TileLoaderListener#getTileCache()
-     */
-    public TileCache getTileCache() {
-        return tileController.getTileCache();
     }
 
     public void setTileLoader(TileLoader loader) {

@@ -88,10 +88,6 @@ public class MemoryTileCache implements TileCache {
         }
     }
 
-    public int getTileCount() {
-        return hashtable.size();
-    }
-
     public int getCacheSize() {
         return cacheSize;
     }
