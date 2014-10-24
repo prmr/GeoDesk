@@ -3,6 +3,7 @@ package org.openstreetmap.gui.jmapviewer.interfaces;
 import java.io.IOException;
 
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
+import org.openstreetmap.gui.jmapviewer.tilesources.Attributed;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
@@ -10,8 +11,8 @@ import org.openstreetmap.gui.jmapviewer.JMapViewer;
  *
  * @author Jan Peter Stotz
  */
-public interface TileSource extends Attributed {
-
+public interface TileSource extends Attributed 
+{
     /**
      * Specifies the different mechanisms for detecting updated tiles
      * respectively only download newer tiles than those stored locally.

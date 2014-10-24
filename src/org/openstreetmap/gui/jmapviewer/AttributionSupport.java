@@ -15,7 +15,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
 import java.util.HashMap;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.Attributed;
+import org.openstreetmap.gui.jmapviewer.tilesources.Attributed;
 
 public class AttributionSupport {
 

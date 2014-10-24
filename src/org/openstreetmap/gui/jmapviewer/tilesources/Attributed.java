@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.awt.Image;
 
@@ -6,19 +6,23 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 //License: GPL.
 
-public interface Attributed {
+/**
+ * An object (typically a tile source) with an attached attribution.
+ */
+public interface Attributed 
+{
     /**
-     * @return True if the tile source requires attribution in text or image form.
+     * @return True if the object requires attribution in text or image form.
      */
     boolean requiresAttribution();
 
     /**
-     * @param zoom The optional zoom level for the view.
-     * @param botRight The bottom right of the bounding box for attribution.
-     * @param topLeft The top left of the bounding box for attribution.
-     * @return Attribution text for the image source.
+     * @param pZoom The optional zoom level for the view.
+     * @param pBottomRight The bottom right of the bounding box for attribution.
+     * @param pTopLeft The top left of the bounding box for attribution.
+     * @return Attribution text for the object.
      */
-    String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight);
+    String getAttributionText(int pZoom, Coordinate pTopLeft, Coordinate pBottomRight);
 
     /**
      * @return The URL to open when the user clicks the attribution text.
