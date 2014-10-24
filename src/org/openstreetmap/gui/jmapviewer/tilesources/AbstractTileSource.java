@@ -2,7 +2,6 @@ package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.awt.Image;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz

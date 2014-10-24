@@ -4,8 +4,8 @@ import org.openstreetmap.gui.jmapviewer.JobDispatcher.JobThread;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 public class TileController {
     protected TileLoader tileLoader;

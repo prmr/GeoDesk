@@ -14,7 +14,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 /**
  * Holds one map tile. Additionally the code for loading the tile image and

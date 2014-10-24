@@ -2,6 +2,7 @@ package org.openstreetmap.gui.jmapviewer.interfaces;
 
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.Tile;
+import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 

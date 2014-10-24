@@ -1,14 +1,11 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.io.IOException;
-
-import org.openstreetmap.gui.jmapviewer.JMapViewer;
-import org.openstreetmap.gui.jmapviewer.tilesources.Attributed;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
 /**
- *
+ * A source of map image tiles.
  * @author Jan Peter Stotz
  */
 public interface TileSource extends Attributed 
@@ -35,7 +32,8 @@ public interface TileSource extends Attributed
      * </ul>
      *
      */
-    public enum TileUpdate {
+    public enum TileUpdate 
+    {
         IfNoneMatch, ETag, IfModifiedSince, LastModified, None
     }
 
@@ -72,14 +70,15 @@ public interface TileSource extends Attributed
     String getName();
 
     /**
-     * Constructs the tile url.
+     * Constructs the tile URL.
      *
-     * @param zoom
-     * @param tilex
-     * @param tiley
-     * @return fully qualified url for downloading the specified tile image
+     * @param pZoom The zoom factor
+     * @param pTileX Tile x coordinate
+     * @param pTileY Tile y coordinate
+     * @return fully qualified URL for downloading the specified tile image
+     * @throws IOException if the URL cannot be obtained.
      */
-    String getTileUrl(int zoom, int tilex, int tiley) throws IOException;
+    String getTileUrl(int pZoom, int pTileX, int pTileY) throws IOException;
 
     /**
      * Specifies the tile image type. For tiles rendered by Mapnik or
@@ -94,12 +93,4 @@ public interface TileSource extends Attributed
      * @return The size of a single tile in pixels.
      */
     int getTileSize();
-
-    double latToTileY(double lat, int zoom);
-
-    double lonToTileX(double lon, int zoom);
-
-    double tileYToLat(int y, int zoom);
-
-    double tileXToLon(int x, int zoom);
 }

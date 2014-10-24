@@ -29,8 +29,8 @@ import java.util.logging.Logger;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileJob;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource.TileUpdate;
+import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.TileSource.TileUpdate;
 
 /**
  * A {@link TileLoader} implementation that loads tiles from OSM via HTTP and
