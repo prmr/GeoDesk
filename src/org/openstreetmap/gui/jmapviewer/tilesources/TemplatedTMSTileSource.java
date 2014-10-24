@@ -37,20 +37,20 @@ public class TemplatedTMSTileSource extends TMSTileSource {
 
     private void handleTemplate() {
         // Capturing group pattern on switch values
-        Matcher m = Pattern.compile(".*"+PATTERN_SWITCH+".*").matcher(baseUrl);
+        Matcher m = Pattern.compile(".*"+PATTERN_SWITCH+".*").matcher(aBaseUrl);
         if (m.matches()) {
             rand = new Random();
             randomParts = m.group(1).split(",");
         }
         Pattern pattern = Pattern.compile(PATTERN_HEADER);
         StringBuffer output = new StringBuffer();
-        Matcher matcher = pattern.matcher(baseUrl);
+        Matcher matcher = pattern.matcher(aBaseUrl);
         while (matcher.find()) {
             headers.put(matcher.group(1),matcher.group(2));
             matcher.appendReplacement(output, "");
         }
         matcher.appendTail(output);
-        baseUrl = output.toString();
+        aBaseUrl = output.toString();
     }
 
     public Map<String, String> getHeaders() {
@@ -60,7 +60,7 @@ public class TemplatedTMSTileSource extends TMSTileSource {
     @Override
     public String getTileUrl(int zoom, int tilex, int tiley) {
         int finalZoom = zoom;
-        Matcher m = Pattern.compile(".*"+PATTERN_ZOOM+".*").matcher(this.baseUrl);
+        Matcher m = Pattern.compile(".*"+PATTERN_ZOOM+".*").matcher(this.aBaseUrl);
         if (m.matches()) {
             if(m.group(1) != null) {
                 finalZoom = Integer.valueOf(m.group(1))-zoom;
@@ -72,7 +72,7 @@ public class TemplatedTMSTileSource extends TMSTileSource {
                 finalZoom += Integer.valueOf(ofs);
             }
         }
-        String r = this.baseUrl
+        String r = this.aBaseUrl
             .replaceAll(PATTERN_ZOOM, Integer.toString(finalZoom))
             .replaceAll(PATTERN_X, Integer.toString(tilex))
             .replaceAll(PATTERN_Y, Integer.toString(tiley))

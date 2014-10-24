@@ -28,7 +28,7 @@ public class OsmTileSource {
 
         @Override
         public String getBaseUrl() {
-            String url = String.format(this.baseUrl, new Object[] { SERVER[SERVER_NUM] });
+            String url = String.format(this.aBaseUrl, new Object[] { SERVER[SERVER_NUM] });
             SERVER_NUM = (SERVER_NUM + 1) % SERVER.length;
             return url;
         }

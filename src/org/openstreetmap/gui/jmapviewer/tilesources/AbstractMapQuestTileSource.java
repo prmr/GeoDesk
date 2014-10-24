@@ -35,7 +35,7 @@ public class AbstractMapQuestTileSource extends AbstractOsmTileSource {
 
     @Override
     public String getBaseUrl() {
-        String url = String.format(this.baseUrl, SERVER_NUM);
+        String url = String.format(this.aBaseUrl, SERVER_NUM);
         SERVER_NUM = (SERVER_NUM % NUMBER_OF_SERVERS) + 1;
         return url;
     }

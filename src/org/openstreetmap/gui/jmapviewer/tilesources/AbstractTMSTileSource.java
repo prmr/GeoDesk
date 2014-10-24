@@ -4,88 +4,89 @@ package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.io.IOException;
 
-public abstract class AbstractTMSTileSource extends AbstractTileSource {
+/**
+ * Adds the name and base URL to a tile source.
+ */
+public abstract class AbstractTMSTileSource extends AbstractTileSource 
+{
+    private static final int DEFAULT_TILE_SIZE = 256;
+	private static final int DEFAULT_MAX_ZOOM = 21;
+	protected String aName;
+    protected String aBaseUrl;
 
-    protected String name;
-    protected String baseUrl;
-
-    public AbstractTMSTileSource(String name, String base_url) {
-        this.name = name;
-        this.baseUrl = base_url;
-        if(baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.length()-1);
+    /**
+     * @param pName The name of the tile source.
+     * @param pBaseUrl The base URL
+     */
+    protected AbstractTMSTileSource(String pName, String pBaseUrl) 
+    {
+        aName = pName;
+        aBaseUrl = pBaseUrl;
+        if(aBaseUrl.endsWith("/"))
+        {
+            aBaseUrl = aBaseUrl.substring(0, aBaseUrl.length()-1);
         }
     }
 
-    //@Override
-    public String getName() {
-        return name;
-    }
-
-    //@Override
-    public int getMaxZoom() {
-        return 21;
-    }
-
-    //@Override
-    public int getMinZoom() {
-        return 0;
-    }
-
-    public String getExtension() {
-        return "png";
-    }
-
-    /**
-     * @throws IOException when subclass cannot return the tile URL
-     */
-    public String getTilePath(int zoom, int tilex, int tiley) throws IOException {
-        return "/" + zoom + "/" + tilex + "/" + tiley + "." + getExtension();
-    }
-
-    public String getBaseUrl() {
-        return this.baseUrl;
-    }
-
-    //@Override
-    public String getTileUrl(int zoom, int tilex, int tiley) throws IOException {
-        return this.getBaseUrl() + getTilePath(zoom, tilex, tiley);
+    @Override
+    public String getName() 
+    {
+        return aName;
     }
 
     @Override
-    public String toString() {
+    public int getMaxZoom()
+    {
+        return DEFAULT_MAX_ZOOM;
+    }
+
+    @Override
+    public int getMinZoom()
+    {
+        return 0;
+    }
+
+    /**
+     * @param pZoom The zoom factor.
+     * @param pTileX The tile's x coordinate
+     * @param pTileY The tile's y coordinate
+     * @return The title path.
+     * @throws IOException IOException when subclass cannot return the tile URL
+     */
+    protected String getTilePath(int pZoom, int pTileX, int pTileY) throws IOException 
+    {
+        return "/" + pZoom + "/" + pTileX + "/" + pTileY + "." + "png";
+    }
+
+    /**
+     * @return The base url
+     */
+    protected String getBaseUrl() 
+    {
+        return aBaseUrl;
+    }
+
+    @Override
+    public String getTileUrl(int pZoom, int pTileX, int pTileY) throws IOException 
+    {
+        return getBaseUrl() + getTilePath(pZoom, pTileX, pTileY);
+    }
+
+    @Override
+    public String toString()
+    {
         return getName();
     }
 
-    //@Override
-    public String getTileType() {
+    @Override
+    public String getTileType() 
+    {
         return "png";
     }
 
-    //@Override
-    public int getTileSize() {
-        return 256;
-    }
-
-    //@Override
-    public double latToTileY(double lat, int zoom) {
-        double l = lat / 180 * Math.PI;
-        double pf = Math.log(Math.tan(l) + (1 / Math.cos(l)));
-        return Math.pow(2.0, zoom - 1) * (Math.PI - pf) / Math.PI;
-    }
-
-    //@Override
-    public double lonToTileX(double lon, int zoom) {
-        return Math.pow(2.0, zoom - 3) * (lon + 180.0) / 45.0;
-    }
-
-    //@Override
-    public double tileYToLat(int y, int zoom) {
-        return Math.atan(Math.sinh(Math.PI - (Math.PI * y / Math.pow(2.0, zoom - 1)))) * 180 / Math.PI;
-    }
-
-    //@Override
-    public double tileXToLon(int x, int zoom) {
-        return x * 45.0 / Math.pow(2.0, zoom - 3) - 180.0;
+    @Override
+    public int getTileSize()
+    {
+        return DEFAULT_TILE_SIZE;
     }
 }
