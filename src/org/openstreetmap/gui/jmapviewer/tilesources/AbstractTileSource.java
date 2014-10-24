@@ -6,72 +6,59 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
-abstract public class AbstractTileSource implements TileSource {
+/**
+ * Stores the basic tile source meta-data.
+ * @author Jan Peter Stotz
+ * @author Martin P. Robillard
+ */
+public abstract class AbstractTileSource implements TileSource 
+{
+    protected String aAttributionText;
+    protected String aAttributionLinkURL;
+    protected Image aAttributionImage;
+    protected String aAttributionImageURL;
+    protected String aTermsOfUseText;
+    protected String aTermsOfUseURL;
 
-    protected String attributionText;
-    protected String attributionLinkURL;
-    protected Image attributionImage;
-    protected String attributionImageURL;
-    protected String termsOfUseText;
-    protected String termsOfUseURL;
-
-    //@Override
-    public boolean requiresAttribution() {
-        return attributionText != null || attributionImage != null || termsOfUseText != null || termsOfUseURL != null;
+    @Override
+    public boolean requiresAttribution() 
+    {
+        return aAttributionText != null || aAttributionImage != null || aTermsOfUseText != null || aTermsOfUseURL != null;
     }
 
-    //@Override
-    public String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight) {
-        return attributionText;
+    @Override
+    public String getAttributionText(int pZoom, Coordinate pTopLeft, Coordinate pBottomRight)
+    {
+        return aAttributionText;
     }
 
-    //@Override
-    public String getAttributionLinkURL() {
-        return attributionLinkURL;
+    @Override
+    public String getAttributionLinkURL() 
+    {
+        return aAttributionLinkURL;
     }
 
-    //@Override
-    public Image getAttributionImage() {
-        return attributionImage;
+    @Override
+    public Image getAttributionImage()
+    {
+        return aAttributionImage;
     }
 
-    //@Override
-    public String getAttributionImageURL() {
-        return attributionImageURL;
+    @Override
+    public String getAttributionImageURL() 
+    {
+        return aAttributionImageURL;
     }
 
-    //@Override
-    public String getTermsOfUseText() {
-        return termsOfUseText;
+    @Override
+    public String getTermsOfUseText() 
+    {
+        return aTermsOfUseText;
     }
 
-    //@Override
-    public String getTermsOfUseURL() {
-        return termsOfUseURL;
+    @Override
+    public String getTermsOfUseURL()
+    {
+        return aTermsOfUseURL;
     }
-
-    public void setAttributionText(String attributionText) {
-        this.attributionText = attributionText;
-    }
-
-    public void setAttributionLinkURL(String attributionLinkURL) {
-        this.attributionLinkURL = attributionLinkURL;
-    }
-
-    public void setAttributionImage(Image attributionImage) {
-        this.attributionImage = attributionImage;
-    }
-
-    public void setAttributionImageURL(String attributionImageURL) {
-        this.attributionImageURL = attributionImageURL;
-    }
-
-    public void setTermsOfUseText(String termsOfUseText) {
-        this.termsOfUseText = termsOfUseText;
-    }
-
-    public void setTermsOfUseURL(String termsOfUseURL) {
-        this.termsOfUseURL = termsOfUseURL;
-    }
-
 }
