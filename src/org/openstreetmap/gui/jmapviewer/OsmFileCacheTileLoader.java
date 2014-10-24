@@ -327,8 +327,8 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
          * Note: This does only work with servers providing the
          * <code>LastModified</code> header:
          * <ul>
-         * <li>{@link tilesources.OsmTileSource.CycleMap} - supported</li>
-         * <li>{@link tilesources.OsmTileSource.Mapnik} - not supported</li>
+         * <li>{@link tilesources.CycleOsmTileSource} - supported</li>
+         * <li>{@link tilesources.MapnikOsmTileSource} - not supported</li>
          * </ul>
          *
          * @param fileAge time of the 

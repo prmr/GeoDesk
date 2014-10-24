@@ -7,47 +7,69 @@ import java.awt.Image;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 
-public abstract class AbstractOsmTileSource extends AbstractTileSource {
-    public AbstractOsmTileSource(String name, String base_url) {
-        super(name, base_url);
-    }
+/**
+ * Encodes default values for OSM map data.
+ *
+ */
+public abstract class AbstractOsmTileSource extends AbstractTileSource 
+{
+    private static final int DEFAULT_MAX_ZOOM = 18;
 
-    public int getMaxZoom() {
-        return 18;
+	/**
+     * Stores the name and base url of the tile source.
+     * @param pName The name of the tile source.
+     * @param pBaseUrl The base url of the tile source.
+     */
+    protected AbstractOsmTileSource(String pName, String pBaseUrl) 
+    {
+        super(pName, pBaseUrl);
     }
 
     @Override
-    public boolean requiresAttribution() {
+    public int getMaxZoom() 
+    {
+        return DEFAULT_MAX_ZOOM;
+    }
+
+    @Override
+    public boolean requiresAttribution() 
+    {
         return true;
     }
 
     @Override
-    public String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight) {
+    public String getAttributionText(int pZoom, Coordinate pTopLeft, Coordinate pBottomRight) 
+    {
         return "\u00a9 OpenStreetMap contributors, CC-BY-SA ";
     }
 
     @Override
-    public String getAttributionLinkURL() {
+    public String getAttributionLinkURL()
+    {
         return "http://openstreetmap.org/";
     }
 
     @Override
-    public Image getAttributionImage() {
+    public Image getAttributionImage() 
+    {
         return null;
     }
 
     @Override
-    public String getAttributionImageURL() {
+    public String getAttributionImageURL() 
+    {
         return null;
     }
 
     @Override
-    public String getTermsOfUseText() {
+    public String getTermsOfUseText() 
+    {
         return null;
     }
 
     @Override
-    public String getTermsOfUseURL() {
+    public String getTermsOfUseURL() 
+    {
         return "http://www.openstreetmap.org/copyright";
     }
 }

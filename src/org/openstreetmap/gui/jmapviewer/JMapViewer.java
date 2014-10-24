@@ -33,7 +33,7 @@ import org.openstreetmap.gui.jmapviewer.interfaces.MapRectangle;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 /**
@@ -105,7 +105,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener {
 
     public JMapViewer(TileCache tileCache, int downloadThreadCount) {
         super();
-        tileSource = new OsmTileSource.Mapnik();
+        tileSource = new MapnikOsmTileSource();
         tileController = new TileController(tileSource, tileCache, this);
         mapMarkerList = new LinkedList<MapMarker>();
         mapPolygonList = new LinkedList<MapPolygon>();

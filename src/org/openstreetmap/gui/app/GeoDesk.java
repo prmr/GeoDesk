@@ -30,9 +30,10 @@ import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.CycleOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 import org.openstreetmap.gui.xml.KMLReader;
 import org.openstreetmap.gui.xml.KMLReader.MarkerData;
@@ -43,8 +44,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 {   
     private static final String APP_NAME = "GeoDesk 0.1";
     
-    private TileSource[] aTileSources = {new OsmTileSource.Mapnik(),
-            new OsmTileSource.CycleMap(), new BingAerialTileSource(), 
+    private TileSource[] aTileSources = {new MapnikOsmTileSource(),
+            new CycleOsmTileSource(), new BingAerialTileSource(), 
             new MapQuestOsmTileSource(), new MapQuestOpenAerialTileSource()};
     private JMapViewer aMap = null;
 

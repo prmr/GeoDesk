@@ -4,7 +4,7 @@ import org.openstreetmap.gui.jmapviewer.JobDispatcher.JobThread;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
-import org.openstreetmap.gui.jmapviewer.tilesources.OsmTileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 public class TileController {
@@ -15,7 +15,7 @@ public class TileController {
     JobDispatcher jobDispatcher;
 
     public TileController(TileSource source, TileCache tileCache, TileLoaderListener listener) {
-        tileSource = new OsmTileSource.Mapnik();
+        tileSource = new MapnikOsmTileSource();
         tileLoader = new OsmTileLoader(listener);
         this.tileCache = tileCache;
         jobDispatcher = JobDispatcher.getInstance();
