@@ -34,71 +34,82 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * The Bing Aerial tile source. This tile source is experimental.
+ */
 public class BingAerialTileSource extends AbstractTileSource 
 {
-    private static String API_KEY = "Arzdiw4nlOJzRwOz__qailc8NiR31Tt51dN2D7cm57NrnceZnCpgOkmJhNpGoppU";
+    private static final long MILLIS_IN_SECOND = 1000L;
+	private static final int MAX_ZOOM = 22;
+	private static final String API_KEY = "Arzdiw4nlOJzRwOz__qailc8NiR31Tt51dN2D7cm57NrnceZnCpgOkmJhNpGoppU";
     private static volatile Future<List<Attribution>> attributions; // volatile is required for getAttribution(), see below.
     private static String imageUrlTemplate;
     private static Integer imageryZoomMax;
     private static String[] subdomains;
 
-    private static final Pattern subdomainPattern = Pattern.compile("\\{subdomain\\}");
-    private static final Pattern quadkeyPattern = Pattern.compile("\\{quadkey\\}");
-    private static final Pattern culturePattern = Pattern.compile("\\{culture\\}");
+    private static final Pattern SUBDOMAIN_PATTERN = Pattern.compile("\\{subdomain\\}");
+    private static final Pattern QUADKEY_PATTERN = Pattern.compile("\\{quadkey\\}");
+    private static final Pattern CULTURE_PATTERN = Pattern.compile("\\{culture\\}");
 
+    /**
+     * Constructs a new Bing Aerial tile Source.
+     */
     public BingAerialTileSource()
     {
-        super("Bing Aerial Maps", "http://example.com/");
+        super("Bing Aerial Maps", "http://bing.com/maps");
     }
 
-    protected class Attribution 
+    // CSOFF:
+    private class Attribution 
     {
         String attribution;
         int minZoom;
         int maxZoom;
         Coordinate min;
         Coordinate max;
-    }
+    } //CSON:
 
     @Override
-    public String getTileUrl(int zoom, int tilex, int tiley) throws IOException 
+    public String getTileUrl(int pZoom, int pTileX, int pTileY) throws IOException 
     {
         // make sure that attribution is loaded. otherwise subdomains is null.
         getAttribution();
 
-        int t = (zoom + tilex + tiley) % subdomains.length;
+        int t = (pZoom + pTileX + pTileY) % subdomains.length;
         String subdomain = subdomains[t];
 
         String url = imageUrlTemplate;
-        url = subdomainPattern.matcher(url).replaceAll(subdomain);
-        url = quadkeyPattern.matcher(url).replaceAll(computeQuadTree(zoom, tilex, tiley));
+        url = SUBDOMAIN_PATTERN.matcher(url).replaceAll(subdomain);
+        url = QUADKEY_PATTERN.matcher(url).replaceAll(computeQuadTree(pZoom, pTileX, pTileY));
 
         return url;
     }
 
-    protected URL getAttributionUrl() throws MalformedURLException 
+    private URL getAttributionUrl() throws MalformedURLException 
     {
         return new URL("http://dev.virtualearth.net/REST/v1/Imagery/Metadata/Aerial?include=ImageryProviders&output=xml&key="
                 + API_KEY);
     }
 
-    protected List<Attribution> parseAttributionText(InputSource xml) throws IOException 
+    private List<Attribution> parseAttributionText(InputSource pXml) throws IOException 
     {
         try 
         {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(xml);
+            Document document = builder.parse(pXml);
 
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xpath = xPathFactory.newXPath();
             imageUrlTemplate = xpath.compile("//ImageryMetadata/ImageUrl/text()").evaluate(document);
-            imageUrlTemplate = culturePattern.matcher(imageUrlTemplate).replaceAll(Locale.getDefault().toString());
+            imageUrlTemplate = CULTURE_PATTERN.matcher(imageUrlTemplate).replaceAll(Locale.getDefault().toString());
             imageryZoomMax = Integer.parseInt(xpath.compile("//ImageryMetadata/ZoomMax/text()").evaluate(document));
 
-            NodeList subdomainTxt = (NodeList) xpath.compile("//ImageryMetadata/ImageUrlSubdomains/string/text()").evaluate(document, XPathConstants.NODESET);
+            NodeList subdomainTxt = 
+            		(NodeList) xpath.compile("//ImageryMetadata/ImageUrlSubdomains/string/text()").evaluate(document, XPathConstants.NODESET);
             subdomains = new String[subdomainTxt.getLength()];
-            for(int i = 0; i < subdomainTxt.getLength(); i++) {
+            for(int i = 0; i < subdomainTxt.getLength(); i++) 
+            {
                 subdomains[i] = subdomainTxt.item(i).getNodeValue();
             }
 
@@ -112,7 +123,7 @@ public class BingAerialTileSource extends AbstractTileSource
             XPathExpression eastLonXpath = xpath.compile("BoundingBox/EastLongitude/text()");
 
             NodeList imageryProviderNodes = (NodeList) xpath.compile("//ImageryMetadata/ImageryProvider").evaluate(document, XPathConstants.NODESET);
-            List<Attribution> attributions = new ArrayList<Attribution>(imageryProviderNodes.getLength());
+            List<Attribution> lattributions = new ArrayList<Attribution>(imageryProviderNodes.getLength());
             for (int i = 0; i < imageryProviderNodes.getLength(); i++) 
             {
                 Node providerNode = imageryProviderNodes.item(i);
@@ -136,11 +147,11 @@ public class BingAerialTileSource extends AbstractTileSource
                     attr.min = new Coordinate(southLat, westLon);
                     attr.max = new Coordinate(northLat, eastLon);
 
-                    attributions.add(attr);
+                    lattributions.add(attr);
                 }
             }
 
-            return attributions;
+            return lattributions;
         } 
         catch (SAXException e) 
         {
@@ -167,7 +178,7 @@ public class BingAerialTileSource extends AbstractTileSource
         }
         else
         {
-            return 22;
+            return MAX_ZOOM;
         }
     }
 
@@ -223,11 +234,11 @@ public class BingAerialTileSource extends AbstractTileSource
         return "http://opengeodata.org/microsoft-imagery-details";
     }
 
-    protected Callable<List<Attribution>> getAttributionLoaderCallable() 
+    private Callable<List<Attribution>> getAttributionLoaderCallable() 
     {
-        return new Callable<List<Attribution>>() {
-
-            //@Override
+        return new Callable<List<Attribution>>() 
+        {
+            @Override
             public List<Attribution> call() throws Exception 
             {
                 int waitTimeSec = 1;
@@ -243,7 +254,7 @@ public class BingAerialTileSource extends AbstractTileSource
                     catch (IOException ex) 
                     {
                         System.err.println("Could not connect to Bing API. Will retry in " + waitTimeSec + " seconds.");
-                        Thread.sleep(waitTimeSec * 1000L);
+                        Thread.sleep(waitTimeSec * MILLIS_IN_SECOND);
                         waitTimeSec *= 2;
                     }
                 }
@@ -251,7 +262,7 @@ public class BingAerialTileSource extends AbstractTileSource
         };
     }
 
-    protected List<Attribution> getAttribution() 
+    private List<Attribution> getAttribution() 
     {
         if (attributions == null) 
         {
@@ -266,7 +277,7 @@ public class BingAerialTileSource extends AbstractTileSource
         }
         try 
         {
-            return attributions.get(1000, TimeUnit.MILLISECONDS);
+            return attributions.get(MILLIS_IN_SECOND, TimeUnit.MILLISECONDS);
         }
         catch (TimeoutException ex) 
         {
@@ -283,10 +294,10 @@ public class BingAerialTileSource extends AbstractTileSource
     }
 
     @Override
-    public String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight)
+    public String getAttributionText(int pZoom, Coordinate pTopLeft, Coordinate pBottomRight)
     {
-        try
-        {
+//        try
+//        {
             final List<Attribution> data = getAttribution();
             if (data == null)
             {
@@ -295,10 +306,10 @@ public class BingAerialTileSource extends AbstractTileSource
             StringBuilder a = new StringBuilder();
             for (Attribution attr : data) 
             {
-                if (zoom <= attr.maxZoom && zoom >= attr.minZoom)
+                if (pZoom <= attr.maxZoom && pZoom >= attr.minZoom)
                 {
-                    if (topLeft.getLon() < attr.max.getLon() && botRight.getLon() > attr.min.getLon()
-                            && topLeft.getLat() > attr.min.getLat() && botRight.getLat() < attr.max.getLat())
+                    if (pTopLeft.getLon() < attr.max.getLon() && pBottomRight.getLon() > attr.min.getLon() &&
+                    		pTopLeft.getLat() > attr.min.getLat() && pBottomRight.getLat() < attr.max.getLat())
                     {
                         a.append(attr.attribution);
                         a.append(" ");
@@ -306,26 +317,27 @@ public class BingAerialTileSource extends AbstractTileSource
                 }
             }
             return a.toString();
-        } 
-        catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-        return "Error loading Bing attribution data";
+//        } 
+//        catch(Exception e) 
+//        {
+//            e.printStackTrace();
+//        }
+//        return "Error loading Bing attribution data";
     }
 
-    static String computeQuadTree(int zoom, int tilex, int tiley) 
+    // CSOFF:
+    private static String computeQuadTree(int pZoom, int pTileX, int pTileY) 
     {
         StringBuilder k = new StringBuilder();
-        for (int i = zoom; i > 0; i--)
+        for (int i = pZoom; i > 0; i--)
         {
             char digit = 48;
             int mask = 1 << (i - 1);
-            if ((tilex & mask) != 0) 
+            if ((pTileX & mask) != 0) 
             {
                 digit += 1;
             }
-            if ((tiley & mask) != 0) 
+            if ((pTileY & mask) != 0) 
             {
                 digit += 2;
             }
@@ -333,4 +345,5 @@ public class BingAerialTileSource extends AbstractTileSource
         }
         return k.toString();
     }
+    // CSON:
 }

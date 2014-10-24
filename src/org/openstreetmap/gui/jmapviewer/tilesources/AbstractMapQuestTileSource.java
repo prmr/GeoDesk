@@ -7,8 +7,14 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;
 
-public class AbstractMapQuestTileSource extends AbstractOsmTileSource {
-
+/**
+ * Default values for MapQuest tile sources.
+ */
+public class AbstractMapQuestTileSource extends AbstractOsmTileSource 
+{
+	protected static final String MAPQUEST_ATTRIBUTION = "Tiles Courtesy of MapQuest ";
+    protected static final String MAPQUEST_WEBSITE = "http://www.mapquest.com";
+	
     // MapQuest logo in base64: http://developer.mapquest.com/content/osm/mq_logo.png
     private static final String LOGO_BASE64 = 
             "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJl"+
@@ -21,50 +27,58 @@ public class AbstractMapQuestTileSource extends AbstractOsmTileSource {
             "MKq4GP79/w1OHCC/v/x6Exzv+x9MhbiOEeh3LAZQnBeYGCgEjJRmZ4AAAwCE6rplT3Ba/gAAAABJRU5ErkJg"+
             "gg==";
 
-    protected static final String MAPQUEST_ATTRIBUTION = "Tiles Courtesy of MapQuest ";
-
-    protected static final String MAPQUEST_WEBSITE = "http://www.mapquest.com";
-
     private static final int NUMBER_OF_SERVERS = 4;
     
-    private int SERVER_NUM = 1;
+    private int aServerNumber = 1;
 
-    public AbstractMapQuestTileSource(String name, String base_url) {
-        super(name, base_url);
+    /**
+     * Constructs the abstract class.
+     * @param pName The name of the tile source.
+     * @param pBaseUrl The base URL for the tile source.
+     */
+    protected AbstractMapQuestTileSource(String pName, String pBaseUrl)
+    {
+        super(pName, pBaseUrl);
     }
 
     @Override
-    public String getBaseUrl() {
-        String url = String.format(this.aBaseUrl, SERVER_NUM);
-        SERVER_NUM = (SERVER_NUM % NUMBER_OF_SERVERS) + 1;
+    public String getBaseUrl()
+    {
+        String url = String.format(this.aBaseUrl, aServerNumber);
+        aServerNumber = (aServerNumber % NUMBER_OF_SERVERS) + 1;
         return url;
     }
 
-    //@Override
-    public TileUpdate getTileUpdate() {
+    @Override
+    public TileUpdate getTileUpdate()
+    {
         return TileUpdate.IfModifiedSince;
     }
 
     @Override
-    public Image getAttributionImage() {
-        try {
+    public Image getAttributionImage() 
+    {
+        try 
+        {
             return ImageIO.read(new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(LOGO_BASE64)));
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             return null;
         }
     }
 
     @Override
-    public String getAttributionImageURL() {
+    public String getAttributionImageURL() 
+    {
         return MAPQUEST_WEBSITE;
     }
 
-    /* (non-Javadoc)
-     * @see org.openstreetmap.gui.jmapviewer.tilesources.AbstractOsmTileSource#getTermsOfUseURL()
-     */
+
     @Override
-    public String getTermsOfUseURL() {
+    public String getTermsOfUseURL() 
+    {
         return "http://developer.mapquest.com/web/products/open/map#terms";
     }
 }
