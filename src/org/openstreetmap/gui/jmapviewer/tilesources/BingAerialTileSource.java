@@ -34,7 +34,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class BingAerialTileSource extends AbstractTileSource {
+public class BingAerialTileSource extends AbstractTileSource 
+{
     private static String API_KEY = "Arzdiw4nlOJzRwOz__qailc8NiR31Tt51dN2D7cm57NrnceZnCpgOkmJhNpGoppU";
     private static volatile Future<List<Attribution>> attributions; // volatile is required for getAttribution(), see below.
     private static String imageUrlTemplate;
@@ -45,11 +46,13 @@ public class BingAerialTileSource extends AbstractTileSource {
     private static final Pattern quadkeyPattern = Pattern.compile("\\{quadkey\\}");
     private static final Pattern culturePattern = Pattern.compile("\\{culture\\}");
 
-    public BingAerialTileSource() {
+    public BingAerialTileSource()
+    {
         super("Bing Aerial Maps", "http://example.com/");
     }
 
-    protected class Attribution {
+    protected class Attribution 
+    {
         String attribution;
         int minZoom;
         int maxZoom;
@@ -58,7 +61,8 @@ public class BingAerialTileSource extends AbstractTileSource {
     }
 
     @Override
-    public String getTileUrl(int zoom, int tilex, int tiley) throws IOException {
+    public String getTileUrl(int zoom, int tilex, int tiley) throws IOException 
+    {
         // make sure that attribution is loaded. otherwise subdomains is null.
         getAttribution();
 
@@ -72,13 +76,16 @@ public class BingAerialTileSource extends AbstractTileSource {
         return url;
     }
 
-    protected URL getAttributionUrl() throws MalformedURLException {
+    protected URL getAttributionUrl() throws MalformedURLException 
+    {
         return new URL("http://dev.virtualearth.net/REST/v1/Imagery/Metadata/Aerial?include=ImageryProviders&output=xml&key="
                 + API_KEY);
     }
 
-    protected List<Attribution> parseAttributionText(InputSource xml) throws IOException {
-        try {
+    protected List<Attribution> parseAttributionText(InputSource xml) throws IOException 
+    {
+        try 
+        {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(xml);
@@ -106,13 +113,15 @@ public class BingAerialTileSource extends AbstractTileSource {
 
             NodeList imageryProviderNodes = (NodeList) xpath.compile("//ImageryMetadata/ImageryProvider").evaluate(document, XPathConstants.NODESET);
             List<Attribution> attributions = new ArrayList<Attribution>(imageryProviderNodes.getLength());
-            for (int i = 0; i < imageryProviderNodes.getLength(); i++) {
+            for (int i = 0; i < imageryProviderNodes.getLength(); i++) 
+            {
                 Node providerNode = imageryProviderNodes.item(i);
 
                 String attribution = attributionXpath.evaluate(providerNode);
 
                 NodeList coverageAreaNodes = (NodeList) coverageAreaXpath.evaluate(providerNode, XPathConstants.NODESET);
-                for(int j = 0; j < coverageAreaNodes.getLength(); j++) {
+                for(int j = 0; j < coverageAreaNodes.getLength(); j++) 
+                {
                     Node areaNode = coverageAreaNodes.item(j);
                     Attribution attr = new Attribution();
                     attr.attribution = attribution;
@@ -132,37 +141,51 @@ public class BingAerialTileSource extends AbstractTileSource {
             }
 
             return attributions;
-        } catch (SAXException e) {
+        } 
+        catch (SAXException e) 
+        {
             System.err.println("Could not parse Bing aerials attribution metadata.");
             e.printStackTrace();
-        } catch (ParserConfigurationException e) {
+        }
+        catch (ParserConfigurationException e) 
+        {
             e.printStackTrace();
-        } catch (XPathExpressionException e) {
+        } 
+        catch (XPathExpressionException e) 
+        {
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public int getMaxZoom() {
+    public int getMaxZoom()
+    {
         if(imageryZoomMax != null)
+        {
             return imageryZoomMax;
+        }
         else
+        {
             return 22;
+        }
     }
 
-    //@Override
-    public TileUpdate getTileUpdate() {
+    @Override
+    public TileUpdate getTileUpdate()
+    {
         return TileUpdate.IfNoneMatch;
     }
 
     @Override
-    public boolean requiresAttribution() {
+    public boolean requiresAttribution() 
+    {
         return true;
     }
 
     @Override
-    public String getAttributionLinkURL() {
+    public String getAttributionLinkURL() 
+    {
         //return "http://bing.com/maps"
         // FIXME: I've set attributionLinkURL temporarily to ToU URL to comply with bing ToU
         // (the requirement is that we have such a link at the bottom of the window)
@@ -170,42 +193,55 @@ public class BingAerialTileSource extends AbstractTileSource {
     }
 
     @Override
-    public Image getAttributionImage() {
-        try {
+    public Image getAttributionImage() 
+    {
+        try 
+        {
             return ImageIO.read(getClass().getResourceAsStream("/org/openstreetmap/gui/jmapviewer/images/bing_maps.png"));
-        } catch (IOException e) {
+        } 
+        catch (IOException e) 
+        {
             return null;
         }
     }
 
     @Override
-    public String getAttributionImageURL() {
+    public String getAttributionImageURL()
+    {
         return "http://opengeodata.org/microsoft-imagery-details";
     }
 
     @Override
-    public String getTermsOfUseText() {
+    public String getTermsOfUseText() 
+    {
         return null;
     }
 
     @Override
-    public String getTermsOfUseURL() {
+    public String getTermsOfUseURL()
+    {
         return "http://opengeodata.org/microsoft-imagery-details";
     }
 
-    protected Callable<List<Attribution>> getAttributionLoaderCallable() {
+    protected Callable<List<Attribution>> getAttributionLoaderCallable() 
+    {
         return new Callable<List<Attribution>>() {
 
             //@Override
-            public List<Attribution> call() throws Exception {
+            public List<Attribution> call() throws Exception 
+            {
                 int waitTimeSec = 1;
-                while (true) {
-                    try {
+                while (true) 
+                {
+                    try 
+                    {
                         InputSource xml = new InputSource(getAttributionUrl().openStream());
                         List<Attribution> r = parseAttributionText(xml);
                         System.out.println("Successfully loaded Bing attribution data.");
                         return r;
-                    } catch (IOException ex) {
+                    } 
+                    catch (IOException ex) 
+                    {
                         System.err.println("Could not connect to Bing API. Will retry in " + waitTimeSec + " seconds.");
                         Thread.sleep(waitTimeSec * 1000L);
                         waitTimeSec *= 2;
@@ -215,59 +251,82 @@ public class BingAerialTileSource extends AbstractTileSource {
         };
     }
 
-    protected List<Attribution> getAttribution() {
-        if (attributions == null) {
+    protected List<Attribution> getAttribution() 
+    {
+        if (attributions == null) 
+        {
             // see http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
-            synchronized (BingAerialTileSource.class) {
-                if (attributions == null) {
+            synchronized (BingAerialTileSource.class) 
+            {
+                if (attributions == null) 
+                {
                     attributions = Executors.newSingleThreadExecutor().submit(getAttributionLoaderCallable());
                 }
             }
         }
-        try {
+        try 
+        {
             return attributions.get(1000, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException ex) {
+        }
+        catch (TimeoutException ex) 
+        {
             System.err.println("Bing: attribution data is not yet loaded.");
-        } catch (ExecutionException ex) {
+        }
+        catch (ExecutionException ex)
+        {
             throw new RuntimeException(ex.getCause());
-        } catch (InterruptedException ign) {
+        }
+        catch (InterruptedException ign) 
+        {
         }
         return null;
     }
 
     @Override
-    public String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight) {
-        try {
+    public String getAttributionText(int zoom, Coordinate topLeft, Coordinate botRight)
+    {
+        try
+        {
             final List<Attribution> data = getAttribution();
-            if (data == null) {
+            if (data == null)
+            {
                 return "Error loading Bing attribution data";
             }
             StringBuilder a = new StringBuilder();
-            for (Attribution attr : data) {
-                if (zoom <= attr.maxZoom && zoom >= attr.minZoom) {
+            for (Attribution attr : data) 
+            {
+                if (zoom <= attr.maxZoom && zoom >= attr.minZoom)
+                {
                     if (topLeft.getLon() < attr.max.getLon() && botRight.getLon() > attr.min.getLon()
-                            && topLeft.getLat() > attr.min.getLat() && botRight.getLat() < attr.max.getLat()) {
+                            && topLeft.getLat() > attr.min.getLat() && botRight.getLat() < attr.max.getLat())
+                    {
                         a.append(attr.attribution);
                         a.append(" ");
                     }
                 }
             }
             return a.toString();
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             e.printStackTrace();
         }
         return "Error loading Bing attribution data";
     }
 
-    static String computeQuadTree(int zoom, int tilex, int tiley) {
+    static String computeQuadTree(int zoom, int tilex, int tiley) 
+    {
         StringBuilder k = new StringBuilder();
-        for (int i = zoom; i > 0; i--) {
+        for (int i = zoom; i > 0; i--)
+        {
             char digit = 48;
             int mask = 1 << (i - 1);
-            if ((tilex & mask) != 0) {
+            if ((tilex & mask) != 0) 
+            {
                 digit += 1;
             }
-            if ((tiley & mask) != 0) {
+            if ((tiley & mask) != 0) 
+            {
                 digit += 2;
             }
             k.append(digit);
