@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.jmapviewer;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
+import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 
 /**

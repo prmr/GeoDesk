@@ -1,8 +1,7 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
 //License: GPL. Copyright 2012 by Dirk Stöcker
 
-import org.openstreetmap.gui.jmapviewer.Tile;
 
 /**
  * Interface for implementing a tile loading job. Tiles are usually loaded via HTTP

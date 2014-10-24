@@ -30,9 +30,12 @@ import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapPolygon;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapRectangle;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
+import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
+import org.openstreetmap.gui.jmapviewer.tiles.Tile;
+import org.openstreetmap.gui.jmapviewer.tiles.TileCache;
+import org.openstreetmap.gui.jmapviewer.tiles.TileController;
+import org.openstreetmap.gui.jmapviewer.tiles.TileLoader;
+import org.openstreetmap.gui.jmapviewer.tiles.TileLoaderListener;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 

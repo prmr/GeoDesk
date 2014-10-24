@@ -1,11 +1,10 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
-import org.openstreetmap.gui.jmapviewer.Tile;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
-public interface TileLoaderListener {
-
+public interface TileLoaderListener 
+{
     /**
      * Will be called if a new {@link Tile} has been loaded successfully.
      * Loaded can mean downloaded or loaded from file cache.

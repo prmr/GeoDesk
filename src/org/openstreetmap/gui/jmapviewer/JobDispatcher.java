@@ -6,7 +6,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.TileJob;
+import org.openstreetmap.gui.jmapviewer.tiles.TileJob;
 
 /**
  * A generic class that processes a list of {@link Runnable} one-by-one using

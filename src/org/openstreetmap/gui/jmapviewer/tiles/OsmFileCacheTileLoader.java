@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.jmapviewer;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
@@ -26,9 +26,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openstreetmap.gui.jmapviewer.interfaces.TileJob;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
+import org.openstreetmap.gui.jmapviewer.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource.TileUpdate;
 
@@ -223,7 +221,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                 if ("no-tile".equals(tile.getValue("tile-info")))
                 {
                     tile.setError("No tile at this zoom level");
-                    listener.tileLoadingFinished(tile, true);
+                    aListener.tileLoadingFinished(tile, true);
                 } else {
                     for(int i = 0; i < 5; ++i) {
                         if (urlConn instanceof HttpURLConnection && ((HttpURLConnection)urlConn).getResponseCode() == 503) {
@@ -234,7 +232,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                         if (buffer != null) {
                             tile.loadImage(new ByteArrayInputStream(buffer));
                             tile.setLoaded(true);
-                            listener.tileLoadingFinished(tile, true);
+                            aListener.tileLoadingFinished(tile, true);
                             saveTileToFile(buffer);
                             break;
                         }
@@ -242,7 +240,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                 }
             } catch (Exception e) {
                 tile.setError(e.getMessage());
-                listener.tileLoadingFinished(tile, false);
+                aListener.tileLoadingFinished(tile, false);
                 if (input == null) {
                     try {
                         System.err.println("Failed loading " + tile.getUrl() +": " + e.getMessage());
@@ -282,11 +280,11 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                 boolean oldTile = System.currentTimeMillis() - fileAge > maxCacheFileAge;
                 if (!oldTile) {
                     tile.setLoaded(true);
-                    listener.tileLoadingFinished(tile, true);
+                    aListener.tileLoadingFinished(tile, true);
                     fileTilePainted = true;
                     return true;
                 }
-                listener.tileLoadingFinished(tile, true);
+                aListener.tileLoadingFinished(tile, true);
                 fileTilePainted = true;
             } catch (Exception e) {
                 try {

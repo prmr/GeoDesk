@@ -1,9 +1,7 @@
-package org.openstreetmap.gui.jmapviewer;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
+import org.openstreetmap.gui.jmapviewer.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.JobDispatcher.JobThread;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileCache;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoader;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileLoaderListener;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 

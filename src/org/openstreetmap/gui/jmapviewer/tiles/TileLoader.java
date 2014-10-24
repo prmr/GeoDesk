@@ -1,8 +1,7 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer.tiles;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
-import org.openstreetmap.gui.jmapviewer.Tile;
 
 /**
  * Interface for implementing a tile loader. Tiles are usually loaded via HTTP
@@ -10,15 +9,15 @@ import org.openstreetmap.gui.jmapviewer.Tile;
  *
  * @author Jan Peter Stotz
  */
-public interface TileLoader {
-
+public interface TileLoader 
+{
     /**
      * A typical implementation of this function should create and return a
      * new {@link TileJob} instance that performs the load action.
      *
-     * @param tile the tile to be loaded
+     * @param pTile the tile to be loaded
      * @return {@link TileJob} implementation that performs the desired load
      *          action.
      */
-    public TileJob createTileLoaderJob(Tile tile);
+    TileJob createTileLoaderJob(Tile pTile);
 }
