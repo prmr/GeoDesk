@@ -2,9 +2,6 @@ package org.openstreetmap.gui.jmapviewer.tilesources;
 
 //License: GPL.
 
-import java.awt.Image;
-
-import org.openstreetmap.gui.jmapviewer.Coordinate;
 
 public class TMSTileSource extends AbstractTMSTileSource {
 

@@ -5,7 +5,6 @@ package org.openstreetmap.gui.jmapviewer;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Rectangle;
 
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 

@@ -4,12 +4,8 @@
 package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.awt.Image;
-import java.io.IOException;
-
-import javax.swing.ImageIcon;
 
 import org.openstreetmap.gui.jmapviewer.Coordinate;
-import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 
 public abstract class AbstractOsmTileSource extends AbstractTMSTileSource {
     public AbstractOsmTileSource(String name, String base_url) {
