@@ -17,19 +17,25 @@ import java.util.HashMap;
 
 import org.openstreetmap.gui.jmapviewer.tilesources.Attributed;
 
-public class AttributionSupport {
-
-    private Attributed source;
-
-    private Image attrImage;
-    private String attrTermsText;
-    private String attrTermsUrl;
-    public static final Font ATTR_FONT = new Font("Arial", Font.PLAIN, 10);
-    public static final Font ATTR_LINK_FONT;
+/**
+ * Services for handling attribution of the map data.
+ */
+public class AttributionSupport 
+{
+	private static final Font ATTR_FONT = new Font("Arial", Font.PLAIN, 10);
+	
+    private Attributed aSource;
+    private Image aAttributionImage;
+    private String aAttributionTermsText;
+    private String aAttributionTermsUrl;
     
-    protected Rectangle attrTextBounds = null;
-    protected Rectangle attrToUBounds = null;
-    protected Rectangle attrImageBounds = null;
+    // CSOFF:
+    private static final Font ATTR_LINK_FONT;
+    // CSON:
+    
+    private Rectangle aAttributionTextBounds = null;
+    private Rectangle aAttributionTermsBounds = null;
+    private Rectangle aAttributionImageBounds = null;
 
     static {
         HashMap<TextAttribute, Integer> aUnderline = new HashMap<TextAttribute, Integer>();
@@ -37,101 +43,149 @@ public class AttributionSupport {
         ATTR_LINK_FONT = ATTR_FONT.deriveFont(aUnderline);
     }
 
-    public void initialize(Attributed source) {
-        this.source = source;
-        boolean requireAttr = source.requiresAttribution();
-        if (requireAttr) {
-            attrImage = source.getAttributionImage();
-            attrTermsText = source.getTermsOfUseText();
-            attrTermsUrl = source.getTermsOfUseURL();
-            if (attrTermsUrl != null && attrTermsText == null) {
-                attrTermsText = tr("Background Terms of Use");
+    /**
+     * Initialize the support for attributing the source pTileSource.
+     * @param pTileSource The map data source to provide attribution for.
+     */
+    public void initialize(Attributed pTileSource) 
+    {
+        aSource = pTileSource;
+        if(pTileSource.requiresAttribution()) 
+        {
+            aAttributionImage = pTileSource.getAttributionImage();
+            aAttributionTermsText = pTileSource.getTermsOfUseText();
+            aAttributionTermsUrl = pTileSource.getTermsOfUseURL();
+            if(aAttributionTermsUrl != null && aAttributionTermsText == null) 
+            {
+                aAttributionTermsText = tr("Background Terms of Use");
             }
-        } else {
-            attrImage = null;
-            attrTermsUrl = null;
+        } 
+        else
+        {
+            aAttributionImage = null;
+            aAttributionTermsUrl = null;
         }
     }
 
-    public void paintAttribution(Graphics g, int width, int height, Coordinate topLeft, Coordinate bottomRight, int zoom, ImageObserver observer) {
-        if (source == null || !source.requiresAttribution())
+    /**
+     * Paint the attribution decorations.
+     * @param pGraphics The graphics context.
+     * @param pWidth The width of the paint area
+     * @param pHeight The height of the paint area
+     * @param pTopLeft The top left coordinate
+     * @param pBottomRight The bottom right coordinate
+     * @param pZoomLevel The zoom level
+     * @param pObserver The image observer
+     */
+    public void paintAttribution(Graphics pGraphics, int pWidth, int pHeight, 
+    		Coordinate pTopLeft, Coordinate pBottomRight, int pZoomLevel, ImageObserver pObserver) 
+    {
+        if (aSource == null || !aSource.requiresAttribution())
+        {
             return;
-        // Draw attribution
-        Font font = g.getFont();
-        g.setFont(ATTR_LINK_FONT);
+        }
+        
+        Font font = pGraphics.getFont();
+        pGraphics.setFont(ATTR_LINK_FONT);
 
         // Draw terms of use text
         int termsTextHeight = 0;
-        int termsTextY = height;
+        int termsTextY = pHeight;
 
-        if (attrTermsText != null) {
-            Rectangle2D termsStringBounds = g.getFontMetrics().getStringBounds(attrTermsText, g);
+        // CSOFF:
+        if(aAttributionTermsText != null) 
+        {
+            Rectangle2D termsStringBounds = pGraphics.getFontMetrics().getStringBounds(aAttributionTermsText, pGraphics);
             int textRealHeight = (int) termsStringBounds.getHeight();
             termsTextHeight = textRealHeight - 5;
             int termsTextWidth = (int) termsStringBounds.getWidth();
-            termsTextY = height - termsTextHeight;
+            termsTextY = pHeight - termsTextHeight;
             int x = 2;
-            int y = height - termsTextHeight;
-            attrToUBounds = new Rectangle(x, y-termsTextHeight, termsTextWidth, textRealHeight);
-            g.setColor(Color.black);
-            g.drawString(attrTermsText, x + 1, y + 1);
-            g.setColor(Color.white);
-            g.drawString(attrTermsText, x, y);
+            int y = pHeight - termsTextHeight;
+            aAttributionTermsBounds = new Rectangle(x, y-termsTextHeight, termsTextWidth, textRealHeight);
+            pGraphics.setColor(Color.black);
+            pGraphics.drawString(aAttributionTermsText, x + 1, y + 1);
+            pGraphics.setColor(Color.white);
+            pGraphics.drawString(aAttributionTermsText, x, y);
         }
 
         // Draw attribution logo
-        if (attrImage != null) {
+        if (aAttributionImage != null) 
+        {
             int x = 2;
-            int imgWidth = attrImage.getWidth(observer);
-            int imgHeight = attrImage.getHeight(observer);
+            int imgWidth = aAttributionImage.getWidth(pObserver);
+            int imgHeight = aAttributionImage.getHeight(pObserver);
             int y = termsTextY - imgHeight - termsTextHeight - 5;
-            attrImageBounds = new Rectangle(x, y, imgWidth, imgHeight);
-            g.drawImage(attrImage, x, y, null);
+            aAttributionImageBounds = new Rectangle(x, y, imgWidth, imgHeight);
+            pGraphics.drawImage(aAttributionImage, x, y, null);
         }
 
-        g.setFont(ATTR_FONT);
-        String attributionText = source.getAttributionText(zoom, topLeft, bottomRight);
-        if (attributionText != null) {
-            Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(attributionText, g);
+        pGraphics.setFont(ATTR_FONT);
+        String attributionText = aSource.getAttributionText(pZoomLevel, pTopLeft, pBottomRight);
+        if (attributionText != null) 
+        {
+            Rectangle2D stringBounds = pGraphics.getFontMetrics().getStringBounds(attributionText, pGraphics);
             int textHeight = (int) stringBounds.getHeight() - 5;
-            int x = width - (int) stringBounds.getWidth();
-            int y = height - textHeight;
-            g.setColor(Color.black);
-            g.drawString(attributionText, x + 1, y + 1);
-            g.setColor(Color.white);
-            g.drawString(attributionText, x, y);
-            attrTextBounds = new Rectangle(x, y-textHeight, (int) stringBounds.getWidth(), (int) stringBounds.getHeight());
+            int x = pWidth - (int) stringBounds.getWidth();
+            int y = pHeight - textHeight;
+            pGraphics.setColor(Color.black);
+            pGraphics.drawString(attributionText, x + 1, y + 1);
+            pGraphics.setColor(Color.white);
+            pGraphics.drawString(attributionText, x, y);
+            aAttributionTextBounds = new Rectangle(x, y-textHeight, (int) stringBounds.getWidth(), (int) stringBounds.getHeight());
         }
 
-        g.setFont(font);
+        pGraphics.setFont(font);
+        // CSON:
     }
 
-    public boolean handleAttribution(Point p, boolean click) {
-        if (source == null || !source.requiresAttribution())
+    /**
+     * Make it possible to click the attribution decorations
+     * and view the terms of use.
+     * @param pPoint The point clicked?
+     * @param pClicked Whether the point was clicked?
+     * @return True if the attribution was opened
+     */
+    public boolean handleAttribution(Point pPoint, boolean pClicked) 
+    {
+        if (aSource == null || !aSource.requiresAttribution())
+        {
             return false;
+        }
 
         /* TODO: Somehow indicate the link is clickable state to user */
 
-        if (attrTextBounds != null && attrTextBounds.contains(p)) {
-            String attributionURL = source.getAttributionLinkURL();
-            if (attributionURL != null) {
-                if (click) {
+        if(aAttributionTextBounds != null && aAttributionTextBounds.contains(pPoint))
+        {
+            String attributionURL = aSource.getAttributionLinkURL();
+            if(attributionURL != null) 
+            {
+                if (pClicked) 
+                {
                     FeatureAdapter.openLink(attributionURL);
                 }
                 return true;
             }
-        } else if (attrImageBounds != null && attrImageBounds.contains(p)) {
-            String attributionImageURL = source.getAttributionImageURL();
-            if (attributionImageURL != null) {
-                if (click) {
-                    FeatureAdapter.openLink(source.getAttributionImageURL());
+        } 
+        else if( aAttributionImageBounds != null && aAttributionImageBounds.contains(pPoint))
+        {
+            String attributionImageURL = aSource.getAttributionImageURL();
+            if (attributionImageURL != null) 
+            {
+                if (pClicked) 
+                {
+                    FeatureAdapter.openLink(aSource.getAttributionImageURL());
                 }
                 return true;
             }
-        } else if (attrToUBounds != null && attrToUBounds.contains(p)) {
-            String termsOfUseURL = source.getTermsOfUseURL();
-            if (termsOfUseURL != null) {
-                if (click) {
+        } 
+        else if(aAttributionTermsBounds != null && aAttributionTermsBounds.contains(pPoint)) 
+        {
+            String termsOfUseURL = aSource.getTermsOfUseURL();
+            if (termsOfUseURL != null)
+            {
+                if (pClicked) 
+                {
                     FeatureAdapter.openLink(termsOfUseURL);
                 }
                 return true;
