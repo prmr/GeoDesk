@@ -28,7 +28,6 @@ import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent.COMMAND;
 import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapRectangle;
 import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.tiles.Tile;
 import org.openstreetmap.gui.jmapviewer.tiles.TileCache;
@@ -59,10 +58,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     private static final int LEGEND_OFFSET = 40; // How many pixels the legend is off the bottom left corner
 
     private List<MapMarker> aMapMarkerList;
-    private List<MapRectangle> aMapRectangleList;
 
     private boolean aMapMarkersVisible;
-    private boolean aMapRectanglesVisible;
     private boolean aMapLegendVisible;
     private boolean aTileGridVisible;
     private TileController aTileController;
@@ -103,9 +100,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         aTileSource = new MapnikOsmTileSource();
         aTileController = new TileController(aTileSource, pTileCache, this);
         aMapMarkerList = new LinkedList<MapMarker>();
-        aMapRectangleList = new LinkedList<MapRectangle>();
         aMapMarkersVisible = true;
-        aMapRectanglesVisible = true;
         aMapLegendVisible = true;
         aTileGridVisible = false;
         setLayout(null);
@@ -263,8 +258,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         int nbElemToCheck = 0;
         if (markers && aMapMarkerList != null)
             nbElemToCheck += aMapMarkerList.size();
-        if (rectangles && aMapRectangleList != null)
-            nbElemToCheck += aMapRectangleList.size();
         if (nbElemToCheck == 0)
             return;
 
@@ -282,15 +275,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
                 y_max = Math.max(y_max, y);
                 x_min = Math.min(x_min, x);
                 y_min = Math.min(y_min, y);
-            }
-        }
-
-        if (rectangles) {
-            for (MapRectangle rectangle : aMapRectangleList) {
-                x_max = Math.max(x_max, OsmMercator.LonToX(rectangle.getBottomRight().getLon(), mapZoomMax));
-                y_max = Math.max(y_max, OsmMercator.LatToY(rectangle.getTopLeft().getLat(), mapZoomMax));
-                x_min = Math.min(x_min, OsmMercator.LonToX(rectangle.getTopLeft().getLon(), mapZoomMax));
-                y_min = Math.min(y_min, OsmMercator.LatToY(rectangle.getBottomRight().getLat(), mapZoomMax));
             }
         }
 
@@ -529,12 +513,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
 
         // g.drawString("Tiles in cache: " + tileCache.getTileCount(), 50, 20);
 
-        if (aMapRectanglesVisible && aMapRectangleList != null) {
-            for (MapRectangle rectangle : aMapRectangleList) {
-                paintRectangle(g, rectangle);
-            }
-        }
-
         if (aMapMarkersVisible && aMapMarkerList != null) {
             for (MapMarker marker : aMapMarkerList) {
                 paintMarker(g, marker);
@@ -584,21 +562,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         Point p = getMapPosition(marker.getLat(), marker.getLon());
         if (p != null) {
             marker.paint(g, p);
-        }
-    }
-
-    /**
-     * Paint a single rectangle.
-     */
-    protected void paintRectangle(Graphics g, MapRectangle rectangle) {
-        Coordinate topLeft = rectangle.getTopLeft();
-        Coordinate bottomRight = rectangle.getBottomRight();
-        if (topLeft != null && bottomRight != null) {
-            Point pTopLeft = getMapPosition(topLeft, false);
-            Point pBottomRight = getMapPosition(bottomRight, false);
-            if (pTopLeft != null && pBottomRight != null) {
-                rectangle.paint(g, pTopLeft, pBottomRight);
-            }
         }
     }
 
@@ -731,15 +694,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         return aMapMarkerList;
     }
 
-    public void setMapRectangleList(List<MapRectangle> mapRectangleList) {
-        this.aMapRectangleList = mapRectangleList;
-        repaint();
-    }
-
-    public List<MapRectangle> getMapRectangleList() {
-        return aMapRectangleList;
-    }
-
     public void addMapMarker(MapMarker marker) {
         aMapMarkerList.add(marker);
         repaint();
@@ -752,21 +706,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
 
     public void removeAllMapMarkers() {
         aMapMarkerList.clear();
-        repaint();
-    }
-
-    public void addMapRectangle(MapRectangle rectangle) {
-        aMapRectangleList.add(rectangle);
-        repaint();
-    }
-
-    public void removeMapRectangle(MapRectangle rectangle) {
-        aMapRectangleList.remove(rectangle);
-        repaint();
-    }
-
-    public void removeAllMapRectangles() {
-        aMapRectangleList.clear();
         repaint();
     }
 
@@ -802,21 +741,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         repaint();
     }
 
-    public boolean isMapRectanglesVisible() {
-        return aMapRectanglesVisible;
-    }
-
-    /**
-     * Enables or disables painting of the {@link MapRectangle}
-     *
-     * @param mapRectanglesVisible
-     * @see #addMapRectangle(MapRectangle)
-     * @see #getMapRectangleList()
-     */
-    public void setMapRectanglesVisible(boolean mapRectanglesVisible) {
-        this.aMapRectanglesVisible = mapRectanglesVisible;
-        repaint();
-    }
+    
+    
 
     /**
      * Enables or disables painting of the map legend.
