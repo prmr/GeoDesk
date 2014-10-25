@@ -153,7 +153,9 @@
     <module name="NestedTryDepth"/>
     <module name="SuperClone"/>
     <module name="SuperFinalize"/>
-    <module name="IllegalCatch"/>
+    <module name="IllegalCatch">
+      <property name="illegalClassNames" value="java.lang.Throwable, java.lang.RuntimeException"/>
+    </module>
     <module name="JUnitTestCase"/>
     <module name="ReturnCount">
       <property name="max" value="5"/>

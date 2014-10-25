@@ -18,6 +18,8 @@ import java.util.Map.Entry;
  */
 public class OsmTileLoader implements TileLoader
 {
+	private static final int READ_TIMEOUT = 30000;
+
 	protected TileLoaderListener aListener;
     
     // Holds the HTTP headers. Insert e.g. User-Agent here when default should not be used.
@@ -36,106 +38,140 @@ public class OsmTileLoader implements TileLoader
     }
 
     @Override
-    public TileJob createTileLoaderJob(final Tile pTile)
+    public TileJob createTileLoaderJob(Tile pTile)
     {
-        return new TileJob() {
-
-            private InputStream aInput = null;
-
-            public void run()
-            {
-                synchronized (pTile) 
-                {
-                    if ((pTile.isLoaded() && !pTile.isError()) || pTile.isLoading())
-                    {
-                        return;
-                    }
-                    pTile.setLoaded(false);
-                    pTile.setError(false);
-                    pTile.setLoading(true);
-                }
-                try
-                {
-                    URLConnection conn = loadTileFromOsm(pTile);
-                    loadTileMetadata(pTile, conn);
-                    if ("no-tile".equals(pTile.getValue("tile-info")))
-                    {
-                        pTile.setError();
-                    }
-                    else
-                    {
-                        aInput = conn.getInputStream();
-                        pTile.loadImage(aInput);
-                        aInput.close();
-                        aInput = null;
-                    }
-                    pTile.setLoaded(true);
-                    aListener.tileLoadingFinished(pTile, true);
-                }
-                catch(Exception e)
-                {
-                    pTile.setError();
-                    aListener.tileLoadingFinished(pTile, false);
-                    if (aInput == null)
-                    {
-                        try
-                        {
-                            System.err.println("Failed loading " + pTile.getUrl() +": " + e.getMessage());
-                        }
-                        catch(IOException i)
-                        {
-                        }
-                    }
-                }
-                finally
-                {
-                    pTile.setLoading(false);
-                    pTile.setLoaded(true);
-                }
-            }
-
-            public Tile getTile()
-            {
-                return pTile;
-            }
-        };
+    	return new TileLoaderJob(pTile);
     }
 
-    protected URLConnection loadTileFromOsm(Tile tile) throws IOException {
+    /**
+     * Load a tile from OSM.
+     * @param pTile The tile to load
+     * @return The URL connection 
+     * @throws IOException Something happened
+     */
+    protected URLConnection loadTileFromOsm(Tile pTile) throws IOException 
+    {
         URL url;
-        url = new URL(tile.getUrl());
+        url = new URL(pTile.getUrl());
         URLConnection urlConn = url.openConnection();
-        if (urlConn instanceof HttpURLConnection) {
+        if (urlConn instanceof HttpURLConnection) 
+        {
             prepareHttpUrlConnection((HttpURLConnection)urlConn);
         }
-        urlConn.setReadTimeout(30000); // 30 seconds read timeout
+        urlConn.setReadTimeout(READ_TIMEOUT); 
         return urlConn;
     }
 
-    protected void loadTileMetadata(Tile tile, URLConnection urlConn) {
-        String str = urlConn.getHeaderField("X-VE-TILEMETA-CaptureDatesRange");
-        if (str != null) {
-            tile.putValue("capture-date", str);
+    /**
+     * Load the metadata for the tile.
+     * @param pTile The tile
+     * @param pUrlConnection The URL connection
+     */
+    protected void loadTileMetadata(Tile pTile, URLConnection pUrlConnection) 
+    {
+        String str = pUrlConnection.getHeaderField("X-VE-TILEMETA-CaptureDatesRange");
+        if (str != null) 
+        {
+            pTile.putValue("capture-date", str);
         }
-        str = urlConn.getHeaderField("X-VE-Tile-Info");
-        if (str != null) {
-            tile.putValue("tile-info", str);
+        str = pUrlConnection.getHeaderField("X-VE-Tile-Info");
+        if (str != null) 
+        {
+            pTile.putValue("tile-info", str);
         }
     }
 
-    protected void prepareHttpUrlConnection(HttpURLConnection urlConn) {
-        for(Entry<String, String> e : aHeaders.entrySet()) {
-            urlConn.setRequestProperty(e.getKey(), e.getValue());
+    /**
+     * Prepare the Url Connection.
+     * @param pUrlConnection The url connection to prepare.
+     */
+    protected void prepareHttpUrlConnection(HttpURLConnection pUrlConnection) 
+    {
+        for(Entry<String, String> entry : aHeaders.entrySet())
+        {
+            pUrlConnection.setRequestProperty(entry.getKey(), entry.getValue());
         }
         if(aTimeoutConnect != 0)
-            urlConn.setConnectTimeout(aTimeoutConnect);
+        {
+            pUrlConnection.setConnectTimeout(aTimeoutConnect);
+        }
         if(aTimeoutRead != 0)
-            urlConn.setReadTimeout(aTimeoutRead);
+        {
+            pUrlConnection.setReadTimeout(aTimeoutRead);
+        }
     }
 
     @Override
     public String toString() 
     {
         return getClass().getSimpleName();
+    }
+    
+    private class TileLoaderJob implements TileJob
+    {
+    	private final Tile aTile;
+    	private InputStream aInput = null;
+    	
+    	public TileLoaderJob(Tile pTile)
+    	{
+    		aTile = pTile;
+    	}
+
+        public void run()
+        {
+            synchronized (aTile) 
+            {
+                if ((aTile.isLoaded() && !aTile.isError()) || aTile.isLoading())
+                {
+                    return;
+                }
+                aTile.setLoaded(false);
+                aTile.setError(false);
+                aTile.setLoading(true);
+            }
+            try
+            {
+                URLConnection conn = loadTileFromOsm(aTile);
+                loadTileMetadata(aTile, conn);
+                if ("no-tile".equals(aTile.getValue("tile-info")))
+                {
+                    aTile.setError();
+                }
+                else
+                {
+                    aInput = conn.getInputStream();
+                    aTile.loadImage(aInput);
+                    aInput.close();
+                    aInput = null;
+                }
+                aTile.setLoaded(true);
+                aListener.tileLoadingFinished(aTile, true);
+            }
+            catch(IOException e)
+            {
+                aTile.setError();
+                aListener.tileLoadingFinished(aTile, false);
+                if (aInput == null)
+                {
+                    try
+                    {
+                        System.err.println("Failed loading " + aTile.getUrl() +": " + e.getMessage());
+                    }
+                    catch(IOException i)
+                    {
+                    }
+                }
+            }
+            finally
+            {
+                aTile.setLoading(false);
+                aTile.setLoaded(true);
+            }
+        }
+
+        public Tile getTile()
+        {
+            return aTile;
+        }
     }
 }

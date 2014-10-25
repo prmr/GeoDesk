@@ -14,122 +14,95 @@ import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
  *
  * @author Jan Peter Stotz
  */
-public class MemoryTileCache implements TileCache {
+public class MemoryTileCache implements TileCache
+{
+    private static final int CACHE_SIZE = 200;
 
-    protected static final Logger log = Logger.getLogger(MemoryTileCache.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(MemoryTileCache.class.getName());
+    private Hashtable<String, CacheEntry> aEntries;
+
+    // List of all tiles in their last recently used order.
+    private CacheLinkedListElement aLastRecentlyUsedTiles;
 
     /**
-     * Default cache size
+     * Constructs a new in-memory cache.
      */
-    protected int cacheSize = 200;
-
-    protected Hashtable<String, CacheEntry> hashtable;
-
-    /**
-     * List of all tiles in their last recently used order
-     */
-    protected CacheLinkedListElement lruTiles;
-
-    public MemoryTileCache() {
-        hashtable = new Hashtable<String, CacheEntry>(cacheSize);
-        lruTiles = new CacheLinkedListElement();
+    public MemoryTileCache() 
+    {
+        aEntries = new Hashtable<String, CacheEntry>(CACHE_SIZE);
+        aLastRecentlyUsedTiles = new CacheLinkedListElement();
     }
 
-    public void addTile(Tile tile) {
-        CacheEntry entry = createCacheEntry(tile);
-        hashtable.put(tile.getKey(), entry);
-        lruTiles.addFirst(entry);
-        if (hashtable.size() > cacheSize)
+    @Override
+    public void addTile(Tile pTile) 
+    {
+        CacheEntry entry = new CacheEntry(pTile);
+        aEntries.put(pTile.getKey(), entry);
+        aLastRecentlyUsedTiles.addFirst(entry);
+        if(aEntries.size() > CACHE_SIZE)
+        {
             removeOldEntries();
+        }
     }
 
-    public Tile getTile(TileSource source, int x, int y, int z) {
-        CacheEntry entry = hashtable.get(Tile.getTileKey(source, x, y, z));
-        if (entry == null)
+    @Override
+    public Tile getTile(TileSource pTileSource, int pTileX, int pTileY, int pZoom) 
+    {
+        CacheEntry entry = aEntries.get(Tile.getTileKey(pTileSource, pTileX, pTileY, pZoom));
+        if(entry == null)
+        {
             return null;
+        }
         // We don't care about placeholder tiles and hourglass image tiles, the
         // important tiles are the loaded ones
-        if (entry.tile.isLoaded())
-            lruTiles.moveElementToFirstPos(entry);
-        return entry.tile;
+        if(entry.aTile.isLoaded())
+        {
+            aLastRecentlyUsedTiles.moveElementToFirstPos(entry);
+        }
+        return entry.aTile;
     }
 
     /**
-     * Removes the least recently used tiles
+     * Removes the least recently used tiles.
      */
-    protected void removeOldEntries() {
-        synchronized (lruTiles) {
-            try {
-                while (lruTiles.getElementCount() > cacheSize) {
-                    removeEntry(lruTiles.getLastElement());
+    protected void removeOldEntries() 
+    {
+        synchronized(aLastRecentlyUsedTiles) 
+        {
+            try 
+            {
+                while (aLastRecentlyUsedTiles.getElementCount() > CACHE_SIZE) 
+                {
+                    removeEntry(aLastRecentlyUsedTiles.getLastElement());
                 }
-            } catch (Exception e) {
-                log.warning(e.getMessage());
+            } 
+            catch(Exception e)
+            {
+                LOGGER.warning(e.getMessage());
             }
         }
     }
 
-    protected void removeEntry(CacheEntry entry) {
-        hashtable.remove(entry.tile.getKey());
-        lruTiles.removeEntry(entry);
-    }
-
-    protected CacheEntry createCacheEntry(Tile tile) {
-        return new CacheEntry(tile);
-    }
-
-    /**
-     * Clears the cache deleting all tiles from memory
-     */
-    public void clear() {
-        synchronized (lruTiles) {
-            hashtable.clear();
-            lruTiles.clear();
-        }
-    }
-
-    public int getCacheSize() {
-        return cacheSize;
-    }
-
-    /**
-     * Changes the maximum number of {@link Tile} objects that this cache holds.
-     *
-     * @param cacheSize
-     *            new maximum number of tiles
-     */
-    public void setCacheSize(int cacheSize) {
-        this.cacheSize = cacheSize;
-        if (hashtable.size() > cacheSize)
-            removeOldEntries();
+    private void removeEntry(CacheEntry pEntry) 
+    {
+        aEntries.remove(pEntry.aTile.getKey());
+        aLastRecentlyUsedTiles.removeEntry(pEntry);
     }
 
     /**
      * Linked list element holding the {@link Tile} and links to the
-     * {@link #next} and {@link #prev} item in the list.
+     * {@link #aNext} and {@link #aPrev} item in the list.
      */
-    protected static class CacheEntry {
-        Tile tile;
+    private static final class CacheEntry 
+    {
+        private Tile aTile;
+        private CacheEntry aNext;
+        private CacheEntry aPrev;
 
-        CacheEntry next;
-        CacheEntry prev;
-
-        protected CacheEntry(Tile tile) {
-            this.tile = tile;
+        private CacheEntry(Tile pTile) 
+        {
+            aTile = pTile;
         }
-
-        public Tile getTile() {
-            return tile;
-        }
-
-        public CacheEntry getNext() {
-            return next;
-        }
-
-        public CacheEntry getPrev() {
-            return prev;
-        }
-
     }
 
     /**
@@ -139,80 +112,94 @@ public class MemoryTileCache implements TileCache {
      *
      * @author Jan Peter Stotz
      */
-    protected static class CacheLinkedListElement {
-        protected CacheEntry firstElement = null;
-        protected CacheEntry lastElement;
-        protected int elementCount;
+    private static class CacheLinkedListElement 
+    {
+    	private CacheEntry aFirstElement = null;
+    	private CacheEntry aLastElement;
+    	private int aElementCount;
 
-        public CacheLinkedListElement() {
+        public CacheLinkedListElement() 
+        {
             clear();
         }
 
-        public synchronized void clear() {
-            elementCount = 0;
-            firstElement = null;
-            lastElement = null;
+        public synchronized void clear() 
+        {
+            aElementCount = 0;
+            aFirstElement = null;
+            aLastElement = null;
         }
 
         /**
          * Add the element to the head of the list.
          *
-         * @param element new element to be added
+         * @param pElement new element to be added
          */
-        public synchronized void addFirst(CacheEntry element) {
-            if (elementCount == 0) {
-                firstElement = element;
-                lastElement = element;
-                element.prev = null;
-                element.next = null;
-            } else {
-                element.next = firstElement;
-                firstElement.prev = element;
-                element.prev = null;
-                firstElement = element;
+        public synchronized void addFirst(CacheEntry pElement) 
+        {
+            if (aElementCount == 0) 
+            {
+                aFirstElement = pElement;
+                aLastElement = pElement;
+                pElement.aPrev = null;
+                pElement.aNext = null;
+            } 
+            else 
+            {
+                pElement.aNext = aFirstElement;
+                aFirstElement.aPrev = pElement;
+                pElement.aPrev = null;
+                aFirstElement = pElement;
             }
-            elementCount++;
+            aElementCount++;
         }
 
         /**
          * Removes the specified element from the list.
          *
-         * @param element element to be removed
+         * @param pElement element to be removed
          */
-        public synchronized void removeEntry(CacheEntry element) {
-            if (element.next != null) {
-                element.next.prev = element.prev;
+        public synchronized void removeEntry(CacheEntry pElement) 
+        {
+            if (pElement.aNext != null) 
+            {
+                pElement.aNext.aPrev = pElement.aPrev;
             }
-            if (element.prev != null) {
-                element.prev.next = element.next;
+            if (pElement.aPrev != null) 
+            {
+                pElement.aPrev.aNext = pElement.aNext;
             }
-            if (element == firstElement)
-                firstElement = element.next;
-            if (element == lastElement)
-                lastElement = element.prev;
-            element.next = null;
-            element.prev = null;
-            elementCount--;
+            if(pElement == aFirstElement)
+            {
+                aFirstElement = pElement.aNext;
+            }
+            if(pElement == aLastElement)
+            {
+                aLastElement = pElement.aPrev;
+            }
+            pElement.aNext = null;
+            pElement.aPrev = null;
+            aElementCount--;
         }
 
-        public synchronized void moveElementToFirstPos(CacheEntry entry) {
-            if (firstElement == entry)
+        public synchronized void moveElementToFirstPos(CacheEntry pEntry) 
+        {
+            if (aFirstElement == pEntry)
+            {
                 return;
-            removeEntry(entry);
-            addFirst(entry);
+            }
+            removeEntry(pEntry);
+            addFirst(pEntry);
         }
 
-        public int getElementCount() {
-            return elementCount;
+        public int getElementCount() 
+        {
+            return aElementCount;
         }
 
-        public CacheEntry getLastElement() {
-            return lastElement;
+        public CacheEntry getLastElement()
+        {
+            return aLastElement;
         }
-
-        public CacheEntry getFirstElement() {
-            return firstElement;
-        }
-
-    }
+     }
 }
