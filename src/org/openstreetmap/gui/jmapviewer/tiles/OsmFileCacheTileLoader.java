@@ -144,11 +144,11 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
 
         public void run() {
             synchronized (tile) {
-                if ((tile.isLoaded() && !tile.hasError()) || tile.isLoading())
+                if ((tile.isLoaded() && !tile.isError()) || tile.isLoading())
                     return;
-                tile.loaded = false;
-                tile.error = false;
-                tile.loading = true;
+                tile.setLoaded(false);
+                tile.setError(false);
+                tile.setLoading(true);
             }
             tileCacheDir = getSourceCacheDir(tile.getSource());
             if (loadTileFromFile()) {
@@ -220,7 +220,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
 
                 if ("no-tile".equals(tile.getValue("tile-info")))
                 {
-                    tile.setError("No tile at this zoom level");
+                    tile.setError();
                     aListener.tileLoadingFinished(tile, true);
                 } else {
                     for(int i = 0; i < 5; ++i) {
@@ -239,7 +239,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                     }
                 }
             } catch (Exception e) {
-                tile.setError(e.getMessage());
+                tile.setError();
                 aListener.tileLoadingFinished(tile, false);
                 if (input == null) {
                     try {
@@ -248,7 +248,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                     }
                 }
             } finally {
-                tile.loading = false;
+                tile.setLoading(false);
                 tile.setLoaded(true);
             }
         }
@@ -263,7 +263,7 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
                 loadTagsFromFile();
                 if ("no-tile".equals(tile.getValue("tile-info")))
                 {
-                    tile.setError("No tile at this zoom level");
+                    tile.setError();
                     if (tileFile.exists()) {
                         tileFile.delete();
                     }

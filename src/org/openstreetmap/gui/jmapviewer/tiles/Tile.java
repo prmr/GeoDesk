@@ -21,264 +21,317 @@ import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
  * painting it is also included in this class.
  *
  * @author Jan Peter Stotz
+ * @author Martin P. Robillard
  */
-public class Tile {
+public class Tile 
+{
+	private static final int MAX_ZOOM_DIFF = 5;
+	private static final BufferedImage ERROR_IMAGE = loadImage("images/error.png");
+	private static final BufferedImage LOADING_IMAGE = loadImage("images/hourglass.png");
 
-    /**
-     * Hourglass image that is displayed until a map tile has been loaded
-     */
-    public static BufferedImage LOADING_IMAGE;
-    public static BufferedImage ERROR_IMAGE;
-
-    static {
-        try {
-            LOADING_IMAGE = ImageIO.read(JMapViewer.class.getResourceAsStream("images/hourglass.png"));
-            ERROR_IMAGE = ImageIO.read(JMapViewer.class.getResourceAsStream("images/error.png"));
-        } catch (Exception e1) {
-            LOADING_IMAGE = null;
-            ERROR_IMAGE = null;
-        }
-    }
-
-    protected TileSource source;
-    protected int xtile;
-    protected int ytile;
-    protected int zoom;
-    protected BufferedImage image;
-    protected String key;
-    protected boolean loaded = false;
-    protected boolean loading = false;
-    protected boolean error = false;
-    protected String error_message;
-
-    /** TileLoader-specific tile metadata */
-    protected Map<String, String> metadata;
+    private TileSource aSource;
+    private int aXTile;
+    private int aYTile;
+    private int aZoom;
+    private BufferedImage aImage;
+    private String aKey;
+    private boolean aLoaded = false;
+    private boolean aLoading = false;
+    private boolean aError = false;
+    
+    // TileLoader-specific tile metadata
+    private Map<String, String> aMetaData;
 
     /**
      * Creates a tile with empty image.
      *
-     * @param source
-     * @param xtile
-     * @param ytile
-     * @param zoom
+     * @param pSource The tile source
+     * @param pXTile The x coordinate
+     * @param pYTile The y coordinate
+     * @param pZoom The zoom level
      */
-    public Tile(TileSource source, int xtile, int ytile, int zoom) {
-        super();
-        this.source = source;
-        this.xtile = xtile;
-        this.ytile = ytile;
-        this.zoom = zoom;
-        this.image = LOADING_IMAGE;
-        this.key = getTileKey(source, xtile, ytile, zoom);
+    public Tile(TileSource pSource, int pXTile, int pYTile, int pZoom) 
+    {
+        aSource = pSource;
+        aXTile = pXTile;
+        aYTile = pYTile;
+        aZoom = pZoom;
+        aImage = LOADING_IMAGE;
+        aKey = getTileKey(pSource, pXTile, pYTile, pZoom);
     }
 
-    public Tile(TileSource source, int xtile, int ytile, int zoom, BufferedImage image) {
-        this(source, xtile, ytile, zoom);
-        this.image = image;
+    /**
+     * Creates a tile with an image.
+     * @param pSource The tile source
+     * @param pXTile The x coordinate
+     * @param pYTile The y coordinate
+     * @param pZoom The zoom level
+     * @param pImage The actual image
+     */
+    public Tile(TileSource pSource, int pXTile, int pYTile, int pZoom, BufferedImage pImage) 
+    {
+        this(pSource, pXTile, pYTile, pZoom);
+        aImage = pImage;
+    }
+    
+    private static BufferedImage loadImage(String pRelativePath)
+    {
+    	try
+    	{
+    		return ImageIO.read(JMapViewer.class.getResourceAsStream(pRelativePath));
+    	}
+    	catch(IOException e)
+    	{
+    		return null;
+    	}
     }
 
     /**
      * Tries to get tiles of a lower or higher zoom level (one or two level
      * difference) from cache and use it as a placeholder until the tile has
      * been loaded.
+     * @param pCache The tile cache.
      */
-    public void loadPlaceholderFromCache(TileCache cache) {
-        BufferedImage tmpImage = new BufferedImage(source.getTileSize(), source.getTileSize(), BufferedImage.TYPE_INT_RGB);
+    public void loadPlaceholderFromCache(TileCache pCache) 
+    {
+        BufferedImage tmpImage = new BufferedImage(aSource.getTileSize(), aSource.getTileSize(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) tmpImage.getGraphics();
-        // g.drawImage(image, 0, 0, null);
-        for (int zoomDiff = 1; zoomDiff < 5; zoomDiff++) {
+        for(int zoomDiff = 1; zoomDiff < MAX_ZOOM_DIFF; zoomDiff++) 
+        {
             // first we check if there are already the 2^x tiles
             // of a higher detail level
-            int zoom_high = zoom + zoomDiff;
-            if (zoomDiff < 3 && zoom_high <= JMapViewer.MAX_ZOOM) {
+            int zoomHigh = aZoom + zoomDiff;
+            if (zoomDiff < 3 && zoomHigh <= JMapViewer.MAX_ZOOM) 
+            {
                 int factor = 1 << zoomDiff;
-                int xtile_high = xtile << zoomDiff;
-                int ytile_high = ytile << zoomDiff;
+                int xTileHigh = aXTile << zoomDiff;
+                int yTileHigh = aYTile << zoomDiff;
                 double scale = 1.0 / factor;
                 g.setTransform(AffineTransform.getScaleInstance(scale, scale));
                 int paintedTileCount = 0;
-                for (int x = 0; x < factor; x++) {
-                    for (int y = 0; y < factor; y++) {
-                        Tile tile = cache.getTile(source, xtile_high + x, ytile_high + y, zoom_high);
-                        if (tile != null && tile.isLoaded()) {
+                for(int x = 0; x < factor; x++) 
+                {
+                    for (int y = 0; y < factor; y++) 
+                    {
+                        Tile tile = pCache.getTile(aSource, xTileHigh + x, yTileHigh + y, zoomHigh);
+                        if (tile != null && tile.isLoaded()) 
+                        {
                             paintedTileCount++;
-                            tile.paint(g, x * source.getTileSize(), y * source.getTileSize());
+                            tile.paint(g, x * aSource.getTileSize(), y * aSource.getTileSize());
                         }
                     }
                 }
-                if (paintedTileCount == factor * factor) {
-                    image = tmpImage;
+                if (paintedTileCount == factor * factor) 
+                {
+                    aImage = tmpImage;
                     return;
                 }
             }
 
-            int zoom_low = zoom - zoomDiff;
-            if (zoom_low >= JMapViewer.MIN_ZOOM) {
-                int xtile_low = xtile >> zoomDiff;
-                int ytile_low = ytile >> zoomDiff;
-                int factor = (1 << zoomDiff);
+            int zoomLow = aZoom - zoomDiff;
+            if(zoomLow >= JMapViewer.MIN_ZOOM) 
+            {
+                int xTileLow = aXTile >> zoomDiff;
+                int yTileLow = aYTile >> zoomDiff;
+                int factor = 1 << zoomDiff;
                 double scale = factor;
                 AffineTransform at = new AffineTransform();
-                int translate_x = (xtile % factor) * source.getTileSize();
-                int translate_y = (ytile % factor) * source.getTileSize();
-                at.setTransform(scale, 0, 0, scale, -translate_x, -translate_y);
+                int translateX = (aXTile % factor) * aSource.getTileSize();
+                int translateY = (aYTile % factor) * aSource.getTileSize();
+                at.setTransform(scale, 0, 0, scale, -translateX, -translateY);
                 g.setTransform(at);
-                Tile tile = cache.getTile(source, xtile_low, ytile_low, zoom_low);
-                if (tile != null && tile.isLoaded()) {
+                Tile tile = pCache.getTile(aSource, xTileLow, yTileLow, zoomLow);
+                if (tile != null && tile.isLoaded()) 
+                {
                     tile.paint(g, 0, 0);
-                    image = tmpImage;
+                    aImage = tmpImage;
                     return;
                 }
             }
         }
     }
 
-    public TileSource getSource() {
-        return source;
+    /**
+     * @return The source for this tile.
+     */
+    public TileSource getSource() 
+    {
+        return aSource;
     }
 
     /**
      * @return tile number on the x axis of this tile
      */
-    public int getXtile() {
-        return xtile;
+    public int getXtile() 
+    {
+        return aXTile;
     }
 
     /**
      * @return tile number on the y axis of this tile
      */
-    public int getYtile() {
-        return ytile;
+    public int getYtile() 
+    {
+        return aYTile;
     }
 
     /**
      * @return zoom level of this tile
      */
-    public int getZoom() {
-        return zoom;
+    public int getZoom() 
+    {
+        return aZoom;
     }
 
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    public void setImage(BufferedImage image) {
-        this.image = image;
-    }
-
-    public void loadImage(InputStream input) throws IOException {
-        image = ImageIO.read(input);
+    /**
+     * Load the image for this tile from pInput.
+     * @param pInput The stream to load the image from.
+     * @throws IOException If we can't load the image.
+     */
+    public void loadImage(InputStream pInput) throws IOException
+    {
+        aImage = ImageIO.read(pInput);
     }
 
     /**
      * @return key that identifies a tile
      */
-    public String getKey() {
-        return key;
+    public String getKey() 
+    {
+        return aKey;
     }
 
-    public boolean isLoaded() {
-        return loaded;
+    /**
+     * @return True if the image is loaded.
+     */
+    public boolean isLoaded()
+    {
+        return aLoaded;
     }
 
-    public boolean isLoading() {
-        return loading;
+    /**
+     * @return True if the image is currently loading.
+     */
+    public boolean isLoading() 
+    {
+        return aLoading;
     }
 
-    public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
+    /**
+     * Set the loaded flag.
+     * @param pLoaded True if the image is loaded.
+     */
+    public void setLoaded(boolean pLoaded) 
+    {
+        aLoaded = pLoaded;
     }
 
-    public String getUrl() throws IOException {
-        return source.getTileUrl(zoom, xtile, ytile);
+    /**
+     * @return The url for this tile.
+     * @throws IOException If we can't obtain it.
+     */
+    public String getUrl() throws IOException 
+    {
+        return aSource.getTileUrl(aZoom, aXTile, aYTile);
     }
 
     /**
      * Paints the tile-image on the {@link Graphics} <code>g</code> at the
      * position <code>x</code>/<code>y</code>.
      *
-     * @param g
-     * @param x
-     *            x-coordinate in <code>g</code>
-     * @param y
-     *            y-coordinate in <code>g</code>
+     * @param pGraphics The graphics element.
+     * @param pX x-coordinate in <code>g</code>
+     * @param pY y-coordinate in <code>g</code>
      */
-    public void paint(Graphics g, int x, int y) {
-        if (image == null)
-            return;
-        g.drawImage(image, x, y, null);
+    public void paint(Graphics pGraphics, int pX, int pY) 
+    {
+        if(aImage != null)
+        {
+        	pGraphics.drawImage(aImage, pX, pY, null);
+        }
     }
 
     @Override
-    public String toString() {
-        return "Tile " + key;
+    public String toString()
+    {
+        return "Tile " + aKey;
     }
 
     /**
-     * Note that the hash code does not include the {@link #source}.
+     * Note that the hash code does not include the {@link #aSource}.
      * Therefore a hash based collection can only contain tiles
-     * of one {@link #source}.
+     * of one {@link #aSource}.
+     * @return the hashcode for this tile.
      */
     @Override
-    public int hashCode() {
+    public int hashCode() 
+    {
         final int prime = 31;
         int result = 1;
-        result = prime * result + xtile;
-        result = prime * result + ytile;
-        result = prime * result + zoom;
+        result = prime * result + aXTile;
+        result = prime * result + aYTile;
+        result = prime * result + aZoom;
         return result;
     }
 
     /**
      * Compares this object with <code>obj</code> based on
-     * the fields {@link #xtile}, {@link #ytile} and
-     * {@link #zoom}.
-     * The {@link #source} field is ignored.
+     * the fields {@link #aXTile}, {@link #aYTile} and
+     * {@link #aZoom}.
+     * The {@link #aSource} field is ignored.
+     * @param pObject the object to compare against.
+     * @return true if this tile is equals to pObject
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
+    public boolean equals(Object pObject)
+{
+        if (this == pObject)
+        {
             return true;
-        if (obj == null)
+        }
+        if(pObject == null)
+        {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if(getClass() != pObject.getClass())
+        {
             return false;
-        Tile other = (Tile) obj;
-        if (xtile != other.xtile)
+        }
+        Tile other = (Tile) pObject;
+        if(aXTile != other.aXTile)
+        {
             return false;
-        if (ytile != other.ytile)
+        }
+        if(aYTile != other.aYTile)
+        {
             return false;
-        if (zoom != other.zoom)
+        }
+        if(aZoom != other.aZoom)
+        {
             return false;
+        }
         return true;
     }
 
-    public static String getTileKey(TileSource source, int xtile, int ytile, int zoom) {
-        return zoom + "/" + xtile + "/" + ytile + "@" + source.getName();
+    /**
+     * @param pSource The tile source
+     * @param pXTile The x coordinate
+     * @param pYTile The y coordinate
+     * @param pZoom The zoom level
+     * @return The key for this tile.
+     */
+    public static String getTileKey(TileSource pSource, int pXTile, int pYTile, int pZoom) 
+    {
+        return pZoom + "/" + pXTile + "/" + pYTile + "@" + pSource.getName();
     }
 
-    public String getStatus() {
-        if (this.error)
-            return "error";
-        if (this.loaded)
-            return "loaded";
-        if (this.loading)
-            return "loading";
-        return "new";
-    }
-
-    public boolean hasError() {
-        return error;
-    }
-
-    public String getErrorMessage() {
-        return error_message;
-    }
-
-    public void setError(String message) {
-        error = true;
-        setImage(ERROR_IMAGE);
-        error_message = message;
+    /**
+     * Indicate that there is a problem with this tile.
+     */
+    public void setError()
+    {
+        aError = true;
+        aImage = ERROR_IMAGE;
     }
 
     /**
@@ -286,28 +339,71 @@ public class Tile {
      * If value is null, the (possibly existing) key/value pair is removed from 
      * the meta data.
      * 
-     * @param key
-     * @param value 
+     * @param pKey The key
+     * @param pValue The value
      */
-    public void putValue(String key, String value) {
-        if (value == null || value.isEmpty()) {
-            if (metadata != null) {
-                metadata.remove(key);
+    public void putValue(String pKey, String pValue) 
+    {
+        if (pValue == null || pValue.isEmpty()) 
+        {
+            if (aMetaData != null) 
+            {
+                aMetaData.remove(pKey);
             }
             return;
         }
-        if (metadata == null) {
-            metadata = new HashMap<String,String>();
+        if (aMetaData == null) 
+        {
+            aMetaData = new HashMap<String, String>();
         }
-        metadata.put(key, value);
+        aMetaData.put(pKey, pValue);
     }
 
-    public String getValue(String key) {
-        if (metadata == null) return null;
-        return metadata.get(key);
+    /**
+     * Get the meta-data value for pKey.
+     * @param pKey The key to look up.
+     * @return The value for pKey
+     */
+    public String getValue(String pKey) 
+    {
+        if (aMetaData == null)
+        {
+        	return null;
+        }
+        return aMetaData.get(pKey);
     }
 
-    public Map<String,String> getMetadata() {
-        return metadata;
+    /**
+     * @return The meta-data structure.
+     */
+    public Map<String, String> getMetadata() 
+    {
+        return aMetaData;
     }
+
+	/**
+	 * Sets a new value for the loading flag.
+	 * @param pLoading The new value.
+	 */
+	public void setLoading(boolean pLoading)
+	{
+		aLoading = pLoading;
+	}
+
+	/**
+	 * @return True if the error flag is set.
+	 */
+	public boolean isError()
+	{
+		return aError;
+	}
+
+	/**
+	 * Sets the error flag.
+	 * @param pError The new value for the error flag.
+	 */
+	public void setError(boolean pError)
+	{
+		aError = pError;
+	}
 }

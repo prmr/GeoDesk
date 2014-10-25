@@ -46,13 +46,13 @@ public class OsmTileLoader implements TileLoader
             {
                 synchronized (pTile) 
                 {
-                    if ((pTile.isLoaded() && !pTile.hasError()) || pTile.isLoading())
+                    if ((pTile.isLoaded() && !pTile.isError()) || pTile.isLoading())
                     {
                         return;
                     }
-                    pTile.loaded = false;
-                    pTile.error = false;
-                    pTile.loading = true;
+                    pTile.setLoaded(false);
+                    pTile.setError(false);
+                    pTile.setLoading(true);
                 }
                 try
                 {
@@ -60,7 +60,7 @@ public class OsmTileLoader implements TileLoader
                     loadTileMetadata(pTile, conn);
                     if ("no-tile".equals(pTile.getValue("tile-info")))
                     {
-                        pTile.setError("No tile at this zoom level");
+                        pTile.setError();
                     }
                     else
                     {
@@ -74,7 +74,7 @@ public class OsmTileLoader implements TileLoader
                 }
                 catch(Exception e)
                 {
-                    pTile.setError(e.getMessage());
+                    pTile.setError();
                     aListener.tileLoadingFinished(pTile, false);
                     if (aInput == null)
                     {
@@ -89,7 +89,7 @@ public class OsmTileLoader implements TileLoader
                 }
                 finally
                 {
-                    pTile.loading = false;
+                    pTile.setLoading(false);
                     pTile.setLoaded(true);
                 }
             }
