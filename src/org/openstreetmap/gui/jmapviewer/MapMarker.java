@@ -1,11 +1,9 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer;
 
 //License: GPL. Copyright 2008 by Jan Peter Stotz
 
 import java.awt.Graphics;
 import java.awt.Point;
-
-import org.openstreetmap.gui.jmapviewer.JMapViewer;
 
 /**
  * Interface to be implemented by all one dimensional elements that can be displayed on the map.

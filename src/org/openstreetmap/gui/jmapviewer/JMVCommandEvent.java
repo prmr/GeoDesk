@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.jmapviewer.events;
+package org.openstreetmap.gui.jmapviewer;
 
 //License: GPL.
 

@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.openstreetmap.gui.app.SettingManager;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.xml.XMLWriter;
 
 /**

@@ -24,10 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
-import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent.COMMAND;
-import org.openstreetmap.gui.jmapviewer.interfaces.JMapViewerEventListener;
-import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
+import org.openstreetmap.gui.jmapviewer.JMVCommandEvent.COMMAND;
 import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.tiles.Tile;
 import org.openstreetmap.gui.jmapviewer.tiles.TileCache;

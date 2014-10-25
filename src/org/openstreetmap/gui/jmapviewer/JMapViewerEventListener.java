@@ -1,10 +1,8 @@
-package org.openstreetmap.gui.jmapviewer.interfaces;
+package org.openstreetmap.gui.jmapviewer;
 
 //License: GPL.
 
 import java.util.EventListener;
-
-import org.openstreetmap.gui.jmapviewer.events.JMVCommandEvent;
 
 /**
  * Must be implemented for processing commands while user
