@@ -89,7 +89,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     public JMapViewer() 
     {
         this(new MemoryTileCache(), 4);
-        new DefaultMapController(this);
+        new JMapController(this);
     }
 
     public JMapViewer(TileCache pTileCache, int pDownloadThreadCount) 

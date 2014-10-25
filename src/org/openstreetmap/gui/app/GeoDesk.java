@@ -85,7 +85,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             for( KMLReader.MarkerData lPoint : lData )
             {
                 aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
-                        getName(), lPoint.getDescription()));
+                        lPoint.getName(), lPoint.getDescription()));
             }
         }
         
