@@ -308,8 +308,8 @@ public class BingAerialTileSource extends AbstractTileSource
             {
                 if (pZoom <= attr.maxZoom && pZoom >= attr.minZoom)
                 {
-                    if (pTopLeft.getLon() < attr.max.getLon() && pBottomRight.getLon() > attr.min.getLon() &&
-                    		pTopLeft.getLat() > attr.min.getLat() && pBottomRight.getLat() < attr.max.getLat())
+                    if (pTopLeft.getLongitude() < attr.max.getLongitude() && pBottomRight.getLongitude() > attr.min.getLongitude() &&
+                    		pTopLeft.getLatitude() > attr.min.getLatitude() && pBottomRight.getLatitude() < attr.max.getLatitude())
                     {
                         a.append(attr.attribution);
                         a.append(" ");

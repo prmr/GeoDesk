@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import org.openstreetmap.gui.jmapviewer.JMVCommandEvent.COMMAND;
+import org.openstreetmap.gui.jmapviewer.tiles.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.tiles.Tile;
 import org.openstreetmap.gui.jmapviewer.tiles.TileCache;
@@ -391,7 +392,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      */
     public Point getMapPosition(Coordinate coord) {
         if (coord != null)
-            return getMapPosition(coord.getLat(), coord.getLon());
+            return getMapPosition(coord.getLatitude(), coord.getLongitude());
         else
             return null;
     }
@@ -405,7 +406,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      */
     public Point getMapPosition(Coordinate coord, boolean checkOutside) {
         if (coord != null)
-            return getMapPosition(coord.getLat(), coord.getLon(), checkOutside);
+            return getMapPosition(coord.getLatitude(), coord.getLongitude(), checkOutside);
         else
             return null;
     }
@@ -425,8 +426,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         Coordinate originCoord=getPosition(origin);
         Coordinate centerCoord=getPosition(center);
 
-        double mDistance=OsmMercator.getDistance(originCoord.getLat(), originCoord.getLon(),
-                centerCoord.getLat(), centerCoord.getLon());
+        double mDistance=OsmMercator.getDistance(originCoord.getLatitude(), originCoord.getLongitude(),
+                centerCoord.getLatitude(), centerCoord.getLongitude());
 
         return mDistance/pDistance;
     }
@@ -627,7 +628,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         Coordinate zoomPos = getPosition(mapPoint);
         JobDispatcher.getInstance().cancelOutstandingJobs();
         // requests
-        setDisplayPositionByLatLon(mapPoint, zoomPos.getLat(), zoomPos.getLon(), zoom);
+        setDisplayPositionByLatLon(mapPoint, zoomPos.getLatitude(), zoomPos.getLongitude(), zoom);
 
         this.fireJMVEvent(new JMVCommandEvent(COMMAND.ZOOM, this));
     }

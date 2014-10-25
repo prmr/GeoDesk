@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openstreetmap.gui.jmapviewer.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource.TileUpdate;
 

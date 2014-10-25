@@ -3,53 +3,46 @@ package org.openstreetmap.gui.jmapviewer;
 //License: GPL. Copyright 2009 by Stefan Zeller
 
 import java.awt.geom.Point2D;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 /**
- * This class encapsulates a Point2D.Double and provide access
- * via <tt>lat</tt> and <tt>lon</tt>.
+ * This class represents a latitude-longitude pair.
  *
  * @author Jan Peter Stotz
- *
+ * @author Martin P. Robillard
  */
-public class Coordinate implements Serializable {
-    private transient Point2D.Double data;
+public class Coordinate
+{
+	private Point2D.Double aData;
 
-    public Coordinate(double lat, double lon) {
-        data = new Point2D.Double(lon, lat);
+    /**
+     * Creates a new geographic coordinate.
+     * @param pLatitude The latitude coordinate
+     * @param pLongitude The longitude coordinate
+     */
+    public Coordinate(double pLatitude, double pLongitude) 
+    {
+        aData = new Point2D.Double(pLongitude, pLatitude);
     }
 
-    public double getLat() {
-        return data.y;
+    /**
+     * @return The latitude component of this coordinate
+     */
+    public double getLatitude() 
+    {
+        return aData.y;
     }
 
-    public void setLat(double lat) {
-        data.y = lat;
+    /**
+     * @return The longitude component of this coordinate
+     */
+    public double getLongitude() 
+    {
+        return aData.x;
     }
 
-    public double getLon() {
-        return data.x;
-    }
-
-    public void setLon(double lon) {
-        data.x = lon;
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.writeObject(data.x);
-        out.writeObject(data.y);
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        data = new Point2D.Double();
-        data.x = (Double) in.readObject();
-        data.y = (Double) in.readObject();
-    }
-
-    public String toString() {
-        return "Coordinate[" + data.y + ", " + data.x + "]";
+    @Override
+    public String toString() 
+    {
+        return "Coordinate[" + aData.y + ", " + aData.x + "]";
     }
 }

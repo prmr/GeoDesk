@@ -76,7 +76,7 @@ MouseWheelListener {
                         Coordinate lCoord = map.getPosition((int)lastClickedPoint.getX(), (int)lastClickedPoint.getY());
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
-                            map.addMapMarker(new MapMarkerDot(lCoord.getLat(),lCoord.getLon(),lMIP.getName(),lMIP.getDescription()));
+                            map.addMapMarker(new MapMarkerDot(lCoord.getLatitude(),lCoord.getLongitude(),lMIP.getName(),lMIP.getDescription()));
                         
                             List<MapMarker> lMarkers = map.getMapMarkerList();
                             try
