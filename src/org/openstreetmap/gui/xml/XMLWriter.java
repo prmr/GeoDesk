@@ -90,7 +90,7 @@ public final class XMLWriter
             lPlacemark.appendChild(lPoint);
             Element lCoordinates = doc.createElement("coordinates");
             lPoint.appendChild(lCoordinates);
-            text = doc.createTextNode(String.format("%.6f,%.6f,%.6f", marker.getLon(), marker.getLat(), 0.0));
+            text = doc.createTextNode(String.format("%.6f,%.6f,%.6f", marker.getLongitude(), marker.getLatitude(), 0.0));
             lCoordinates.appendChild(text);
         }
         

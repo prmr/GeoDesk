@@ -14,69 +14,86 @@ import java.awt.Point;
  * @author Jan Peter Stotz
  *
  */
-public class MapMarkerDot implements MapMarker {
-
-    double lat;
-    double lon;
-    Color color;
+public class MapMarkerDot implements MapMarker 
+{
+	private static final Color COLOR = Color.RED;
+	private static final int RADIUS = 6;
+	
+    private double aLatitude;
+    private double aLongitude;
     private String aDescription = "";
     private String aName = "";
 
-    public MapMarkerDot(double lat, double lon, String pName, String pDescription) {
-        this(Color.RED, lat, lon, pName, pDescription);
-    }
-
-    public MapMarkerDot(Color color, double lat, double lon, String pName, String pDescription) {
-        super();
-        this.color = color;
-        this.lat = lat;
-        this.lon = lon;
+  
+    /**
+     * Creates a new dot marker.
+     * @param pLatitude The latitude of the marker.
+     * @param pLongitude The longitude of the marker.
+     * @param pName The name of the marker.
+     * @param pDescription The description of the marker.
+     */
+    public MapMarkerDot(double pLatitude, double pLongitude, String pName, String pDescription) 
+    {
+        aLatitude = pLatitude;
+        aLongitude = pLongitude;
         aDescription = pDescription;
         aName = pName;
     }
     
+    @Override
     public String getName()
     {
         return aName;
     }
 
-    public double getLat() {
-        return lat;
+    @Override
+    public double getLatitude() 
+    {
+        return aLatitude;
     }
 
-    public double getLon() {
-        return lon;
+    @Override
+    public double getLongitude() 
+    {
+        return aLongitude;
     }
     
+    @Override
     public void setName(String pName)
     {
         aName = pName;
     }
     
+    @Override
     public void setDescription(String pDescription)
     {
         aDescription = pDescription;
     }
     
-    public void paint(Graphics g, Point position) {
-        int size_h = 6;
-        int size = size_h * 2;
-        g.setColor(color);
-        g.fillOval(position.x - size_h, position.y - size_h, size, size);
-        g.setColor(Color.BLACK);
-        g.drawOval(position.x - size_h, position.y - size_h, size, size);
+    @Override
+    public void paint(Graphics pGraphic, Point pPosition)
+    {
+        int height = RADIUS;
+        int size = height * 2;
+        pGraphic.setColor(COLOR);
+        pGraphic.fillOval(pPosition.x - height, pPosition.y - height, size, size);
+        pGraphic.setColor(Color.BLACK);
+        pGraphic.drawOval(pPosition.x - height, pPosition.y - height, size, size);
     }
 
     @Override
-    public String toString() {
-        return "MapMarker at " + lat + " " + lon;
+    public String toString() 
+    {
+        return "MapMarker at " + aLatitude + " " + aLongitude;
     }
     
+    @Override
     public int getRadius()
     {
-        return 6;
+        return RADIUS;
     }
     
+    @Override
     public String getDescription()
     {
         return aDescription;

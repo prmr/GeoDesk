@@ -121,7 +121,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         List<MapMarker> lMarkers = new ArrayList<MapMarker>();
         for( MapMarker marker : getMapMarkerList())
         {
-            Point lMarkerPoint = getMapPosition(marker.getLat(),marker.getLon());
+            Point lMarkerPoint = getMapPosition(marker.getLatitude(),marker.getLongitude());
             if( lMarkerPoint != null && 
                 pPoint.x > lMarkerPoint.x-marker.getRadius() && 
                 pPoint.x < lMarkerPoint.x+marker.getRadius() &&
@@ -267,8 +267,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
 
         if (markers) {
             for (MapMarker marker : aMapMarkerList) {
-                int x = OsmMercator.LonToX(marker.getLon(), mapZoomMax);
-                int y = OsmMercator.LatToY(marker.getLat(), mapZoomMax);
+                int x = OsmMercator.LonToX(marker.getLongitude(), mapZoomMax);
+                int y = OsmMercator.LatToY(marker.getLatitude(), mapZoomMax);
                 x_max = Math.max(x_max, x);
                 y_max = Math.max(y_max, y);
                 x_min = Math.min(x_min, x);
@@ -557,7 +557,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      * Paint a single marker.
      */
     protected void paintMarker(Graphics g, MapMarker marker) {
-        Point p = getMapPosition(marker.getLat(), marker.getLon());
+        Point p = getMapPosition(marker.getLatitude(), marker.getLongitude());
         if (p != null) {
             marker.paint(g, p);
         }
