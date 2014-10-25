@@ -32,8 +32,21 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
     private static final int MOUSE_BUTTONS_MASK = MouseEvent.BUTTON3_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON2_DOWN_MASK;
     private static final int MAC_MOUSE_BUTTON3_MASK = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK;
     
-    private JMapViewer aMap;
+    private static final boolean MOVEMENT_ENABLED = true;
+    private static final boolean WHEEL_ZOOM_ENABLED = true;
+    private static final boolean DOUBLE_CLICK_ZOOM_ENABLED = true;
     
+    private JMapViewer aMap;
+    private Point aLastDragPoint;
+    private Point aLastClickedPoint;
+    private boolean aIsMoving = false;
+    private int aMovementMouseButton = MouseEvent.BUTTON3;
+    private int aMovementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
+    
+    /**
+     * Creates a new controller for the JMapViewer.
+     * @param pMap The object that is controlled.
+     */
     public JMapController(JMapViewer pMap) 
     {
         aMap = pMap;
@@ -43,28 +56,16 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
         aMap.addMouseMotionListener((MouseMotionListener) this);
     }
     
-    private Point lastDragPoint;
-    private Point lastClickedPoint;
-
-    private boolean isMoving = false;
-
-    private boolean movementEnabled = true;
-
-    private int movementMouseButton = MouseEvent.BUTTON3;
-    private int movementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
-
-    private boolean wheelZoomEnabled = true;
-    private boolean doubleClickZoomEnabled = true;
-    
-    private void maybeShowPopup(MouseEvent e) 
+    private void maybeShowPopup(MouseEvent pEvent) 
     {
-        if( e.isPopupTrigger() )
+        if( pEvent.isPopupTrigger() )
         {
-            lastClickedPoint = e.getPoint();
-            MapMarker[] lMarkers = aMap.getMapMarkersAt(lastClickedPoint);
+            aLastClickedPoint = pEvent.getPoint();
+            MapMarker[] lMarkers = aMap.getMapMarkersAt(aLastClickedPoint);
             if( lMarkers.length > 1 )
             {
-                JOptionPane.showMessageDialog(aMap, "Multiple markers selected. Select either a single marker, or an unmarked area of the map.", "Marker Selection Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(aMap, "Multiple markers selected. Select either a single marker, or an unmarked area of the map.", 
+                		"Marker Selection Error", JOptionPane.ERROR_MESSAGE);
             }
             else if( lMarkers.length == 0 )
             {
@@ -72,14 +73,14 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                 JMenuItem menuItem = new JMenuItem("Add Marker");
                 menuItem.addActionListener(new ActionListener() 
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent pEvent) 
                     {
                         MarkerInputPanel lMIP = new MarkerInputPanel();
                         int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, "New Marker Data", JOptionPane.OK_CANCEL_OPTION);
-                        Coordinate lCoord = aMap.getPosition((int)lastClickedPoint.getX(), (int)lastClickedPoint.getY());
+                        Coordinate lCoord = aMap.getPosition((int)aLastClickedPoint.getX(), (int)aLastClickedPoint.getY());
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
-                            aMap.addMapMarker(new MapMarkerDot(lCoord.getLatitude(),lCoord.getLongitude(),lMIP.getName(),lMIP.getDescription()));
+                            aMap.addMapMarker(new MapMarkerDot(lCoord.getLatitude(), lCoord.getLongitude(), lMIP.getName(), lMIP.getDescription()));
                         
                             List<MapMarker> lMarkers = aMap.getMapMarkerList();
                             try
@@ -94,7 +95,7 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                     }
                 });
                 lPopup.add(menuItem); 
-                lPopup.show(e.getComponent(), e.getX(), e.getY());
+                lPopup.show(pEvent.getComponent(), pEvent.getX(), pEvent.getY());
             }
             else if( lMarkers.length == 1 )
             {
@@ -104,9 +105,10 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                 final MapMarker lSelected = lMarkers[0];
                 menuItem.addActionListener( new ActionListener() 
                 {
-                    public void actionPerformed(ActionEvent e)
+                    public void actionPerformed(ActionEvent pEvent)
                     {
-                        int lResult = JOptionPane.showConfirmDialog(aMap, "Delete maker \"" + lSelected.getName() + "\"\nAre you sure?" , "Confirm Marker Deletion", JOptionPane.YES_NO_OPTION);
+                        int lResult = JOptionPane.showConfirmDialog(aMap, "Delete maker \"" + lSelected.getName() + 
+                        		"\"\nAre you sure?" , "Confirm Marker Deletion", JOptionPane.YES_NO_OPTION);
                         if( lResult == JOptionPane.YES_OPTION )
                         {
                             aMap.removeMapMarker(lSelected);
@@ -127,7 +129,7 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                 menuItem = new JMenuItem("Edit Marker");
                 menuItem.addActionListener( new ActionListener() 
                 {
-                    public void actionPerformed(ActionEvent e) 
+                    public void actionPerformed(ActionEvent pEvent) 
                     {
                         MarkerInputPanel lMIP = new MarkerInputPanel(lSelected.getName(), lSelected.getDescription());
                         int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, "Edit Marker Data", JOptionPane.OK_CANCEL_OPTION);
@@ -149,35 +151,42 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                 });
                 
                 lPopup.add(menuItem); 
-                lPopup.show(e.getComponent(), e.getX(), e.getY());
+                lPopup.show(pEvent.getComponent(), pEvent.getX(), pEvent.getY());
             }
         }
     }
 
-    public void mouseDragged(MouseEvent e) {
-        if (!movementEnabled || !isMoving)
+    @Override
+    public void mouseDragged(MouseEvent pEvent) 
+    {
+        if (!MOVEMENT_ENABLED || !aIsMoving)
+        {
             return;
+        }
         // Is only the selected mouse button pressed?
-        if ((e.getModifiersEx() & MOUSE_BUTTONS_MASK) == movementMouseButtonMask) {
-            Point p = e.getPoint();
-            if (lastDragPoint != null) {
-                int diffx = lastDragPoint.x - p.x;
-                int diffy = lastDragPoint.y - p.y;
+        if((pEvent.getModifiersEx() & MOUSE_BUTTONS_MASK) == aMovementMouseButtonMask) 
+        {
+            Point p = pEvent.getPoint();
+            if (aLastDragPoint != null) 
+            {
+                int diffx = aLastDragPoint.x - p.x;
+                int diffy = aLastDragPoint.y - p.y;
                 aMap.moveMap(diffx, diffy);
             }
-            lastDragPoint = p;
+            aLastDragPoint = p;
         }
     }
 
-    public void mouseClicked(MouseEvent e) 
+    @Override
+    public void mouseClicked(MouseEvent pEvent) 
     {
-        if( doubleClickZoomEnabled && e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1 ) 
+        if( DOUBLE_CLICK_ZOOM_ENABLED && pEvent.getClickCount() == 2 && pEvent.getButton() == MouseEvent.BUTTON1 ) 
         {
-            aMap.zoomIn(e.getPoint());
+            aMap.zoomIn(pEvent.getPoint());
         }
-        else if( e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON2 )
+        else if( pEvent.getClickCount() == 1 && pEvent.getButton() == MouseEvent.BUTTON2 )
         {
-            MapMarker[] lMarkers = aMap.getMapMarkersAt(e.getPoint());
+            MapMarker[] lMarkers = aMap.getMapMarkersAt(pEvent.getPoint());
             String lMessage = "";
             for( MapMarker marker : lMarkers )
             {
@@ -187,45 +196,35 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
         }
     }
 
-    public void mousePressed(MouseEvent e) 
+    @Override
+    public void mousePressed(MouseEvent pEvent) 
     {
-        maybeShowPopup(e);
-        if (e.getButton() == movementMouseButton || isPlatformOsx() && e.getModifiersEx() == MAC_MOUSE_BUTTON3_MASK) {
-            lastDragPoint = null;
-            isMoving = true;
+        maybeShowPopup(pEvent);
+        if (pEvent.getButton() == aMovementMouseButton || isPlatformOsx() && pEvent.getModifiersEx() == MAC_MOUSE_BUTTON3_MASK)
+        {
+            aLastDragPoint = null;
+            aIsMoving = true;
         }
     }
 
-    public void mouseReleased(MouseEvent e) 
+    @Override
+    public void mouseReleased(MouseEvent pEvent) 
     {
-        maybeShowPopup(e);
-        if (e.getButton() == movementMouseButton || isPlatformOsx() && e.getButton() == MouseEvent.BUTTON1) {
-            lastDragPoint = null;
-            isMoving = false;
+        maybeShowPopup(pEvent);
+        if (pEvent.getButton() == aMovementMouseButton || isPlatformOsx() && pEvent.getButton() == MouseEvent.BUTTON1)
+        {
+            aLastDragPoint = null;
+            aIsMoving = false;
         }
     }
 
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        if (wheelZoomEnabled) {
-            aMap.setZoom(aMap.getZoom() - e.getWheelRotation(), e.getPoint());
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent pEvent) 
+    {
+        if(WHEEL_ZOOM_ENABLED) 
+        {
+            aMap.setZoom(aMap.getZoom() - pEvent.getWheelRotation(), pEvent.getPoint());
         }
-    }
-
-    public boolean isMovementEnabled() {
-        return movementEnabled;
-    }
-
-    /**
-     * Enables or disables that the map pane can be moved using the mouse.
-     *
-     * @param movementEnabled
-     */
-    public void setMovementEnabled(boolean movementEnabled) {
-        this.movementEnabled = movementEnabled;
-    }
-
-    public int getMovementMouseButton() {
-        return movementMouseButton;
     }
 
     /**
@@ -237,74 +236,62 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
      * <li>{@link MouseEvent#BUTTON3} (right mouse button)</li>
      * </ul>
      *
-     * @param movementMouseButton
+     * @param pMovementMouseButton The button of choice.
      */
-    public void setMovementMouseButton(int movementMouseButton) {
-        this.movementMouseButton = movementMouseButton;
-        switch (movementMouseButton) {
+    public void setMovementMouseButton(int pMovementMouseButton) 
+    {
+        aMovementMouseButton = pMovementMouseButton;
+        switch (pMovementMouseButton) 
+        {
             case MouseEvent.BUTTON1:
-                movementMouseButtonMask = MouseEvent.BUTTON1_DOWN_MASK;
+                aMovementMouseButtonMask = MouseEvent.BUTTON1_DOWN_MASK;
                 break;
             case MouseEvent.BUTTON2:
-                movementMouseButtonMask = MouseEvent.BUTTON2_DOWN_MASK;
+                aMovementMouseButtonMask = MouseEvent.BUTTON2_DOWN_MASK;
                 break;
             case MouseEvent.BUTTON3:
-                movementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
+                aMovementMouseButtonMask = MouseEvent.BUTTON3_DOWN_MASK;
                 break;
             default:
                 throw new RuntimeException("Unsupported button");
         }
     }
 
-    public boolean isWheelZoomEnabled() {
-        return wheelZoomEnabled;
-    }
+    @Override // Does nothing on purpose
+    public void mouseEntered(MouseEvent pEvent) 
+    {}
 
-    public void setWheelZoomEnabled(boolean wheelZoomEnabled) {
-        this.wheelZoomEnabled = wheelZoomEnabled;
-    }
+    @Override // Does nothing on purpose
+    public void mouseExited(MouseEvent pEvent) 
+    {}
 
-    public boolean isDoubleClickZoomEnabled() {
-        return doubleClickZoomEnabled;
-    }
-
-    public void setDoubleClickZoomEnabled(boolean doubleClickZoomEnabled) {
-        this.doubleClickZoomEnabled = doubleClickZoomEnabled;
-    }
-
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    public void mouseExited(MouseEvent e) {
-    }
-
-    public void mouseMoved(MouseEvent e) {
+    @Override
+    public void mouseMoved(MouseEvent pEvent) 
+    {
         // Mac OSX simulates with  ctrl + mouse 1  the second mouse button hence no dragging events get fired.
-        //
-        if (isPlatformOsx()) {
-            if (!movementEnabled || !isMoving)
+        if (isPlatformOsx())
+        {
+            if (!MOVEMENT_ENABLED || !aIsMoving)
+            {
                 return;
+            }
             // Is only the selected mouse button pressed?
-            if (e.getModifiersEx() == MouseEvent.CTRL_DOWN_MASK) {
-                Point p = e.getPoint();
-                if (lastDragPoint != null) {
-                    int diffx = lastDragPoint.x - p.x;
-                    int diffy = lastDragPoint.y - p.y;
+            if (pEvent.getModifiersEx() == MouseEvent.CTRL_DOWN_MASK) 
+            {
+                Point p = pEvent.getPoint();
+                if (aLastDragPoint != null) 
+                {
+                    int diffx = aLastDragPoint.x - p.x;
+                    int diffy = aLastDragPoint.y - p.y;
                     aMap.moveMap(diffx, diffy);
                 }
-                lastDragPoint = p;
+                aLastDragPoint = p;
             }
-
         }
-
     }
 
-    /**
-     * Replies true if we are currently running on OSX
-     *
-     * @return true if we are currently running on OSX
-     */
-    public static boolean isPlatformOsx() {
+    private static boolean isPlatformOsx() 
+    {
         String os = System.getProperty("os.name");
         return os != null && os.toLowerCase().startsWith("mac os x");
     }
