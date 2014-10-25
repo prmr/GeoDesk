@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.Thread;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -38,283 +37,378 @@ import org.openstreetmap.gui.jmapviewer.tilesources.TileSource.TileUpdate;
  * @author Jan Peter Stotz
  * @author Stefan Zeller
  */
-public class OsmFileCacheTileLoader extends OsmTileLoader {
-
-    private static final Logger log = Logger.getLogger(OsmFileCacheTileLoader.class.getName());
-
+// CSOFF:
+public class OsmFileCacheTileLoader extends OsmTileLoader 
+{
+    private static final Logger LOGGER = Logger.getLogger(OsmFileCacheTileLoader.class.getName());
+    
     private static final String ETAG_FILE_EXT = ".etag";
     private static final String TAGS_FILE_EXT = ".tags";
 
     private static final Charset TAGS_CHARSET = Charset.forName("UTF-8");
 
-    public static final long FILE_AGE_ONE_DAY = 1000 * 60 * 60 * 24;
-    public static final long FILE_AGE_ONE_WEEK = FILE_AGE_ONE_DAY * 7;
+    private static final long FILE_AGE_ONE_DAY = 1000 * 60 * 60 * 24;
+    private static final long FILE_AGE_ONE_WEEK = FILE_AGE_ONE_DAY * 7;
+    private static final long MAX_CACHE_FILE_AGE = FILE_AGE_ONE_WEEK;
 
-    protected String cacheDirBase;
+    private String aCacheDirBase;
     
-    protected final Map<TileSource, File> sourceCacheDirMap;
+    private final Map<TileSource, File> aSourceCacheDirMap;
 
-    protected long maxCacheFileAge = FILE_AGE_ONE_WEEK;
-    protected long recheckAfter = FILE_AGE_ONE_DAY;
-
-    public static File getDefaultCacheDir() throws SecurityException {
-        String tempDir = null;
-        String userName = System.getProperty("user.name");
-        try {
-            tempDir = System.getProperty("java.io.tmpdir");
-        } catch (SecurityException e) {
-            log.log(Level.WARNING,
-                    "Failed to access system property ''java.io.tmpdir'' for security reasons. Exception was: "
-                    + e.toString());
-            throw e; // rethrow
-        }
-        try {
-            if (tempDir == null)
-                throw new IOException("No temp directory set");
-            String subDirName = "JMapViewerTiles";
-            // On Linux/Unix systems we do not have a per user tmp directory.
-            // Therefore we add the user name for getting a unique dir name.
-            if (userName != null && userName.length() > 0) {
-                subDirName += "_" + userName;
-            }
-            File cacheDir = new File(tempDir, subDirName);
-            return cacheDir;
-        } catch (Exception e) {
-        }
-        return null;
-    }
+    /**
+     * Sets the maximum age of the local cached tile in the file system. If a
+     * local tile is older than the specified file age
+     * {@link OsmFileCacheTileLoader} will connect to the tile server and check
+     * if a newer tile is available using the mechanism specified for the
+     * selected tile source/server.
+     */
+    
+    private long aRecheckAfter = FILE_AGE_ONE_DAY;
 
     /**
      * Create a OSMFileCacheTileLoader with given cache directory.
      * If cacheDir is not set or invalid, IOException will be thrown.
-     * @param map the listener checking for tile load events (usually the map for display)
-     * @param cacheDir directory to store cached tiles
+     * @param pMap the listener checking for tile load events (usually the map for display)
+     * @param pCacheDirectory directory to store cached tiles
+     * @throws IOException if there's a problem
      */
-    public OsmFileCacheTileLoader(TileLoaderListener map, File cacheDir) throws IOException  {
-        super(map);
-        if (cacheDir == null || (!cacheDir.exists() && !cacheDir.mkdirs()))
+    public OsmFileCacheTileLoader(TileLoaderListener pMap, File pCacheDirectory) throws IOException  
+    {
+        super(pMap);
+        if(pCacheDirectory == null || (!pCacheDirectory.exists() && !pCacheDirectory.mkdirs()))
+        {
             throw new IOException("Cannot access cache directory");
+        }
 
-        log.finest("Tile cache directory: " + cacheDir);
-        cacheDirBase = cacheDir.getAbsolutePath();
-        sourceCacheDirMap = new HashMap<TileSource, File>();
+        LOGGER.finest("Tile cache directory: " + pCacheDirectory);
+        aCacheDirBase = pCacheDirectory.getAbsolutePath();
+        aSourceCacheDirMap = new HashMap<TileSource, File>();
     }
-
+    
     /**
      * Create a OSMFileCacheTileLoader with system property temp dir.
      * If not set an IOException will be thrown.
-     * @param map the listener checking for tile load events (usually the map for display)
+     * @param pMap the listener checking for tile load events (usually the map for display)
+     * @throws IOException if there's a problem
      */
-    public OsmFileCacheTileLoader(TileLoaderListener map) throws SecurityException, IOException {
-        this(map, getDefaultCacheDir());
+    public OsmFileCacheTileLoader(TileLoaderListener pMap) throws IOException 
+    {
+        this(pMap, getDefaultCacheDir());
+    }
+    
+    private static File getDefaultCacheDir()
+    {
+        String tempDir = null;
+        String userName = System.getProperty("user.name");
+        try 
+        {
+            tempDir = System.getProperty("java.io.tmpdir");
+        } 
+        catch(SecurityException e) 
+        {
+            LOGGER.log(Level.WARNING, "Failed to access system property ''java.io.tmpdir'' for security reasons. Exception was: " + e.toString());
+            throw e; 
+        }
+        try 
+        {
+            if(tempDir == null)
+            {
+                throw new IOException("No temp directory set");
+            }
+            String subDirName = "JMapViewerTiles";
+            // On Linux/Unix systems we do not have a per user tmp directory.
+            // Therefore we add the user name for getting a unique dir name.
+            if (userName != null && userName.length() > 0) 
+            {
+                subDirName += "_" + userName;
+            }
+            File cacheDir = new File(tempDir, subDirName);
+            return cacheDir;
+        } 
+        catch(Exception e) 
+        {
+        	// TODO
+        }
+        return null;
     }
 
     @Override
-    public TileJob createTileLoaderJob(final Tile tile) {
-        return new FileLoadJob(tile);
+    public TileJob createTileLoaderJob(Tile pTile) 
+    {
+        return new FileLoadJob(pTile);
     }
 
-    protected File getSourceCacheDir(TileSource source) {
-        File dir = sourceCacheDirMap.get(source);
-        if (dir == null) {
-            dir = new File(cacheDirBase, source.getName().replaceAll("[\\\\/:*?\"<>|]", "_"));
-            if (!dir.exists()) {
+    private File getSourceCacheDir(TileSource pSource)
+    {
+        File dir = aSourceCacheDirMap.get(pSource);
+        if (dir == null) 
+        {
+            dir = new File(aCacheDirBase, pSource.getName().replaceAll("[\\\\/:*?\"<>|]", "_"));
+            if(!dir.exists()) 
+            {
                 dir.mkdirs();
             }
         }
         return dir;
     }
     
-    protected class FileLoadJob implements TileJob {
-        InputStream input = null;
+    private class FileLoadJob implements TileJob 
+    {
+        private InputStream aInput = null;
+        private Tile aTile;
+        private File aTileCacheDir;
+        private File aTileFile = null;
+        private long aFileAge = 0;
+        private boolean aFileTilePainted = false;
 
-        Tile tile;
-        File tileCacheDir;
-        File tileFile = null;
-        long fileAge = 0;
-        boolean fileTilePainted = false;
-
-        public FileLoadJob(Tile tile) {
-            this.tile = tile;
+        public FileLoadJob(Tile pTile) 
+        {
+            aTile = pTile;
         }
 
-        public Tile getTile() {
-            return tile;
+        public Tile getTile() 
+        {
+            return aTile;
         }
 
-        public void run() {
-            synchronized (tile) {
-                if ((tile.isLoaded() && !tile.isError()) || tile.isLoading())
+        public void run() 
+        {
+            synchronized (aTile)
+            {
+                if((aTile.isLoaded() && !aTile.isError()) || aTile.isLoading())
+                {
                     return;
-                tile.setLoaded(false);
-                tile.setError(false);
-                tile.setLoading(true);
+                }
+                aTile.setLoaded(false);
+                aTile.setError(false);
+                aTile.setLoading(true);
             }
-            tileCacheDir = getSourceCacheDir(tile.getSource());
-            if (loadTileFromFile()) {
+            aTileCacheDir = getSourceCacheDir(aTile.getSource());
+            if(loadTileFromFile()) 
+            {
                 return;
             }
-            if (fileTilePainted) {
-                TileJob job = new TileJob() {
-
-                    public void run() {
+            if(aFileTilePainted) 
+            {
+                TileJob job = new TileJob() 
+                {
+                    public void run() 
+                    {
                         loadOrUpdateTile();
                     }
-                    public Tile getTile() {
-                        return tile;
+                    public Tile getTile() 
+                    {
+                        return aTile;
                     }
                 };
                 JobDispatcher.getInstance().addJob(job);
-            } else {
+            } 
+            else
+            {
                 loadOrUpdateTile();
             }
         }
 
-        protected void loadOrUpdateTile() {
-            try {
-                URLConnection urlConn = loadTileFromOsm(tile);
-                if (tileFile != null) {
-                    switch (tile.getSource().getTileUpdate()) {
+        private void loadOrUpdateTile() 
+        {
+            try
+            {
+                URLConnection urlConn = loadTileFromOsm(aTile);
+                if(aTileFile != null) 
+                {
+                    switch(aTile.getSource().getTileUpdate()) 
+                    {
                     case IfModifiedSince:
-                        urlConn.setIfModifiedSince(fileAge);
+                        urlConn.setIfModifiedSince(aFileAge);
                         break;
                     case LastModified:
-                        if (!isOsmTileNewer(fileAge)) {
-                            log.finest("LastModified test: local version is up to date: " + tile);
-                            tile.setLoaded(true);
-                            tileFile.setLastModified(System.currentTimeMillis() - maxCacheFileAge + recheckAfter);
+                        if (!isOsmTileNewer(aFileAge)) 
+                        {
+                            LOGGER.finest("LastModified test: local version is up to date: " + aTile);
+                            aTile.setLoaded(true);
+                            aTileFile.setLastModified(System.currentTimeMillis() - MAX_CACHE_FILE_AGE + aRecheckAfter);
                             return;
                         }
                         break;
+                    case None:
+                    	break;
+                    case IfNoneMatch:
+                    	break;
+                    case ETag:
+                    	break;
                     }
+                    
                 }
-                if (tile.getSource().getTileUpdate() == TileUpdate.ETag || tile.getSource().getTileUpdate() == TileUpdate.IfNoneMatch) {
-                    String fileETag = tile.getValue("etag");
-                    if (fileETag != null) {
-                        switch (tile.getSource().getTileUpdate()) {
+                if (aTile.getSource().getTileUpdate() == TileUpdate.ETag || aTile.getSource().getTileUpdate() == TileUpdate.IfNoneMatch) 
+                {
+                    String fileETag = aTile.getValue("etag");
+                    if (fileETag != null) 
+                    {
+                        switch (aTile.getSource().getTileUpdate()) 
+                        {
                         case IfNoneMatch:
                             urlConn.addRequestProperty("If-None-Match", fileETag);
                             break;
                         case ETag:
-                            if (hasOsmTileETag(fileETag)) {
-                                tile.setLoaded(true);
-                                tileFile.setLastModified(System.currentTimeMillis() - maxCacheFileAge
-                                        + recheckAfter);
+                            if (hasOsmTileETag(fileETag)) 
+                            {
+                                aTile.setLoaded(true);
+                                aTileFile.setLastModified(System.currentTimeMillis() - MAX_CACHE_FILE_AGE
+                                        + aRecheckAfter);
                                 return;
                             }
                         }
                     }
-                    tile.putValue("etag", urlConn.getHeaderField("ETag"));
+                    aTile.putValue("etag", urlConn.getHeaderField("ETag"));
                 }
-                if (urlConn instanceof HttpURLConnection && ((HttpURLConnection)urlConn).getResponseCode() == 304) {
+                if (urlConn instanceof HttpURLConnection && ((HttpURLConnection)urlConn).getResponseCode() == 304) 
+                {
                     // If we are isModifiedSince or If-None-Match has been set
                     // and the server answers with a HTTP 304 = "Not Modified"
-                    log.finest("ETag test: local version is up to date: " + tile);
-                    tile.setLoaded(true);
-                    tileFile.setLastModified(System.currentTimeMillis() - maxCacheFileAge + recheckAfter);
+                    LOGGER.finest("ETag test: local version is up to date: " + aTile);
+                    aTile.setLoaded(true);
+                    aTileFile.setLastModified(System.currentTimeMillis() - MAX_CACHE_FILE_AGE + aRecheckAfter);
                     return;
                 }
 
-                loadTileMetadata(tile, urlConn);
+                loadTileMetadata(aTile, urlConn);
                 saveTagsToFile();
 
-                if ("no-tile".equals(tile.getValue("tile-info")))
+                if ("no-tile".equals(aTile.getValue("tile-info")))
                 {
-                    tile.setError();
-                    aListener.tileLoadingFinished(tile, true);
-                } else {
-                    for(int i = 0; i < 5; ++i) {
-                        if (urlConn instanceof HttpURLConnection && ((HttpURLConnection)urlConn).getResponseCode() == 503) {
+                    aTile.setError();
+                    aListener.tileLoadingFinished(aTile, true);
+                } 
+                else 
+                {
+                    for(int i = 0; i < 5; ++i) 
+                    {
+                        if (urlConn instanceof HttpURLConnection && ((HttpURLConnection)urlConn).getResponseCode() == 503)
+                        {
                             Thread.sleep(5000+(new Random()).nextInt(5000));
                             continue;
                         }
                         byte[] buffer = loadTileInBuffer(urlConn);
-                        if (buffer != null) {
-                            tile.loadImage(new ByteArrayInputStream(buffer));
-                            tile.setLoaded(true);
-                            aListener.tileLoadingFinished(tile, true);
+                        if (buffer != null) 
+                        {
+                            aTile.loadImage(new ByteArrayInputStream(buffer));
+                            aTile.setLoaded(true);
+                            aListener.tileLoadingFinished(aTile, true);
                             saveTileToFile(buffer);
                             break;
                         }
                     }
                 }
-            } catch (Exception e) {
-                tile.setError();
-                aListener.tileLoadingFinished(tile, false);
-                if (input == null) {
-                    try {
-                        System.err.println("Failed loading " + tile.getUrl() +": " + e.getMessage());
-                    } catch(IOException i) {
+            } 
+            catch (Exception e) 
+            {
+                aTile.setError();
+                aListener.tileLoadingFinished(aTile, false);
+                if (aInput == null) 
+                {
+                    try 
+                    {
+                        System.err.println("Failed loading " + aTile.getUrl() +": " + e.getMessage());
+                    }
+                    catch(IOException i) 
+                    {
                     }
                 }
-            } finally {
-                tile.setLoading(false);
-                tile.setLoaded(true);
+            } 
+            finally 
+            {
+                aTile.setLoading(false);
+                aTile.setLoaded(true);
             }
         }
 
-        protected boolean loadTileFromFile() {
+        protected boolean loadTileFromFile()
+        {
             FileInputStream fin = null;
-            try {
-                tileFile = getTileFile();
-                if (!tileFile.exists())
+            try 
+            {
+                aTileFile = getTileFile();
+                if(!aTileFile.exists())
+                {
                     return false;
+                }
 
                 loadTagsFromFile();
-                if ("no-tile".equals(tile.getValue("tile-info")))
+                if ("no-tile".equals(aTile.getValue("tile-info")))
                 {
-                    tile.setError();
-                    if (tileFile.exists()) {
-                        tileFile.delete();
+                    aTile.setError();
+                    if (aTileFile.exists()) 
+                    {
+                        aTileFile.delete();
                     }
-                    tileFile = getTagsFile();
-                } else {
-                    fin = new FileInputStream(tileFile);
+                    aTileFile = getTagsFile();
+                } 
+                else 
+                {
+                    fin = new FileInputStream(aTileFile);
                     if (fin.available() == 0)
+                    {
+                    	fin.close();
                         throw new IOException("File empty");
-                    tile.loadImage(fin);
+                    }
+                    aTile.loadImage(fin);
                     fin.close();
                 }
 
-                fileAge = tileFile.lastModified();
-                boolean oldTile = System.currentTimeMillis() - fileAge > maxCacheFileAge;
-                if (!oldTile) {
-                    tile.setLoaded(true);
-                    aListener.tileLoadingFinished(tile, true);
-                    fileTilePainted = true;
+                aFileAge = aTileFile.lastModified();
+                boolean oldTile = System.currentTimeMillis() - aFileAge > MAX_CACHE_FILE_AGE;
+                if(!oldTile) 
+                {
+                    aTile.setLoaded(true);
+                    aListener.tileLoadingFinished(aTile, true);
+                    aFileTilePainted = true;
                     return true;
                 }
-                aListener.tileLoadingFinished(tile, true);
-                fileTilePainted = true;
-            } catch (Exception e) {
-                try {
-                    if (fin != null) {
+                aListener.tileLoadingFinished(aTile, true);
+                aFileTilePainted = true;
+            } 
+            catch(Exception e) 
+            {
+                try 
+                {
+                    if (fin != null) 
+                    {
                         fin.close();
-                        tileFile.delete();
+                        aTileFile.delete();
                     }
-                } catch (Exception e1) {
+                } 
+                catch (Exception e1) 
+                {
                 }
-                tileFile = null;
-                fileAge = 0;
+                aTileFile = null;
+                aFileAge = 0;
             }
             return false;
         }
 
-        protected byte[] loadTileInBuffer(URLConnection urlConn) throws IOException {
-            input = urlConn.getInputStream();
-            ByteArrayOutputStream bout = new ByteArrayOutputStream(input.available());
+        protected byte[] loadTileInBuffer(URLConnection pUrlConnection) throws IOException 
+        {
+            aInput = pUrlConnection.getInputStream();
+            ByteArrayOutputStream bout = new ByteArrayOutputStream(aInput.available());
             byte[] buffer = new byte[2048];
             boolean finished = false;
-            do {
-                int read = input.read(buffer);
-                if (read >= 0) {
+            do 
+            {
+                int read = aInput.read(buffer);
+                if (read >= 0) 
+                {
                     bout.write(buffer, 0, read);
-                } else {
+                } 
+                else 
+                {
                     finished = true;
                 }
-            } while (!finished);
-            if (bout.size() == 0)
+            } 
+            while (!finished);
+            if(bout.size() == 0)
+            {
                 return null;
+            }
             return bout.toByteArray();
         }
 
@@ -329,14 +423,15 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
          * <li>{@link tilesources.MapnikOsmTileSource} - not supported</li>
          * </ul>
          *
-         * @param fileAge time of the 
+         * @param pFileAge time of the 
          * @return <code>true</code> if the tile on the server is newer than the
          *         file
          * @throws IOException
          */
-        protected boolean isOsmTileNewer(long fileAge) throws IOException {
+        protected boolean isOsmTileNewer(long pFileAge) throws IOException 
+        {
             URL url;
-            url = new URL(tile.getUrl());
+            url = new URL(aTile.getUrl());
             HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
             prepareHttpUrlConnection(urlConn);
             urlConn.setRequestMethod("HEAD");
@@ -345,14 +440,17 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
             // Date(urlConn.getLastModified()) + " / "
             // + new Date(fileAge));
             long lastModified = urlConn.getLastModified();
-            if (lastModified == 0)
+            if(lastModified == 0)
+            {
                 return true; // no LastModified time returned
-            return (lastModified > fileAge);
+            }
+            return lastModified > pFileAge;
         }
 
-        protected boolean hasOsmTileETag(String eTag) throws IOException {
+        protected boolean hasOsmTileETag(String pETag) throws IOException 
+        {
             URL url;
-            url = new URL(tile.getUrl());
+            url = new URL(aTile.getUrl());
             HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
             prepareHttpUrlConnection(urlConn);
             urlConn.setRequestMethod("HEAD");
@@ -361,157 +459,120 @@ public class OsmFileCacheTileLoader extends OsmTileLoader {
             // Date(urlConn.getLastModified()) + " / "
             // + new Date(fileAge));
             String osmETag = urlConn.getHeaderField("ETag");
-            if (osmETag == null)
+            if(osmETag == null)
+            {
                 return true;
-            return (osmETag.equals(eTag));
+            }
+            return osmETag.equals(pETag);
         }
 
-        protected File getTileFile() {
-            return new File(tileCacheDir + "/" + tile.getZoom() + "_" + tile.getXtile() + "_" + tile.getYtile() + "."
-                    + tile.getSource().getTileType());
+        private File getTileFile()
+        {
+            return new File(aTileCacheDir + "/" + aTile.getZoom() + "_" + aTile.getXtile() + "_" + aTile.getYtile() + "."
+                    + aTile.getSource().getTileType());
         }
 
-        protected File getTagsFile() {
-            return new File(tileCacheDir + "/" + tile.getZoom() + "_" + tile.getXtile() + "_" + tile.getYtile()
+        private File getTagsFile() 
+        {
+            return new File(aTileCacheDir + "/" + aTile.getZoom() + "_" + aTile.getXtile() + "_" + aTile.getYtile()
                     + TAGS_FILE_EXT);
         }
 
-        protected void saveTileToFile(byte[] rawData) {
-            try {
-                FileOutputStream f = new FileOutputStream(tileCacheDir + "/" + tile.getZoom() + "_" + tile.getXtile()
-                        + "_" + tile.getYtile() + "." + tile.getSource().getTileType());
-                f.write(rawData);
+        private void saveTileToFile(byte[] pRawData) 
+        {
+            try
+            {
+                FileOutputStream f = new FileOutputStream(aTileCacheDir + "/" + aTile.getZoom() + "_" + aTile.getXtile()
+                        + "_" + aTile.getYtile() + "." + aTile.getSource().getTileType());
+                f.write(pRawData);
                 f.close();
-                // System.out.println("Saved tile to file: " + tile);
-            } catch (Exception e) {
+            } 
+            catch (Exception e) 
+            {
                 System.err.println("Failed to save tile content: " + e.getLocalizedMessage());
             }
         }
 
-        protected void saveTagsToFile() {
+        private void saveTagsToFile()
+        {
             File tagsFile = getTagsFile();
-            if (tile.getMetadata() == null) {
+            if (aTile.getMetadata() == null) 
+            {
                 tagsFile.delete();
                 return;
             }
-            try {
+            try 
+            {
                 final PrintWriter f = new PrintWriter(new OutputStreamWriter(new FileOutputStream(tagsFile),
                         TAGS_CHARSET));
-                for (Entry<String, String> entry : tile.getMetadata().entrySet()) {
+                for (Entry<String, String> entry : aTile.getMetadata().entrySet()) 
+                {
                     f.println(entry.getKey() + "=" + entry.getValue());
                 }
                 f.close();
-            } catch (Exception e) {
+            } 
+            catch (Exception e) 
+            {
                 System.err.println("Failed to save tile tags: " + e.getLocalizedMessage());
             }
         }
 
-        /** Load backward-compatiblity .etag file and if it exists move it to new .tags file*/
-        private void loadOldETagfromFile() {
-            File etagFile = new File(tileCacheDir, tile.getZoom() + "_"
-                    + tile.getXtile() + "_" + tile.getYtile() + ETAG_FILE_EXT);
-            if (!etagFile.exists()) return;
-            try {
+        /** Load backward-compatiblity .etag file and if it exists move it to new .tags file. */
+        private void loadOldETagfromFile() 
+        {
+            File etagFile = new File(aTileCacheDir, aTile.getZoom() + "_"
+                    + aTile.getXtile() + "_" + aTile.getYtile() + ETAG_FILE_EXT);
+            if(!etagFile.exists())
+            {
+            	return;
+            }
+            try 
+            {
                 FileInputStream f = new FileInputStream(etagFile);
                 byte[] buf = new byte[f.available()];
                 f.read(buf);
                 f.close();
                 String etag = new String(buf, TAGS_CHARSET.name());
-                tile.putValue("etag", etag);
-                if (etagFile.delete()) {
+                aTile.putValue("etag", etag);
+                if (etagFile.delete()) 
+                {
                     saveTagsToFile();
                 }
-            } catch (IOException e) {
+            } 
+            catch(IOException e) 
+            {
                 System.err.println("Failed to load compatiblity etag: " + e.getLocalizedMessage());
             }
         }
 
-        protected void loadTagsFromFile() {
+        private void loadTagsFromFile() 
+        {
             loadOldETagfromFile();
             File tagsFile = getTagsFile();
-            try {
+            try 
+            {
                 final BufferedReader f = new BufferedReader(new InputStreamReader(new FileInputStream(tagsFile),
                         TAGS_CHARSET));
-                for (String line = f.readLine(); line != null; line = f.readLine()) {
+                for (String line = f.readLine(); line != null; line = f.readLine()) 
+                {
                     final int i = line.indexOf('=');
-                    if (i == -1 || i == 0) {
+                    if (i == -1 || i == 0) 
+                    {
                         System.err.println("Malformed tile tag in file '" + tagsFile.getName() + "':" + line);
                         continue;
                     }
-                    tile.putValue(line.substring(0,i),line.substring(i+1));
+                    aTile.putValue(line.substring(0, i), line.substring(i+1));
                 }
                 f.close();
-            } catch (FileNotFoundException e) {
-            } catch (Exception e) {
+            } 
+            catch (FileNotFoundException e) 
+            {
+            } 
+            catch (Exception e) 
+            {
                 System.err.println("Failed to load tile tags: " + e.getLocalizedMessage());
             }
         }
 
-    }
-
-    public long getMaxFileAge() {
-        return maxCacheFileAge;
-    }
-
-    /**
-     * Sets the maximum age of the local cached tile in the file system. If a
-     * local tile is older than the specified file age
-     * {@link OsmFileCacheTileLoader} will connect to the tile server and check
-     * if a newer tile is available using the mechanism specified for the
-     * selected tile source/server.
-     *
-     * @param maxFileAge
-     *            maximum age in milliseconds
-     * @see #FILE_AGE_ONE_DAY
-     * @see #FILE_AGE_ONE_WEEK
-     * @see TileSource#getTileUpdate()
-     */
-    public void setCacheMaxFileAge(long maxFileAge) {
-        this.maxCacheFileAge = maxFileAge;
-    }
-
-    public String getCacheDirBase() {
-        return cacheDirBase;
-    }
-
-    public void setTileCacheDir(String tileCacheDir) {
-        File dir = new File(tileCacheDir);
-        dir.mkdirs();
-        this.cacheDirBase = dir.getAbsolutePath();
-    }
-    
-    public static interface TileClearController {
-
-        void initClearDir(File dir);
-
-        void initClearFiles(File[] files);
-
-        boolean cancel();
-
-        void fileDeleted(File file);
-
-        void clearFinished();
-    }
-    
-    public void clearCache(TileSource source) {
-        clearCache(source, null);
-    }
-    
-    public void clearCache(TileSource source, TileClearController controller) {
-        File dir = getSourceCacheDir(source);
-        if (dir != null) {
-            if (controller != null) controller.initClearDir(dir);
-            if (dir.isDirectory()) {
-                File[] files = dir.listFiles();
-                if (controller != null) controller.initClearFiles(files);
-                for (File file : files) {
-                    if (controller != null && controller.cancel()) return;
-                    file.delete();
-                    if (controller != null) controller.fileDeleted(file);
-                }
-            }
-            dir.delete();
-        }
-        if (controller != null) controller.clearFinished();
     }
 }
