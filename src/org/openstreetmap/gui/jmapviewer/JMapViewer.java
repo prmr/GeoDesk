@@ -24,7 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import org.openstreetmap.gui.jmapviewer.JMVCommandEvent.COMMAND;
+import org.openstreetmap.gui.jmapviewer.JMVCommandEvent.CommandType;
 import org.openstreetmap.gui.jmapviewer.tiles.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
 import org.openstreetmap.gui.jmapviewer.tiles.Tile;
@@ -213,8 +213,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      *            {@link TileSource#getMaxZoom()}
      */
     public void setDisplayPositionByLatLon(Point mapPoint, double lat, double lon, int zoom) {
-        int x = OsmMercator.LonToX(lon, zoom);
-        int y = OsmMercator.LatToY(lat, zoom);
+        int x = OsmMercator.longitudeToX(lon, zoom);
+        int y = OsmMercator.latitudeToY(lat, zoom);
         setDisplayPosition(mapPoint, x, y, zoom);
     }
 
@@ -267,8 +267,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
 
         if (markers) {
             for (MapMarker marker : aMapMarkerList) {
-                int x = OsmMercator.LonToX(marker.getLongitude(), mapZoomMax);
-                int y = OsmMercator.LatToY(marker.getLatitude(), mapZoomMax);
+                int x = OsmMercator.longitudeToX(marker.getLongitude(), mapZoomMax);
+                int y = OsmMercator.latitudeToY(marker.getLatitude(), mapZoomMax);
                 x_max = Math.max(x_max, x);
                 y_max = Math.max(y_max, y);
                 x_min = Math.min(x_min, x);
@@ -318,8 +318,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      * @return latitude / longitude
      */
     public Coordinate getPosition() {
-        double lon = OsmMercator.XToLon(aCenter.x, aZoomLevel);
-        double lat = OsmMercator.YToLat(aCenter.y, aZoomLevel);
+        double lon = OsmMercator.xToLongitude(aCenter.x, aZoomLevel);
+        double lat = OsmMercator.yToLatitude(aCenter.y, aZoomLevel);
         return new Coordinate(lat, lon);
     }
 
@@ -347,8 +347,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     public Coordinate getPosition(int mapPointX, int mapPointY) {
         int x = aCenter.x + mapPointX - getWidth() / 2;
         int y = aCenter.y + mapPointY - getHeight() / 2;
-        double lon = OsmMercator.XToLon(x, aZoomLevel);
-        double lat = OsmMercator.YToLat(y, aZoomLevel);
+        double lon = OsmMercator.xToLongitude(x, aZoomLevel);
+        double lat = OsmMercator.yToLatitude(y, aZoomLevel);
         return new Coordinate(lat, lon);
     }
 
@@ -362,8 +362,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      *         and checkOutside set to <code>true</code>
      */
     public Point getMapPosition(double lat, double lon, boolean checkOutside) {
-        int x = OsmMercator.LonToX(lon, aZoomLevel);
-        int y = OsmMercator.LatToY(lat, aZoomLevel);
+        int x = OsmMercator.longitudeToX(lon, aZoomLevel);
+        int y = OsmMercator.latitudeToY(lat, aZoomLevel);
         x -= aCenter.x - getWidth() / 2;
         y -= aCenter.y - getHeight() / 2;
         if (checkOutside) {
@@ -575,7 +575,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         aCenter.x += x;
         aCenter.y += y;
         repaint();
-        this.fireJMVEvent(new JMVCommandEvent(COMMAND.MOVE, this));
+        this.fireJMVEvent(new JMVCommandEvent(CommandType.MOVE, this));
     }
 
     /**
@@ -630,7 +630,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         // requests
         setDisplayPositionByLatLon(mapPoint, zoomPos.getLatitude(), zoomPos.getLongitude(), zoom);
 
-        this.fireJMVEvent(new JMVCommandEvent(COMMAND.ZOOM, this));
+        this.fireJMVEvent(new JMVCommandEvent(CommandType.ZOOM, this));
     }
 
     /**

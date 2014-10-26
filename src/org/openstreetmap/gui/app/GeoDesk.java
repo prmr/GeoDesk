@@ -324,8 +324,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 
     public void processCommand(JMVCommandEvent command) 
     {
-        if (command.getCommand().equals(JMVCommandEvent.COMMAND.ZOOM) ||
-                command.getCommand().equals(JMVCommandEvent.COMMAND.MOVE)) {
+        if (command.getCommand().equals(JMVCommandEvent.CommandType.ZOOM) ||
+                command.getCommand().equals(JMVCommandEvent.CommandType.MOVE)) {
             updateZoomParameters();
         }
     }

@@ -6,44 +6,60 @@ import java.util.EventObject;
 
 /**
  * Used for passing events between UI components and other
- * objects that register as a JMapViewerEventListener
+ * objects that register as a JMapViewerEventListener.
  * 
  * @author Jason Huntley
  *
  */
-public class JMVCommandEvent extends EventObject {
-    public static enum COMMAND {
+public class JMVCommandEvent extends EventObject 
+{
+    private static final long serialVersionUID = 8701544867914969620L;
+	
+    /**
+     * The type of command.
+     */
+    public static enum CommandType 
+    {
         MOVE,
         ZOOM
     }
 
-    private COMMAND command;
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 8701544867914969620L;
-
-    public JMVCommandEvent(COMMAND cmd, Object source) {
-        super(source);
-
-        setCommand(cmd);
-    }
-
-    public JMVCommandEvent(Object source) {
-        super(source);
-    }
+    private CommandType aCommand;
+    
 
     /**
-     * @return the command
+     * Create a new command event with the type.
+     * @param pCommandType The command type.
+     * @param pSource The event source.
      */
-    public COMMAND getCommand() {
-        return command;
+    public JMVCommandEvent(CommandType pCommandType, Object pSource) 
+    {
+        super(pSource);
+        setCommand(pCommandType);
     }
 
     /**
-     * @param command the command to set
+     * Create a new command event with no specified type.
+     * @param pSource The event source.
      */
-    public void setCommand(COMMAND command) {
-        this.command = command;
+    public JMVCommandEvent(Object pSource) 
+    {
+        super(pSource);
+    }
+
+    /**
+     * @return the command type
+     */
+    public CommandType getCommand() 
+    {
+        return aCommand;
+    }
+
+    /**
+     * @param pCommandType the command to set
+     */
+    public void setCommand(CommandType pCommandType) 
+    {
+        aCommand = pCommandType;
     }
 }

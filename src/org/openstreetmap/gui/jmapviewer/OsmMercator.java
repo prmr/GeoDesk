@@ -10,56 +10,75 @@ package org.openstreetmap.gui.jmapviewer;
  * corner. The map space origin (0,0) has latitude ~85 and longitude -180
  *
  * @author Tim Haussmann
- *
+ * @author Jason Huntley
+ * @author Jan Peter Stotz
  */
+public final class OsmMercator 
+{
+	private static final long FULL_CIRCCLE_IN_DEGREES = 360L;
+	private static final long HALF_CIRCLE_IN_DEGREES = 180L;
+	private static final int TILE_SIZE = 256;
+	private static final double MAX_LAT = 85.05112877980659;
+	private static final double MIN_LAT = -85.05112877980659;
+    private static final double EARTH_RADIUS = 6378137; // equatorial earth radius for EPSG:3857 (Mercator) 
 
-public class OsmMercator {
-
-    private static int TILE_SIZE = 256;
-    public static final double MAX_LAT = 85.05112877980659;
-    public static final double MIN_LAT = -85.05112877980659;
-    private static double EARTH_RADIUS = 6378137; // equatorial earth radius for EPSG:3857 (Mercator) 
-
-    public static double radius(int aZoomlevel) {
-        return (TILE_SIZE * (1 << aZoomlevel)) / (2.0 * Math.PI);
+    private OsmMercator()
+    {}
+    
+    private static double radius(int pZoomLevel)
+    {
+        return (TILE_SIZE * (1 << pZoomLevel)) / (2.0 * Math.PI);
     }
 
     /**
-     * Returns the absolut number of pixels in y or x, defined as: 2^Zoomlevel *
-     * TILE_WIDTH where TILE_WIDTH is the width of a tile in pixels
+     * Returns the absolute number of pixels in y or x, defined as: 2^Zoomlevel *
+     * TILE_WIDTH where TILE_WIDTH is the width of a tile in pixels.
      *
-     * @param aZoomlevel zoom level to request pixel data
+     * @param pZoomlevel zoom level to request pixel data
      * @return number of pixels
      */
-    public static int getMaxPixels(int aZoomlevel) {
-        return TILE_SIZE * (1 << aZoomlevel);
-    }
-
-    public static int falseEasting(int aZoomlevel) {
-        return getMaxPixels(aZoomlevel) / 2;
-    }
-
-    public static int falseNorthing(int aZoomlevel) {
-        return (-1 * getMaxPixels(aZoomlevel) / 2);
+    public static int getMaxPixels(int pZoomlevel) 
+    {
+        return TILE_SIZE * (1 << pZoomlevel);
     }
 
     /**
-     * Transform pixelspace to coordinates and get the distance.
-     *
-     * @param x1 the first x coordinate
-     * @param y1 the first y coordinate
-     * @param x2 the second x coordinate
-     * @param y2 the second y coordinate
-     * 
-     * @param zoomLevel the zoom level
-     * @return the distance
-     * @author Jason Huntley
+     * I'm not sure what the point of this function is.
+     * @param pZoomLevel The zoom level
+     * @return Something useful, possibly.
      */
-    public static double getDistance(int x1, int y1, int x2, int y2, int zoomLevel) {
-        double la1 = YToLat(y1, zoomLevel);
-        double lo1 = XToLon(x1, zoomLevel);
-        double la2 = YToLat(y2, zoomLevel);
-        double lo2 = XToLon(x2, zoomLevel);
+    public static int falseEasting(int pZoomLevel) 
+    {
+        return getMaxPixels(pZoomLevel) / 2;
+    }
+
+    /**
+     * I'm not sure what the point of this function is.
+     * @param pZoomLevel The zoom level
+     * @return Something useful, possibly.
+     */
+    public static int falseNorthing(int pZoomLevel) 
+    {
+        return -1 * getMaxPixels(pZoomLevel) / 2;
+    }
+
+    /**
+     * Transform pixel space to coordinates and get the distance.
+     *
+     * @param pX1 the first x coordinate
+     * @param pY1 the first y coordinate
+     * @param pX2 the second x coordinate
+     * @param pY2 the second y coordinate
+     * 
+     * @param pZoomLevel the zoom level
+     * @return the distance
+     */
+    public static double getDistance(int pX1, int pY1, int pX2, int pY2, int pZoomLevel) 
+    {
+        double la1 = yToLatitude(pY1, pZoomLevel);
+        double lo1 = xToLongitude(pX1, pZoomLevel);
+        double la2 = yToLatitude(pY2, pZoomLevel);
+        double lo2 = xToLongitude(pX2, pZoomLevel);
 
         return getDistance(la1, lo1, la2, lo2);
     }
@@ -67,28 +86,27 @@ public class OsmMercator {
     /**
      * Gets the distance using Spherical law of cosines.
      *
-     * @param la1 the Latitude in degrees
-     * @param lo1 the Longitude in degrees
-     * @param la2 the Latitude from 2nd coordinate in degrees
-     * @param lo2 the Longitude from 2nd coordinate in degrees
+     * @param pLatitude1 the Latitude in degrees
+     * @param pLongitude1 the Longitude in degrees
+     * @param pLatitude2 the Latitude from 2nd coordinate in degrees
+     * @param pLongitude2 the Longitude from 2nd coordinate in degrees
      * @return the distance
-     * @author Jason Huntley
      */
-    public static double getDistance(double la1, double lo1, double la2, double lo2) {
-        double aStartLat = Math.toRadians(la1);
-        double aStartLong = Math.toRadians(lo1);
-        double aEndLat =Math.toRadians(la2);
-        double aEndLong = Math.toRadians(lo2);
-
+    public static double getDistance(double pLatitude1, double pLongitude1, double pLatitude2, double pLongitude2) 
+    {
+        double aStartLat = Math.toRadians(pLatitude1);
+        double aStartLong = Math.toRadians(pLongitude1);
+        double aEndLat = Math.toRadians(pLatitude2);
+        double aEndLong = Math.toRadians(pLongitude2);
         double distance = Math.acos(Math.sin(aStartLat) * Math.sin(aEndLat)
-                + Math.cos(aStartLat) * Math.cos(aEndLat)
-                * Math.cos(aEndLong - aStartLong));
+                + Math.cos(aStartLat) * Math.cos(aEndLat) *
+                Math.cos(aEndLong - aStartLong));
 
-        return (EARTH_RADIUS * distance);		
+        return EARTH_RADIUS * distance;		
     }
 
     /**
-     * Transform longitude to pixelspace
+     * Transform longitude to pixel space.
      *
      * <p>
      * Mathematical optimization<br>
@@ -100,20 +118,20 @@ public class OsmMercator {
      * </code>
      * </p>
      *
-     * @param aLongitude
-     *            [-180..180]
+     * @param pLongitude [-180..180]
+     * @param pZoomLevel The zoom level
      * @return [0..2^Zoomlevel*TILE_SIZE[
-     * @author Jan Peter Stotz
      */
-    public static int LonToX(double aLongitude, int aZoomlevel) {
-        int mp = getMaxPixels(aZoomlevel);
-        int x = (int) ((mp * (aLongitude + 180l)) / 360l);
+    public static int longitudeToX(double pLongitude, int pZoomLevel)
+    {
+        int mp = getMaxPixels(pZoomLevel);
+        int x = (int) ((mp * (pLongitude + HALF_CIRCLE_IN_DEGREES)) / FULL_CIRCCLE_IN_DEGREES);
         x = Math.min(x, mp - 1);
         return x;
     }
 
     /**
-     * Transforms latitude to pixelspace
+     * Transforms latitude to pixelspace.
      * <p>
      * Mathematical optimization<br>
      * <code>
@@ -125,26 +143,33 @@ public class OsmMercator {
      * y = getMaxPixel(aZoomlevel) * ((log(u) / (-4 * PI)) + 1/2)<br>
      * </code>
      * </p>
-     * @param aLat
-     *            [-90...90]
+     * @param pLatitude [-90...90]
+     * @param pZoomLevel The zoom level.
      * @return [0..2^Zoomlevel*TILE_SIZE[
-     * @author Jan Peter Stotz
      */
-    public static int LatToY(double aLat, int aZoomlevel) {
-        if (aLat < MIN_LAT)
-            aLat = MIN_LAT;
-        else if (aLat > MAX_LAT)
-            aLat = MAX_LAT;
-        double sinLat = Math.sin(Math.toRadians(aLat));
+    public static int latitudeToY(double pLatitude, int pZoomLevel) 
+    {
+    	double latitude = pLatitude;
+        if(pLatitude < MIN_LAT)
+        {
+        	latitude = MIN_LAT;
+        }
+        else if(pLatitude > MAX_LAT)
+        {
+        	latitude = MAX_LAT;
+        }
+        double sinLat = Math.sin(Math.toRadians(latitude));
         double log = Math.log((1.0 + sinLat) / (1.0 - sinLat));
-        int mp = getMaxPixels(aZoomlevel);
+        int mp = getMaxPixels(pZoomLevel);
+        // CSOFF:
         int y = (int) (mp * (0.5 - (log / (4.0 * Math.PI))));
         y = Math.min(y, mp - 1);
+        // CSON:
         return y;
     }
 
     /**
-     * Transforms pixel coordinate X to longitude
+     * Transforms pixel coordinate X to longitude.
      *
      * <p>
      * Mathematical optimization<br>
@@ -156,25 +181,28 @@ public class OsmMercator {
      * lon = 360 * aX / getMaxPixels(aZoomlevel) - 180<br>
      * </code>
      * </p>
-     * @param aX
-     *            [0..2^Zoomlevel*TILE_WIDTH[
+     * @param pX [0..2^Zoomlevel*TILE_WIDTH[
+     * @param pZoomLevel The zoom level.
      * @return ]-180..180[
-     * @author Jan Peter Stotz
+     * CSOFF:
      */
-    public static double XToLon(int aX, int aZoomlevel) {
-        return ((360d * aX) / getMaxPixels(aZoomlevel)) - 180.0;
+    public static double xToLongitude(int pX, int pZoomLevel) 
+    {
+        return ((360d * pX) / getMaxPixels(pZoomLevel)) - 180.0; //CSON:
     }
 
     /**
-     * Transforms pixel coordinate Y to latitude
+     * Transforms pixel coordinate Y to latitude.
      *
-     * @param aY
-     *            [0..2^Zoomlevel*TILE_WIDTH[
+     * @param pY [0..2^Zoomlevel*TILE_WIDTH[
+     * @param pZoomLevel the zoom level
      * @return [MIN_LAT..MAX_LAT] is about [-85..85]
      */
-    public static double YToLat(int aY, int aZoomlevel) {
-        aY += falseNorthing(aZoomlevel);
-        double latitude = (Math.PI / 2) - (2 * Math.atan(Math.exp(-1.0 * aY / radius(aZoomlevel))));
+    public static double yToLatitude(int pY, int pZoomLevel)
+    {
+    	int ycoordinate = pY;
+    	ycoordinate += falseNorthing(pZoomLevel);
+        double latitude = (Math.PI / 2) - (2 * Math.atan(Math.exp(-1.0 * ycoordinate / radius(pZoomLevel))));
         return -1 * Math.toDegrees(latitude);
     }
 
