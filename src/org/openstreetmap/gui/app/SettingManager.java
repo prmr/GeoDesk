@@ -12,8 +12,10 @@ import java.util.Properties;
  * any other method call on the setting manager. This design is to limit
  * the amount of error handling that must be done whenever the SettingManager
  * is accessed.
+ * 
+ * @author Martin P. Robillard
  */
-public class SettingManager 
+public final class SettingManager 
 {
     private static final String P_DEFAULT_APP_DATA_FILE = "defaultAppDataFile";
     private static final String P_APP_DATA_FILE = "appDataFile";
@@ -22,22 +24,26 @@ public class SettingManager
     private static final String ENV_VAR_USER_PROFILE = "USERPROFILE";
     private static final String ENV_VAR_APP_DATA = "APPDATA";
     
-    private static final SettingManager aInstance = new SettingManager();
+    private static final SettingManager INSTANCE = new SettingManager();
     
     private final Properties aProperties = new Properties();
     private File aPropertiesFile = null;
+    
+    private SettingManager()
+    {}
     
     /**
      * @return The singleton SettingManager.
      */
     public static SettingManager getInstance()
     {
-        return aInstance;
+        return INSTANCE;
     }
     
-    private SettingManager()
-    {}
-    
+    /**
+     * Initializes the user settings.
+     * @throws SettingException If anything goes wrong really.
+     */
     public void initialize() throws SettingException
     {
         String lUserProfile = System.getenv(ENV_VAR_USER_PROFILE);
@@ -148,17 +154,26 @@ public class SettingManager
         }
     }
     
+    /**
+     * @return The name of the data file.
+     */
     public String getDataFileName()
     {
         return aProperties.getProperty(P_APP_DATA_FILE);
     }
     
+    /**
+     * @param pFileName The new name of the data file.
+     */
     public void setDataFileName(String pFileName)
     {
         aProperties.setProperty(P_APP_DATA_FILE, pFileName);
         storeProperties();
     }
     
+    /**
+     * @return The default name of the data file.
+     */
     public String getDefaultDataFileName()
     {
         return aProperties.getProperty(P_DEFAULT_APP_DATA_FILE);

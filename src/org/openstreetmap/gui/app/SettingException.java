@@ -2,6 +2,7 @@ package org.openstreetmap.gui.app;
 
 /**
  * Represents any problem with obtaining or storing the user settings.
+ * CSOFF:
  */
 @SuppressWarnings("serial")
 public class SettingException extends Exception 
@@ -23,5 +24,4 @@ public class SettingException extends Exception
     {
         super(pMessage, pException);
     }
-
-}
+} // CSON:

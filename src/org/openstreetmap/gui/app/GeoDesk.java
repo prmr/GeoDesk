@@ -39,6 +39,11 @@ import org.openstreetmap.gui.xml.KMLReader;
 import org.openstreetmap.gui.xml.KMLReader.MarkerData;
 import org.openstreetmap.gui.xml.XMLWriter;
 
+/**
+ * The main application class.
+ * 
+ * @author Martin P. Robillard
+ */
 @SuppressWarnings("serial")
 public class GeoDesk extends JFrame implements JMapViewerEventListener  
 {   
@@ -49,9 +54,11 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             new MapQuestOsmTileSource(), new MapQuestOpenAerialTileSource()};
     private JMapViewer aMap = null;
 
-    private JLabel zoomValue=null;
-    private JLabel mperpLabelValue = null;
+    private JLabel aZoomValue = null;
 
+    /**
+     * Build and launch the application.
+     */
     public GeoDesk() 
     {
         super(APP_NAME + " - MapQuest OSM Map");
@@ -93,16 +100,16 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         addWindowListener(new WindowAdapter() 
         {
             @Override
-            public void windowOpened(WindowEvent e) 
+            public void windowOpened(WindowEvent pEvent) 
             {
-                super.windowOpened(e);
+                super.windowOpened(pEvent);
                 aMap.setDisplayToFitMapMarkers();
                 String lDataFileName = SettingManager.getInstance().getDataFileName();
                 if( lDataFileName == null )
                 {
                     lDataFileName = SettingManager.getInstance().getDefaultDataFileName();
                     SettingManager.getInstance().setDataFileName(lDataFileName);
-                    JOptionPane.showMessageDialog(aMap,"Your marker data will be stored at the default location:\n" + 
+                    JOptionPane.showMessageDialog(aMap, "Your marker data will be stored at the default location:\n" + 
                             lDataFileName + ".\nTo change this, use the menu Data | Change Location.", 
                             "Marker Data Location", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -110,7 +117,6 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         
         setVisible(true);
-        
     }
     
     private void buildMenus()
@@ -120,7 +126,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         lMapMenu.setMnemonic(KeyEvent.VK_M);
         lMenuBar.add(lMapMenu);
         
-        JMenuItem lMap = new JMenuItem("Mapnik",KeyEvent.VK_N);
+        JMenuItem lMap = new JMenuItem("Mapnik", KeyEvent.VK_N);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -131,7 +137,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("OSM Cycle",KeyEvent.VK_C);
+        lMap = new JMenuItem("OSM Cycle", KeyEvent.VK_C);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -142,7 +148,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("Bing Aerial",KeyEvent.VK_B);
+        lMap = new JMenuItem("Bing Aerial", KeyEvent.VK_B);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -153,7 +159,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("MapQuest OSM",KeyEvent.VK_O);
+        lMap = new JMenuItem("MapQuest OSM", KeyEvent.VK_O);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -164,7 +170,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("MapQuest Aerial",KeyEvent.VK_A);
+        lMap = new JMenuItem("MapQuest Aerial", KeyEvent.VK_A);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -179,7 +185,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         lMapMenu.setMnemonic(KeyEvent.VK_D);
         lMenuBar.add(lDataMenu);
         
-        JMenuItem lDataFile = new JMenuItem("Data File",KeyEvent.VK_F);
+        JMenuItem lDataFile = new JMenuItem("Data File", KeyEvent.VK_F);
         lDataFile.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -209,7 +215,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lDataMenu.add(lDataFile);
         
-        JMenuItem lImport = new JMenuItem("Import Data",KeyEvent.VK_I);
+        JMenuItem lImport = new JMenuItem("Import Data", KeyEvent.VK_I);
         lImport.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -244,7 +250,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                     try
                     {
                         XMLWriter.backup(SettingManager.getInstance().getDataFileName());
-                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), SettingManager.getInstance().getDataFileName());
+                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+                        		SettingManager.getInstance().getDataFileName());
                     }
                     catch( Exception exception)
                     {
@@ -307,7 +314,12 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         
     }
 
-    public static void main(String[] args) throws Exception
+    /**
+     * Launch the application.
+     * @param pArguments Not used.
+     * @throws Exception Anything
+     */
+    public static void main(String[] pArguments) throws Exception
     {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         SettingManager.getInstance().initialize();
@@ -316,16 +328,18 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 
     private void updateZoomParameters() 
     {
-        if (mperpLabelValue!=null)
-            mperpLabelValue.setText(String.format("%s",aMap.getMeterPerPixel()));
-        if (zoomValue!=null)
-            zoomValue.setText(String.format("%s", aMap.getZoom()));
+        if(aZoomValue!=null)
+        {
+            aZoomValue.setText(String.format("%s", aMap.getZoom()));
+        }
     }
 
-    public void processCommand(JMVCommandEvent command) 
+    @Override
+    public void processCommand(JMVCommandEvent pCommand) 
     {
-        if (command.getCommand().equals(JMVCommandEvent.CommandType.ZOOM) ||
-                command.getCommand().equals(JMVCommandEvent.CommandType.MOVE)) {
+        if (pCommand.getCommand().equals(JMVCommandEvent.CommandType.ZOOM) ||
+                pCommand.getCommand().equals(JMVCommandEvent.CommandType.MOVE)) 
+        {
             updateZoomParameters();
         }
     }
