@@ -2,7 +2,7 @@ package org.openstreetmap.gui.jmapviewer;
 
 //License: GPL.
 
-import static org.openstreetmap.gui.jmapviewer.FeatureAdapter.tr;
+import static org.openstreetmap.gui.jmapviewer.FeatureAdapter.translate;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -57,7 +57,7 @@ public class AttributionSupport
             aAttributionTermsUrl = pTileSource.getTermsOfUseURL();
             if(aAttributionTermsUrl != null && aAttributionTermsText == null) 
             {
-                aAttributionTermsText = tr("Background Terms of Use");
+                aAttributionTermsText = translate("Background Terms of Use");
             }
         } 
         else

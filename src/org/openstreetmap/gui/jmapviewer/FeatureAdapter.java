@@ -8,57 +8,93 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 
-public class FeatureAdapter {
-
-    public static interface BrowserAdapter {
-        void openLink(String url);
+/**
+ * Retire this class with Release 0.2. Most of this code is part
+ * of an incomplete development to the feature to view terms of use.
+ */
+public final class FeatureAdapter 
+{
+	private static BrowserAdapter browserAdapter = new DefaultBrowserAdapter();
+    private static TranslationAdapter translationAdapter = new DefaultTranslationAdapter();
+	
+    private FeatureAdapter()
+    {}
+    
+    private interface BrowserAdapter
+    {
+        void openLink(String pUrl);
     }
 
-    public static interface TranslationAdapter {
-        String tr(String text, Object... objects);
+    private interface TranslationAdapter 
+    {
+        String tr(String pText, Object... pObjects);
         // TODO: more i18n functions
     }
 
-    private static BrowserAdapter browserAdapter = new DefaultBrowserAdapter();
-    private static TranslationAdapter translationAdapter = new DefaultTranslationAdapter();
+//    public static void registerBrowserAdapter(BrowserAdapter pBrowserAdapter) 
+//    {
+//        FeatureAdapter.browserAdapter = pBrowserAdapter;
+//    }
 
-    public static void registerBrowserAdapter(BrowserAdapter browserAdapter) {
-        FeatureAdapter.browserAdapter = browserAdapter;
+    // Private because not used.
+//    private static void registerTranslationAdapter(TranslationAdapter translationAdapter) 
+//    {
+//        FeatureAdapter.translationAdapter = translationAdapter;
+//    }
+
+    /**
+     * Open a link in a browser.
+     * @param pUrl The link to open
+     */
+    public static void openLink(String pUrl) 
+    {
+        browserAdapter.openLink(pUrl);
     }
 
-    public static void registerTranslationAdapter(TranslationAdapter translationAdapter) {
-        FeatureAdapter.translationAdapter = translationAdapter;
+    /**
+     * Translate a string.
+     * @param pText The text to translate
+     * @param pObjects No idea what that is.
+     * @return The translated string?
+     */
+    public static String translate(String pText, Object... pObjects)
+    {
+        return translationAdapter.tr(pText, pObjects);
     }
 
-    public static void openLink(String url) {
-        browserAdapter.openLink(url);
-    }
-
-    public static String tr(String text, Object... objects) {
-        return translationAdapter.tr(text, objects);
-    }
-
-    public static class DefaultBrowserAdapter implements BrowserAdapter {
+    private static class DefaultBrowserAdapter implements BrowserAdapter
+    {
         //@Override
-        public void openLink(String url) {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                try {
-                    Desktop.getDesktop().browse(new URI(url));
-                } catch (IOException e) {
+        public void openLink(String pUrl) 
+        {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) 
+            {
+                try 
+                {
+                    Desktop.getDesktop().browse(new URI(pUrl));
+                } 
+                catch (IOException e) 
+                {
                     e.printStackTrace();
-                } catch (URISyntaxException e) {
+                } 
+                catch (URISyntaxException e) 
+                {
                     e.printStackTrace();
                 }
-            } else {
-                System.err.println(tr("Opening link not supported on current platform (''{0}'')", url));
+            } 
+            else
+            {
+                System.err.println(translate("Opening link not supported on current platform (''{0}'')", pUrl));
             }
         }
     }
 
-    public static class DefaultTranslationAdapter implements TranslationAdapter {
+    private static class DefaultTranslationAdapter implements TranslationAdapter
+    {
         //@Override
-        public String tr(String text, Object... objects) {
-            return MessageFormat.format(text, objects);
+        public String tr(String pText, Object... pObjects)
+        {
+            return MessageFormat.format(pText, pObjects);
         }
     }
 }
