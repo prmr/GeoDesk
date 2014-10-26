@@ -80,7 +80,8 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                         Coordinate lCoord = aMap.getPosition((int)aLastClickedPoint.getX(), (int)aLastClickedPoint.getY());
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
-                            aMap.addMapMarker(new MapMarkerDot(lCoord.getLatitude(), lCoord.getLongitude(), lMIP.getName(), lMIP.getDescription()));
+                            aMap.addMapMarker(new MapMarkerDot(lCoord.getLatitude(), lCoord.getLongitude(), 
+                            		lMIP.getMarkerName(), lMIP.getDescription()));
                         
                             List<MapMarker> lMarkers = aMap.getMapMarkerList();
                             try
@@ -135,7 +136,7 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                         int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, "Edit Marker Data", JOptionPane.OK_CANCEL_OPTION);
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
-                            lSelected.setName(lMIP.getName());
+                            lSelected.setName(lMIP.getMarkerName());
                             lSelected.setDescription(lMIP.getDescription());
                             List<MapMarker> lMarkers = aMap.getMapMarkerList();
                             try

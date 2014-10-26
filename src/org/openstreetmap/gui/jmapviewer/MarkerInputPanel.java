@@ -12,17 +12,33 @@ import javax.swing.JTextField;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+/**
+ * Used to provide input data for a map marker.
+ * 
+ * @author Martin P. Robilard
+ */
 @SuppressWarnings("serial")
 public class MarkerInputPanel extends JPanel 
 {
-    private JTextField aNameField = new JTextField(40);
-    private JTextArea  aDescriptionField = new JTextArea(5,40);
+	private static final int FIELD_WIDTH = 40;
+	private static final int FIELD_HEIGHT = 5;
+
+    private JTextField aNameField = new JTextField(FIELD_WIDTH);
+    private JTextArea  aDescriptionField = new JTextArea(FIELD_HEIGHT, FIELD_WIDTH);
     
+    /**
+     * Creates a panel with no title or description.
+     */
     public MarkerInputPanel()
     {
-        this("","");
+        this("", "");
     }
     
+    /**
+     * Creates a panel with a panel name and description.
+     * @param pName The name already set.
+     * @param pDescription The description already set.
+     */
     public MarkerInputPanel(String pName, String pDescription)
     {
         aNameField.addAncestorListener(new RequestFocusListener());
@@ -38,16 +54,22 @@ public class MarkerInputPanel extends JPanel
         JPanel lCenter = new JPanel();
         add(lCenter);
         lCenter.setLayout(new BorderLayout());
-        lCenter.add(new JLabel("Description:"),BorderLayout.NORTH);
+        lCenter.add(new JLabel("Description:"), BorderLayout.NORTH);
         JScrollPane lSPane = new JScrollPane(aDescriptionField);
-        lCenter.add(lSPane,BorderLayout.CENTER);     
+        lCenter.add(lSPane, BorderLayout.CENTER);     
     }
     
-    public String getName()
+    /**
+     * @return The name of the place associated with the marker.
+     */
+    public String getMarkerName()
     {
         return aNameField.getText();
     }
     
+    /**
+     * @return The description associated with the marker.
+     */
     public String getDescription()
     {
         return aDescriptionField.getText();
@@ -73,9 +95,9 @@ public class MarkerInputPanel extends JPanel
  */
 class RequestFocusListener implements AncestorListener
 {
-    private boolean removeListener;
+    private boolean aRemoveListener;
 
-    /*
+    /**
      *  Convenience constructor. The listener is only used once and then it is
      *  removed from the component.
      */
@@ -84,29 +106,31 @@ class RequestFocusListener implements AncestorListener
         this(true);
     }
 
-    /*
+    /**
      *  Constructor that controls whether this listen can be used once or
      *  multiple times.
      *
-     *  @param removeListener when true this listener is only invoked once
+     *  @param pRemoveListener when true this listener is only invoked once
      *                        otherwise it can be invoked multiple times.
      */
-    public RequestFocusListener(boolean removeListener)
+    public RequestFocusListener(boolean pRemoveListener)
     {
-        this.removeListener = removeListener;
+        this.aRemoveListener = pRemoveListener;
     }
 
-    public void ancestorAdded(AncestorEvent e)
+    public void ancestorAdded(AncestorEvent pEvent)
     {
-        JComponent component = e.getComponent();
+        JComponent component = pEvent.getComponent();
         component.requestFocusInWindow();
 
-        if (removeListener)
-            component.removeAncestorListener( this );
+        if(aRemoveListener)
+        {
+            component.removeAncestorListener(this);
+        }
     }
 
-    public void ancestorMoved(AncestorEvent e) {}
+    public void ancestorMoved(AncestorEvent pEvent) {}
 
-    public void ancestorRemoved(AncestorEvent e) {}
+    public void ancestorRemoved(AncestorEvent pEvent) {}
 }
 
