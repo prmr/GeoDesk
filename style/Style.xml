@@ -186,4 +186,9 @@
     <property name="offCommentFormat" value="CSOFF:"/>
     <property name="onCommentFormat" value="CSON:"/>
   </module>
+  <module name="SuppressWithNearbyCommentFilter">
+   <property name="commentFormat" value="CHECKSTYLE DISABLE ([\w\|]+) FOR (-?\d+) LINES"/>
+   <property name="checkFormat" value="$1"/>
+   <property name="influenceFormat" value="$2"/>
+</module>
 </module>

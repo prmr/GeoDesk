@@ -276,7 +276,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                aMap.setZoomContolsVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
+                aMap.setZoomControlsVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
             }
         });
         lMarkersMenu.add(lMarker);
