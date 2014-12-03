@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document>
+  <Placemark>
+    <name>Drumheller, AB</name>
+    <description><![CDATA[Dinosaurs abound!.]]></description>
+    <Point>
+      <coordinates>-112.714233,51.454006,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Memmingen, Germany</name>
+    <description><![CDATA[Cute German town]]></description>
+    <Point>
+      <coordinates>10.182781,47.985153,0.000000</coordinates>
+    </Point>
+  </Placemark>
+  <Placemark>
+    <name>Fundy National Park, NB</name>
+    <description><![CDATA[Flowerpots.]]></description>
+    <Point>
+      <coordinates>-65.014343,45.551563,0.000000</coordinates>
+    </Point>
+  </Placemark>
+</Document>

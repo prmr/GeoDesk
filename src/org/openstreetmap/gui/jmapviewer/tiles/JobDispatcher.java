@@ -7,10 +7,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A generic class that processes a list of {@link Runnable} one-by-one using
- * one or more {@link Thread}-instances. The number of instances varies between
- * 1 and {@link #WORKER_THREAD_MAX_COUNT} (default: 8). If an instance is idle
- * more than {@link #WORKER_THREAD_TIMEOUT} seconds (default: 30), the instance
+ * A generic class that processes a list of Runnable one-by-one using
+ * one or more Thread-instances. The number of instances varies between
+ * 1 and #WORKER_THREAD_MAX_COUNT (default: 8). If an instance is idle
+ * more than #WORKER_THREAD_TIMEOUT seconds (default: 30), the instance
  * ends itself.
  *
  * @author Jan Peter Stotz
@@ -196,5 +196,4 @@ public final class JobDispatcher
             }
         }
     }
-
 }

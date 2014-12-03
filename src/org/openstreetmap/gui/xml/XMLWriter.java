@@ -10,8 +10,6 @@ import java.nio.channels.FileChannel;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.openstreetmap.gui.jmapviewer.MapMarker;
 import org.w3c.dom.CDATASection;
@@ -24,6 +22,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
  * @author Martin P. Robillard
+ * 
  * Writes a list of marker into an XML file.
  */
 public final class XMLWriter
@@ -41,25 +40,16 @@ public final class XMLWriter
      */
     public static void write(MapMarker[] pMarkers, String pFileName) throws Exception
     {
-        try 
-        {
-            File lFile = new File(pFileName);
-            lFile.createNewFile();
-            Document doc = buildDocument(pMarkers);
-            OutputFormat format = new OutputFormat(doc);
-            format.setLineWidth(LINE_WIDTH);
-            format.setIndenting(true);
-            format.setIndent(2);
-            Writer out = new PrintWriter(lFile);
-            XMLSerializer serializer = new XMLSerializer(out, format);
-            serializer.serialize(doc);
-        } 
-        catch( TransformerConfigurationException e ) 
-        {
-        } 
-        catch( TransformerException e) 
-        {
-        }
+        File lFile = new File(pFileName);
+        lFile.createNewFile();
+        Document doc = buildDocument(pMarkers);
+        OutputFormat format = new OutputFormat(doc);
+        format.setLineWidth(LINE_WIDTH);
+        format.setIndenting(true);
+        format.setIndent(2);
+        Writer out = new PrintWriter(lFile);
+        XMLSerializer serializer = new XMLSerializer(out, format);
+        serializer.serialize(doc);
     }
     
     private static Document buildDocument(MapMarker[] pMarkers) throws Exception
@@ -100,9 +90,9 @@ public final class XMLWriter
     /**
      * Make a copy (backup) of the current markers file.
      * @param pFile The file to copy.
-     * @throws IOException If there is any problem with the backup.
+     * @throws PersistenceException If there is any problem with the backup.
      */
-    public static void backup(String pFile) throws IOException
+    public static void backup(String pFile) throws PersistenceException
     {
         File lFile = new File(pFile);
         if( !lFile.exists() )
@@ -112,7 +102,14 @@ public final class XMLWriter
         File lBackup = new File(pFile + ".backup");
         if(!lBackup.exists()) 
         {
-            lBackup.createNewFile();
+        	try
+        	{
+        		lBackup.createNewFile();
+        	}
+        	catch(IOException exception)
+        	{
+        		throw new PersistenceException("Cannot created file: " + pFile, exception);
+        	}
         }
     
         FileChannel source = null;
@@ -124,15 +121,36 @@ public final class XMLWriter
             destination = new FileOutputStream(lBackup).getChannel();
             destination.transferFrom(source, 0, source.size());
         }
+        catch( IOException exception )
+        {
+        	throw new PersistenceException("Problem making a backup of file: " + pFile, exception);
+        }
         finally 
         {
             if(source != null)
             {
-                source.close();
-            }
-            if(destination != null)
-            {
-                destination.close();
+            	try
+            	{
+            		source.close();
+            	}
+            	catch( IOException exception1 )
+            	{
+            		throw new PersistenceException("Problem making a backup of file: " + pFile, exception1);
+            	}
+            	finally
+            	{
+            		if(destination != null)
+            		{
+            			try
+            			{
+            				destination.close();
+            			}
+            			catch( IOException exception2 )
+            			{
+            				throw new PersistenceException("Problem making a backup of file: " + pFile, exception2);
+            			}
+            		}
+            	}
             }
         }
     }
