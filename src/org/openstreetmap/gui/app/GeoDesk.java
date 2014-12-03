@@ -122,9 +122,211 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
     private void buildMenus()
     {
         JMenuBar lMenuBar = new JMenuBar();
-        JMenu lMapMenu = new JMenu("Map");
+        createMapMenu(lMenuBar);
+        createDataMenu(lMenuBar);
+        createViewMenu(lMenuBar);
+        setJMenuBar(lMenuBar);
+    }
+
+	private void createViewMenu(JMenuBar pMenuBar)
+	{
+		JMenu lMarkersMenu = new JMenu("View");
+        lMarkersMenu.setMnemonic(KeyEvent.VK_K);
+        pMenuBar.add(lMarkersMenu);
+        
+        JCheckBoxMenuItem lMarker = new JCheckBoxMenuItem("Show Markers", true);
+        lMarker.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                aMap.setMapMarkerVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
+            }
+        });
+        lMarkersMenu.add(lMarker);
+        
+        lMarker = new JCheckBoxMenuItem("Show Zoom Controls", true);
+        lMarker.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                aMap.setZoomControlsVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
+            }
+        });
+        lMarkersMenu.add(lMarker);
+        
+        lMarker = new JCheckBoxMenuItem("Show Legend", true);
+        lMarker.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                aMap.setMapLegendVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
+            }
+        });
+        lMarkersMenu.add(lMarker);
+        
+        JMenuItem lFit = new JMenuItem("Fit Display", KeyEvent.VK_F);
+        lFit.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                aMap.setDisplayToFitMapMarkers();
+            }
+        });
+        lMarkersMenu.add(lFit);
+	}
+
+	private void createDataMenu(JMenuBar pMenuBar)
+	{
+		JMenu lDataMenu = new JMenu("Data");
+        lDataMenu.setMnemonic(KeyEvent.VK_D);
+        pMenuBar.add(lDataMenu);
+        JMenuItem lDataFile = new JMenuItem("New Data File", KeyEvent.VK_N);
+        lDataFile.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+                chooser.setFileFilter(filter);
+                chooser.setDialogTitle("Choose a new destination data file");
+                int returnVal = chooser.showSaveDialog(aMap);
+                if(returnVal == JFileChooser.APPROVE_OPTION) 
+                {
+                	String path = chooser.getSelectedFile().getAbsolutePath();
+                	String confirmMessage = "";
+                	boolean goAhead = true;
+                	
+                	if( new File(path).exists() )
+                	{
+                		goAhead = false;
+                		confirmMessage = "File " + path + " already exists. Override?";
+                		int confirmation = JOptionPane.showConfirmDialog(aMap, confirmMessage, "Confirm new data file", JOptionPane.OK_CANCEL_OPTION);
+                		if( confirmation == JOptionPane.OK_OPTION )
+                    	{
+                			goAhead = true;
+                    	}
+                	}
+                	
+                	if( goAhead )
+                	{
+                		SettingManager.getInstance().setDataFileName(path);
+                		List<MapMarker> lMarkers = aMap.getMapMarkerList();
+                		try
+                		{
+                			XMLWriter.backup(chooser.getSelectedFile().getAbsolutePath());
+                			XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+                					chooser.getSelectedFile().getAbsolutePath());
+                		}
+                		catch( Exception exception)
+                		{
+                			exception.printStackTrace();
+                		}
+                	}
+                }
+            }
+        });
+        lDataMenu.add(lDataFile);
+        
+        JMenuItem lLoadMenu = new JMenuItem("Load from Data File", KeyEvent.VK_L);
+        lLoadMenu.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+                chooser.setFileFilter(filter);
+                chooser.setDialogTitle("Choose a new data file to load from");
+                int returnVal = chooser.showSaveDialog(aMap);
+                if(returnVal == JFileChooser.APPROVE_OPTION) 
+                {
+                	String path = chooser.getSelectedFile().getAbsolutePath();
+                	
+                	if( !new File(path).exists() )
+                	{
+                		JOptionPane.showMessageDialog(aMap, path + " does not exist", "Error loading data file", JOptionPane.ERROR_MESSAGE);
+                	}
+                	else
+                	{
+                		aMap.removeAllMapMarkers();
+                		SettingManager.getInstance().setDataFileName(path);
+                		try
+                        {   
+                            MarkerData[] lData = KMLReader.extractData(chooser.getSelectedFile().getAbsolutePath());
+                            if( lData!= null )
+                            {
+                                for( MarkerData lPoint : lData )
+                                {
+                                    aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
+                                            lPoint.getName(), lPoint.getDescription()));
+                                }
+                            }
+                        }
+                        catch( Exception e )
+                        {
+                            e.printStackTrace();
+                        }
+                        aMap.setDisplayToFitMapMarkers();
+                	}
+                }
+            }
+        });
+        lDataMenu.add(lLoadMenu);
+        
+        JMenuItem lImport = new JMenuItem("Import Data", KeyEvent.VK_I);
+        lImport.addActionListener( new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent pEvent) 
+            {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML and KML Files", "xml", "kml");
+                chooser.setFileFilter(filter);
+                chooser.setDialogTitle("Choose existing data file to import from");
+                int returnVal = chooser.showOpenDialog(aMap);
+                if(returnVal == JFileChooser.APPROVE_OPTION) 
+                {
+                    try
+                    {   
+                        MarkerData[] lData = KMLReader.extractData(chooser.getSelectedFile().getAbsolutePath());
+                        if( lData!= null )
+                        {
+                            for( MarkerData lPoint : lData )
+                            {
+                                aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
+                                        lPoint.getName(), lPoint.getDescription()));
+                            }
+                        }
+                    }
+                    catch( Exception e )
+                    {
+                        e.printStackTrace();
+                    }
+                    
+                    List<MapMarker> lMarkers = aMap.getMapMarkerList();
+                    try
+                    {
+                        XMLWriter.backup(SettingManager.getInstance().getDataFileName());
+                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+                        		SettingManager.getInstance().getDataFileName());
+                    }
+                    catch( Exception exception)
+                    {
+                        exception.printStackTrace();
+                    }
+                    aMap.setDisplayToFitMapMarkers();
+                }
+            }
+        });
+        lDataMenu.add(lImport);
+	}
+
+	private void createMapMenu(JMenuBar pMenuBar)
+	{
+		JMenu lMapMenu = new JMenu("Map");
         lMapMenu.setMnemonic(KeyEvent.VK_M);
-        lMenuBar.add(lMapMenu);
+        pMenuBar.add(lMapMenu);
         
         JMenuItem lMap = new JMenuItem("Mapnik", KeyEvent.VK_N);
         lMap.addActionListener( new ActionListener() 
@@ -180,153 +382,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             }
         });
         lMapMenu.add(lMap);
-        
-        JMenu lDataMenu = new JMenu("Data");
-        lMapMenu.setMnemonic(KeyEvent.VK_D);
-        lMenuBar.add(lDataMenu);
-        
-        JMenuItem lDataFile = new JMenuItem("Data File", KeyEvent.VK_F);
-        lDataFile.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
-                chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose your data file");
-                int returnVal = chooser.showSaveDialog(aMap);
-                if(returnVal == JFileChooser.APPROVE_OPTION) 
-                {
-                	String path = chooser.getSelectedFile().getAbsolutePath();
-                	String confirmMessage = "";
-                	if( new File(path).exists() )
-                	{
-                		confirmMessage = "Your current GPS data will now be stored in " + path + ". Previous data in this file will be overwritten.";
-                	}
-                	else
-                	{
-                		confirmMessage  = "Your current GPS data will be stored in a new file " + path;
-                	}
-                	int confirmation = JOptionPane.showConfirmDialog(aMap, confirmMessage, "Confirm new data file", JOptionPane.OK_CANCEL_OPTION);
-                	if( confirmation == JOptionPane.OK_OPTION )
-                	{
-                		SettingManager.getInstance().setDataFileName(path);
-                		List<MapMarker> lMarkers = aMap.getMapMarkerList();
-                		try
-                		{
-                			XMLWriter.backup(chooser.getSelectedFile().getAbsolutePath());
-                			XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
-                					chooser.getSelectedFile().getAbsolutePath());
-                		}
-                		catch( Exception exception)
-                		{
-                			exception.printStackTrace();
-                		}
-                	}
-                }
-            }
-        });
-        lDataMenu.add(lDataFile);
-        
-        JMenuItem lImport = new JMenuItem("Import Data", KeyEvent.VK_I);
-        lImport.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "XML and KML Files", "xml", "kml");
-                chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose existing data file");
-                int returnVal = chooser.showOpenDialog(aMap);
-                if(returnVal == JFileChooser.APPROVE_OPTION) 
-                {
-                    try
-                    {   
-                        MarkerData[] lData = KMLReader.extractData(chooser.getSelectedFile().getAbsolutePath());
-                        if( lData!= null )
-                        {
-                            for( MarkerData lPoint : lData )
-                            {
-                                aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
-                                        lPoint.getName(), lPoint.getDescription()));
-                            }
-                        }
-                    }
-                    catch( Exception e )
-                    {
-                        e.printStackTrace();
-                    }
-                    
-                    List<MapMarker> lMarkers = aMap.getMapMarkerList();
-                    try
-                    {
-                        XMLWriter.backup(SettingManager.getInstance().getDataFileName());
-                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
-                        		SettingManager.getInstance().getDataFileName());
-                    }
-                    catch( Exception exception)
-                    {
-                        exception.printStackTrace();
-                    }
-                    aMap.setDisplayToFitMapMarkers();
-                }
-            }
-        });
-        lDataMenu.add(lImport);
-        
-        // Markers
-        JMenu lMarkersMenu = new JMenu("View");
-        lMarkersMenu.setMnemonic(KeyEvent.VK_K);
-        lMenuBar.add(lMarkersMenu);
-        
-        JCheckBoxMenuItem lMarker = new JCheckBoxMenuItem("Show Markers", true);
-        lMarker.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                aMap.setMapMarkerVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
-            }
-        });
-        lMarkersMenu.add(lMarker);
-        
-        lMarker = new JCheckBoxMenuItem("Show Zoom Controls", true);
-        lMarker.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                aMap.setZoomControlsVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
-            }
-        });
-        lMarkersMenu.add(lMarker);
-        
-        lMarker = new JCheckBoxMenuItem("Show Legend", true);
-        lMarker.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                aMap.setMapLegendVisible(((JCheckBoxMenuItem)pEvent.getSource()).isSelected());
-            }
-        });
-        lMarkersMenu.add(lMarker);
-        
-        JMenuItem lFit = new JMenuItem("Fit Display", KeyEvent.VK_F);
-        lFit.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                aMap.setDisplayToFitMapMarkers();
-            }
-        });
-        lMarkersMenu.add(lFit);
-        
-        
-        
-        setJMenuBar(lMenuBar);
-        
-    }
+	}
 
     /**
      * Launch the application.
