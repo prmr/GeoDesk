@@ -192,24 +192,38 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "XML Files", "xml");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
                 chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose where to save your data");
+                chooser.setDialogTitle("Choose your data file");
                 int returnVal = chooser.showSaveDialog(aMap);
                 if(returnVal == JFileChooser.APPROVE_OPTION) 
                 {
-                    SettingManager.getInstance().setDataFileName(chooser.getSelectedFile().getAbsolutePath());
-                    List<MapMarker> lMarkers = aMap.getMapMarkerList();
-                    try
-                    {
-                        XMLWriter.backup(chooser.getSelectedFile().getAbsolutePath());
-                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), chooser.getSelectedFile().getAbsolutePath());
-                    }
-                    catch( Exception exception)
-                    {
-                        exception.printStackTrace();
-                    }
+                	String path = chooser.getSelectedFile().getAbsolutePath();
+                	String confirmMessage = "";
+                	if( new File(path).exists() )
+                	{
+                		confirmMessage = "Your current GPS data will now be stored in " + path + ". Previous data in this file will be overwritten.";
+                	}
+                	else
+                	{
+                		confirmMessage  = "Your current GPS data will be stored in a new file " + path;
+                	}
+                	int confirmation = JOptionPane.showConfirmDialog(aMap, confirmMessage, "Confirm new data file", JOptionPane.OK_CANCEL_OPTION);
+                	if( confirmation == JOptionPane.OK_OPTION )
+                	{
+                		SettingManager.getInstance().setDataFileName(path);
+                		List<MapMarker> lMarkers = aMap.getMapMarkerList();
+                		try
+                		{
+                			XMLWriter.backup(chooser.getSelectedFile().getAbsolutePath());
+                			XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+                					chooser.getSelectedFile().getAbsolutePath());
+                		}
+                		catch( Exception exception)
+                		{
+                			exception.printStackTrace();
+                		}
+                	}
                 }
             }
         });
