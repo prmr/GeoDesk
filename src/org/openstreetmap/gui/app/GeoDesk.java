@@ -47,8 +47,7 @@ import org.openstreetmap.gui.persistence.XMLWriter;
 @SuppressWarnings("serial")
 public class GeoDesk extends JFrame implements JMapViewerEventListener  
 {   
-	private static final Version VERSION = new Version(0, 1, 0);
-    private static final String APP_NAME = "GeoDesk" + VERSION.toString();
+    private static final String APP_NAME = "GeoDesk" + Version.instance().toString();
     
     private TileSource[] aTileSources = {new MapnikOsmTileSource(),
             new CycleOsmTileSource(), new BingAerialTileSource(), 
@@ -391,7 +390,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 		JMenu lHelpMenu = new JMenu("Help");
 		lHelpMenu.setMnemonic(KeyEvent.VK_H);
         pMenuBar.add(lHelpMenu);
-        final String message = "GeoDesk " + VERSION.toString() + "\n\n" +
+        final String message = "GeoDesk " + Version.instance().toString() + "\n\n" +
         		"By Martin P. Robillard based on a framework\n" + 
         		"by Jan Peter Stotz and others\n\n" +
         		"LICENSE: GNU GPL Version 3\n\n" + 

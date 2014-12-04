@@ -2,12 +2,15 @@ package org.openstreetmap.gui.app;
 
 /**
  * Support for semantic versioning. A Version must have a 
- * major an minor number, but the patch is optional.
+ * major an minor number, but the patch is optional. The version
+ * is a singleton.
  * 
  * @author Martin P. Robillard
  */
-public class Version
+public final class Version
 {
+	private static final Version VERSION = new Version(0, 2, 0);
+	
 	private int aMajor = -1;
 	private int aMinor = -1;
 	private int aPatch = -1; 
@@ -18,7 +21,7 @@ public class Version
 	 * @param pMinor The minor version.
 	 * @param pPatch The patch version.
 	 */
-	public Version(int pMajor, int pMinor, int pPatch)
+	private Version(int pMajor, int pMinor, int pPatch)
 	{
 		assert pMajor >= 0;
 		assert pMinor >= 0;
@@ -27,6 +30,14 @@ public class Version
 		aMajor = pMajor;
 		aMinor = pMinor;
 		aPatch = pPatch;
+	}
+	
+	/**
+	 * @return The global version instance.
+	 */
+	public static Version instance()
+	{
+		return VERSION;
 	}
 	
 	@Override

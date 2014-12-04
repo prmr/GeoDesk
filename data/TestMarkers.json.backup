@@ -1,0 +1,18 @@
+{"geometries":
+	[{"properties": 
+		{"description":"This is not the capital of South Africa",
+		 "name":"Cape Town, South Africa"
+		},
+	  "type":"Point",
+	  "coordinates":[18.427633,-33.91621]
+	  },
+	  {"properties":
+	  	{"description":"Home of McGill University",
+	  	 "name":"Montréal, QC, Canada"
+	  	 },
+	  	 "type":"Point",
+	  	 "coordinates":[-73.596039,45.489502]}
+	  ],
+ "properties":{"geodesk-version":"0.2.0"},
+ "type":"GeometryCollection"
+}
