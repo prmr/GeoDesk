@@ -8,7 +8,7 @@ package org.openstreetmap.gui.persistence;
  * CSOFF:
  */
 @SuppressWarnings("serial")
-public class PersistenceException extends Exception
+public class PersistenceException extends RuntimeException
 {
 	public PersistenceException(String pMessage, Throwable pCause)
 	{
