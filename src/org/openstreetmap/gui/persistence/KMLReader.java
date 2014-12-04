@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.xml;
+package org.openstreetmap.gui.persistence;
 
 import java.io.File;
 import java.util.regex.Pattern;

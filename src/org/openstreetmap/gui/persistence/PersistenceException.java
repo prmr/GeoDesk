@@ -1,4 +1,4 @@
-package org.openstreetmap.gui.xml;
+package org.openstreetmap.gui.persistence;
 
 /**
  * @author Martin P. Robillard

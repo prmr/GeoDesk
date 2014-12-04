@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.openstreetmap.gui.app.SettingManager;
-import org.openstreetmap.gui.xml.XMLWriter;
+import org.openstreetmap.gui.persistence.XMLWriter;
 
 /**
  * Default map controller which implements map moving by pressing the right

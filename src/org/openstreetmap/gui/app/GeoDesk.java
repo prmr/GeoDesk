@@ -35,9 +35,9 @@ import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
-import org.openstreetmap.gui.xml.KMLReader;
-import org.openstreetmap.gui.xml.KMLReader.MarkerData;
-import org.openstreetmap.gui.xml.XMLWriter;
+import org.openstreetmap.gui.persistence.KMLReader;
+import org.openstreetmap.gui.persistence.XMLWriter;
+import org.openstreetmap.gui.persistence.KMLReader.MarkerData;
 
 /**
  * The main application class.
