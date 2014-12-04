@@ -36,8 +36,8 @@ import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 import org.openstreetmap.gui.persistence.KMLReader;
+import org.openstreetmap.gui.persistence.MarkerData;
 import org.openstreetmap.gui.persistence.XMLWriter;
-import org.openstreetmap.gui.persistence.KMLReader.MarkerData;
 
 /**
  * The main application class.
@@ -75,7 +75,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         add(aMap, BorderLayout.CENTER);
         
-        KMLReader.MarkerData[] lData = null;
+        MarkerData[] lData = null;
         try
         {   
             String lFile = SettingManager.getInstance().getDataFileName();
@@ -90,7 +90,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         }
         if( lData!= null )
         {
-            for( KMLReader.MarkerData lPoint : lData )
+            for( MarkerData lPoint : lData )
             {
                 aMap.addMapMarker(new MapMarkerDot(lPoint.getLatitude(), lPoint.getLongitude(), 
                         lPoint.getName(), lPoint.getDescription()));
