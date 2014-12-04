@@ -11,6 +11,16 @@ public class TestGeoJsonObject
 									 "  \"properties\": { \"name\": \"Cape Town, South Africa\"," +
 									 "                    \"description\": \"This is not the capital of South Africa\"}}";
 	
+	private final String aMontreal = "{ \"type\": \"Point\"," + 
+			 "  \"coordinates\": [-73.596039,45.489502]," + 
+			 "  \"properties\": { \"name\": \"Montréal, QC, Canada\"," +
+			 "                    \"description\": \"Home of McGill University\"}}";
+	
+	private final String aCollection = "{ \"type\": \"GeometryCollection\"," +
+			" \"geometries\": [" + 
+			aCapeTown + "," + aMontreal + "]," + 
+			"  \"properties\": { \"geodesk-version\": \"0.2.0\" }}";
+	
 	@Test
 	public void testParse()
 	{
@@ -42,5 +52,24 @@ public class TestGeoJsonObject
 		assertEquals("Cape Town, South Africa", ((JSONObject)properties).getString("name"));
 		assertEquals("This is not the capital of South Africa", 
 				((JSONObject)properties).getString("description"));
+	}
+	
+	@Test
+	public void testAccents()
+	{
+		JSONObject object = new JSONObject(aMontreal);
+		assertEquals("Montréal, QC, Canada", object.getJSONObject("properties").getString("name"));
+	}
+	
+	@Test
+	public void testCollection()
+	{
+		JSONObject object = new JSONObject(aCollection);
+		Set<String> keySet = object.keySet();
+		assertEquals( 3, keySet.size());
+		assertEquals("GeometryCollection", object.getString("type"));
+		assertEquals("0.2.0", object.getJSONObject("properties").getString("geodesk-version"));
+		JSONArray locations = object.getJSONArray("geometries");
+		assertEquals(2, locations.length());
 	}
 }
