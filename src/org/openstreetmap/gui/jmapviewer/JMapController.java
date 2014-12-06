@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.openstreetmap.gui.app.SettingManager;
+import org.openstreetmap.gui.persistence.JSONPersistence;
 import org.openstreetmap.gui.persistence.XMLWriter;
 
 /**
@@ -87,8 +88,8 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                             try
                             {
                                 String lFile = SettingManager.getInstance().getDataFileName();
-                                XMLWriter.backup(lFile);
-                                XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
+                                JSONPersistence.backup(lFile);
+                                JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
                             }
                             catch( Exception exception)
                             {}
@@ -117,8 +118,8 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                             try
                             {
                                 String lFile = SettingManager.getInstance().getDataFileName();
-                                XMLWriter.backup(lFile);
-                                XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
+                                JSONPersistence.backup(lFile);
+                                JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
                             }
                             catch( Exception exception)
                             {}
@@ -142,8 +143,8 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                             try
                             {
                                 String lFile = SettingManager.getInstance().getDataFileName();
-                                XMLWriter.backup(lFile);
-                                XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
+                                JSONPersistence.backup(lFile);
+                                JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), lFile);
                             }
                             catch( Exception exception)
                             {}

@@ -225,11 +225,11 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 	
                 	if( goAhead )
                 	{
-                		SettingManager.getInstance().setDataFileName(path);
                 		List<MapMarker> lMarkers = aMap.getMapMarkerList();
                 		try
                 		{
-                			JSONPersistence.backup(chooser.getSelectedFile().getAbsolutePath());
+                			JSONPersistence.backup(SettingManager.getInstance().getDataFileName());
+                			SettingManager.getInstance().setDataFileName(path);
                 			JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
                 					chooser.getSelectedFile().getAbsolutePath());
                 		}
