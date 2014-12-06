@@ -48,7 +48,7 @@ import org.openstreetmap.gui.persistence.XMLWriter;
 @SuppressWarnings("serial")
 public class GeoDesk extends JFrame implements JMapViewerEventListener  
 {   
-    private static final String APP_NAME = "GeoDesk" + Version.instance().toString();
+    private static final String APP_NAME = "GeoDesk " + Version.instance().toString();
     
     private TileSource[] aTileSources = {new MapnikOsmTileSource(),
             new CycleOsmTileSource(), new BingAerialTileSource(), 
@@ -182,7 +182,20 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 		JMenu lDataMenu = new JMenu("Data");
         lDataMenu.setMnemonic(KeyEvent.VK_D);
         pMenuBar.add(lDataMenu);
-        JMenuItem lDataFile = new JMenuItem("New Data File", KeyEvent.VK_N);
+        
+        JMenuItem viewFileLocation = new JMenuItem("Current Data File Location", KeyEvent.VK_L);
+        viewFileLocation.addActionListener( new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent pEvent)
+			{
+				JOptionPane.showMessageDialog(aMap, "Your data is stored in " + SettingManager.getInstance().getDataFileName(), 
+						"Current Data File Location", JOptionPane.INFORMATION_MESSAGE);				
+			}
+		});
+        lDataMenu.add(viewFileLocation);
+        
+        JMenuItem lDataFile = new JMenuItem("New Data File Location...", KeyEvent.VK_N);
         lDataFile.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -230,7 +243,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lDataMenu.add(lDataFile);
         
-        JMenuItem lLoadMenu = new JMenuItem("Load from Data File", KeyEvent.VK_L);
+        JMenuItem lLoadMenu = new JMenuItem("Load from Data File...", KeyEvent.VK_L);
         lLoadMenu.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -276,7 +289,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lDataMenu.add(lLoadMenu);
         
-        JMenuItem lImport = new JMenuItem("Import Data", KeyEvent.VK_I);
+        JMenuItem lImport = new JMenuItem("Import Data...", KeyEvent.VK_I);
         lImport.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -392,10 +405,10 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 		lHelpMenu.setMnemonic(KeyEvent.VK_H);
         pMenuBar.add(lHelpMenu);
         final String message = "GeoDesk " + Version.instance().toString() + "\n\n" +
-        		"By Martin P. Robillard based on a framework\n" + 
-        		"by Jan Peter Stotz and others\n\n" +
+        		"By Martin P. Robillard based on the JMapViewer\n" + 
+        		"framework by Jan Peter Stotz and others\n\n" +
         		"LICENSE: GNU GPL Version 3\n\n" + 
-        		"See: http://www.cs.mcgill.ca/~martin/geodesk";
+        		"See: http://martinrobillard.com/geodesk";
         
         JMenuItem lMap = new JMenuItem("About", KeyEvent.VK_A);
         lMap.addActionListener( new ActionListener() 
