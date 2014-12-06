@@ -35,6 +35,7 @@ import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource
 import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
+import org.openstreetmap.gui.persistence.JSONPersistence;
 import org.openstreetmap.gui.persistence.KMLReader;
 import org.openstreetmap.gui.persistence.MarkerData;
 import org.openstreetmap.gui.persistence.XMLWriter;
@@ -80,7 +81,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             String lFile = SettingManager.getInstance().getDataFileName();
             if( lFile != null && new File(lFile).exists() )
             {
-                lData = KMLReader.extractData(lFile);
+                lData = JSONPersistence.loadMarkers(lFile);
             }
         }
         catch( Exception e )
@@ -188,7 +189,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
                 chooser.setFileFilter(filter);
                 chooser.setDialogTitle("Choose a new destination data file");
                 int returnVal = chooser.showSaveDialog(aMap);
@@ -215,8 +216,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 		List<MapMarker> lMarkers = aMap.getMapMarkerList();
                 		try
                 		{
-                			XMLWriter.backup(chooser.getSelectedFile().getAbsolutePath());
-                			XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+                			JSONPersistence.backup(chooser.getSelectedFile().getAbsolutePath());
+                			JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
                 					chooser.getSelectedFile().getAbsolutePath());
                 		}
                 		catch( Exception exception)
@@ -236,7 +237,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
                 chooser.setFileFilter(filter);
                 chooser.setDialogTitle("Choose a new data file to load from");
                 int returnVal = chooser.showSaveDialog(aMap);
@@ -254,7 +255,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 		SettingManager.getInstance().setDataFileName(path);
                 		try
                         {   
-                            MarkerData[] lData = KMLReader.extractData(chooser.getSelectedFile().getAbsolutePath());
+                            MarkerData[] lData = JSONPersistence.loadMarkers(chooser.getSelectedFile().getAbsolutePath());
                             if( lData!= null )
                             {
                                 for( MarkerData lPoint : lData )
@@ -282,7 +283,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML and KML Files", "xml", "kml");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
                 chooser.setFileFilter(filter);
                 chooser.setDialogTitle("Choose existing data file to import from");
                 int returnVal = chooser.showOpenDialog(aMap);
@@ -290,7 +291,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 {
                     try
                     {   
-                        MarkerData[] lData = KMLReader.extractData(chooser.getSelectedFile().getAbsolutePath());
+                        MarkerData[] lData = JSONPersistence.loadMarkers(chooser.getSelectedFile().getAbsolutePath());
                         if( lData!= null )
                         {
                             for( MarkerData lPoint : lData )
@@ -308,9 +309,9 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                     List<MapMarker> lMarkers = aMap.getMapMarkerList();
                     try
                     {
-                        XMLWriter.backup(SettingManager.getInstance().getDataFileName());
-                        XMLWriter.write((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
-                        		SettingManager.getInstance().getDataFileName());
+                    	JSONPersistence.backup(chooser.getSelectedFile().getAbsolutePath());
+            			JSONPersistence.storeMarkers((MapMarker[])lMarkers.toArray(new MapMarker[lMarkers.size()]), 
+            					chooser.getSelectedFile().getAbsolutePath());
                     }
                     catch( Exception exception)
                     {
