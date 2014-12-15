@@ -263,7 +263,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             public void actionPerformed(ActionEvent pEvent) 
             {
                 JFileChooser chooser = new JFileChooser();
-                chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+                chooser.setApproveButtonText("Load");
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json", "geojson");
                 chooser.setFileFilter(filter);
@@ -310,8 +310,9 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             public void actionPerformed(ActionEvent pEvent) 
             {
                 JFileChooser chooser = new JFileChooser();
+                chooser.setApproveButtonText("Import");
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json", "geojson");
                 chooser.setFileFilter(filter);
                 chooser.setDialogTitle("Choose existing data file to import from");
                 int returnVal = chooser.showOpenDialog(aMap);
