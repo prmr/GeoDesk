@@ -263,8 +263,9 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             public void actionPerformed(ActionEvent pEvent) 
             {
                 JFileChooser chooser = new JFileChooser();
+                chooser.setDialogType(JFileChooser.OPEN_DIALOG);
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json", "geojson");
                 chooser.setFileFilter(filter);
                 chooser.setDialogTitle("Choose a new data file to load from");
                 int returnVal = chooser.showSaveDialog(aMap);
