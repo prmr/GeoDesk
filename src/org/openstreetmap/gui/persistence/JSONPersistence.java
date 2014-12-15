@@ -55,31 +55,43 @@ public final class JSONPersistence
 	 *             If there's any problem with the load.
 	 */
 	public static MarkerData[] loadMarkers(String pFineName)
-    {
-    	try
-    	{
-    		List<String> lines = Files.readAllLines(Paths.get(pFineName), StandardCharsets.ISO_8859_1);
-    		StringBuffer buffer = new StringBuffer();
-    		for(String string : lines)
-    		{
-    			buffer.append(string.trim());
-    		}
-    		JSONObject geometryCollection = new JSONObject(buffer.toString());
-    		if (geometryCollection.has("geometries")) {
-    			JSONArray points = geometryCollection.getJSONArray("geometries");
-    			MarkerData[] markers = new MarkerData[points.length()];
-    			for( int i = 0; i < markers.length; i++ )
-    			{
-    				markers[i] = extractMarker(points.getJSONObject(i));
-    			}
-    		}
-    		return markers;
-    	}
-    	catch( IOException exception )
-    	{
-    		throw new PersistenceException(exception);
-    	}
-    }
+	{
+		try
+		{
+			List<String> lines = Files.readAllLines(Paths.get(pFineName), StandardCharsets.ISO_8859_1);
+			StringBuffer buffer = new StringBuffer();
+			for (String string : lines)
+			{
+				buffer.append(string.trim());
+			}
+			JSONObject geometryCollection = new JSONObject(buffer.toString());
+			if (geometryCollection.has("geometries"))
+			{
+				JSONArray points = geometryCollection.getJSONArray("geometries");
+				MarkerData[] markers = new MarkerData[points.length()];
+				for (int i = 0; i < markers.length; i++)
+				{
+					markers[i] = extractMarker(points.getJSONObject(i));
+				}
+			}
+
+			if (geometryCollection.has("features"))
+			{
+				JSONArray features = geometryCollection.getJSONArray("features");
+				MarkerData[] markers = new MarkerData[features.length()];
+				for (int i = 0; i < markers.length; i++)
+				{
+					markers[i] = extractFeature(features.getJSONObject(i));
+				}
+			}
+
+			return markers;
+		}
+		catch (IOException exception)
+		{
+			throw new PersistenceException(exception);
+		}
+	}
 
 	private static MarkerData extractMarker(JSONObject pPoint)
 	{
@@ -89,6 +101,22 @@ public final class JSONPersistence
 		lReturn.aLatitude = coordinates.getDouble(1);
 		lReturn.aName = pPoint.getJSONObject("properties").getString("name");
 		lReturn.aDescription = pPoint.getJSONObject("properties").getString("description");
+		return lReturn;
+	}
+
+	private static MarkerData extractFeature(JSONObject pFeature)
+	{
+		MarkerData lReturn = new MarkerData();
+		if (pFeature.has("geometry"))
+		{
+			JSONArray coordinates = pFeature.getJSONObject("geometry").getJSONArray("coordinates");
+			lReturn.aLongitude = coordinates.getDouble(0);
+			lReturn.aLatitude = coordinates.getDouble(1);
+		}
+		if (pFeature.has("properties"))
+		{
+			lReturn.aName = pFeature.getJSONObject("properties").getString("name");
+		}
 		return lReturn;
 	}
 
