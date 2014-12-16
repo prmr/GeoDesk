@@ -28,6 +28,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -62,7 +63,9 @@ import org.openstreetmap.gui.persistence.MarkerData;
 @SuppressWarnings("serial")
 public class GeoDesk extends JFrame implements JMapViewerEventListener  
 {   
-    private static final String APP_NAME = "GeoDesk " + Version.instance().toString();
+	public static final ResourceBundle MESSAGES = ResourceBundle.getBundle("MessageBundle");
+	
+    private static final String APP_NAME = MESSAGES.getString("app.appname") + " " + Version.instance().toString();
     
     private TileSource[] aTileSources = {new MapnikOsmTileSource(),
             new CycleOsmTileSource(), new BingAerialTileSource(), 
@@ -76,7 +79,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
      */
     public GeoDesk() 
     {
-        super(APP_NAME + " - MapQuest OSM Map");
+        super(APP_NAME + " - " + MESSAGES.getString("app.map.osm"));
         
         aMap = new JMapViewer();
         aMap.addJMVListener(this);
@@ -124,9 +127,9 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 {
                     lDataFileName = SettingManager.getInstance().getDefaultDataFileName();
                     SettingManager.getInstance().setDataFileName(lDataFileName);
-                    JOptionPane.showMessageDialog(aMap, "Your marker data will be stored at the default location:\n" + 
-                            lDataFileName + ".\nTo change this, use the menu Data | Change Location.", 
-                            "Marker Data Location", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(aMap, MESSAGES.getString("app.map.message.defaultfile1") + 
+                            lDataFileName + MESSAGES.getString("app.map.message.defaultfile2"), 
+                            MESSAGES.getString("app.dialogtitle.markerdatalocation"), JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -146,11 +149,11 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 
 	private void createViewMenu(JMenuBar pMenuBar)
 	{
-		JMenu lMarkersMenu = new JMenu("View");
+		JMenu lMarkersMenu = new JMenu(MESSAGES.getString("app.menu.view"));
         lMarkersMenu.setMnemonic(KeyEvent.VK_K);
         pMenuBar.add(lMarkersMenu);
         
-        JCheckBoxMenuItem lMarker = new JCheckBoxMenuItem("Show Markers", true);
+        JCheckBoxMenuItem lMarker = new JCheckBoxMenuItem(MESSAGES.getString("app.menu.showmarkers"), true);
         lMarker.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -160,7 +163,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMarkersMenu.add(lMarker);
         
-        lMarker = new JCheckBoxMenuItem("Show Zoom Controls", true);
+        lMarker = new JCheckBoxMenuItem(MESSAGES.getString("app.menu.showzoomcontrols"), true);
         lMarker.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -170,7 +173,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMarkersMenu.add(lMarker);
         
-        lMarker = new JCheckBoxMenuItem("Show Legend", true);
+        lMarker = new JCheckBoxMenuItem(MESSAGES.getString("app.menu.showlegend"), true);
         lMarker.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -180,7 +183,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lMarkersMenu.add(lMarker);
         
-        JMenuItem lFit = new JMenuItem("Fit Display", KeyEvent.VK_F);
+        JMenuItem lFit = new JMenuItem(MESSAGES.getString("app.menu.fitdisplay"), KeyEvent.VK_F);
         lFit.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
