@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -64,28 +65,29 @@ public final class JSONPersistence
 			{
 				buffer.append(string.trim());
 			}
+
+			List<MarkerData> markers = new Vector<>();
 			JSONObject geometryCollection = new JSONObject(buffer.toString());
 			if (geometryCollection.has("geometries"))
 			{
 				JSONArray points = geometryCollection.getJSONArray("geometries");
-				MarkerData[] markers = new MarkerData[points.length()];
-				for (int i = 0; i < markers.length; i++)
+				for (int i = 0; i < points.length(); i++)
 				{
-					markers[i] = extractMarker(points.getJSONObject(i));
+					markers.add(extractMarker(points.getJSONObject(i)));
 				}
 			}
 
 			if (geometryCollection.has("features"))
 			{
 				JSONArray features = geometryCollection.getJSONArray("features");
-				MarkerData[] markers = new MarkerData[features.length()];
-				for (int i = 0; i < markers.length; i++)
+				for (int i = 0; i < features.length(); i++)
 				{
-					markers[i] = extractFeature(features.getJSONObject(i));
+					// currently disabled
+					markers.add(extractFeature(features.getJSONObject(i)));
 				}
 			}
 
-			return markers;
+			return markers.toArray(new MarkerData[0]);
 		}
 		catch (IOException exception)
 		{
@@ -107,11 +109,23 @@ public final class JSONPersistence
 	private static MarkerData extractFeature(JSONObject pFeature)
 	{
 		MarkerData lReturn = new MarkerData();
-		if (pFeature.has("geometry"))
+
+		// if the feature is a waypoint
+		if (pFeature.has("properties") && pFeature.getJSONObject("properties").has("gpxtype")
+				&& pFeature.getJSONObject("properties").getString("gpxtype").equals("wptType")
+				&& pFeature.has("geometry"))
 		{
-			JSONArray coordinates = pFeature.getJSONObject("geometry").getJSONArray("coordinates");
-			lReturn.aLongitude = coordinates.getDouble(0);
-			lReturn.aLatitude = coordinates.getDouble(1);
+
+			try
+			{
+				JSONArray coordinates = pFeature.getJSONObject("geometry").getJSONArray("coordinates");
+				lReturn.aLongitude = coordinates.getDouble(0);
+				lReturn.aLatitude = coordinates.getDouble(1);
+			}
+			catch (Exception e)
+			{
+				System.out.println("JSONPersistence::extractFeature( " + pFeature + " ) - ERROR: " + e.getMessage());
+			}
 		}
 		if (pFeature.has("properties"))
 		{
