@@ -196,32 +196,33 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 
 	private void createDataMenu(JMenuBar pMenuBar)
 	{
-		JMenu lDataMenu = new JMenu("Data");
+		JMenu lDataMenu = new JMenu(MESSAGES.getString("app.menu.data"));
         lDataMenu.setMnemonic(KeyEvent.VK_D);
         pMenuBar.add(lDataMenu);
         
-        JMenuItem viewFileLocation = new JMenuItem("Current Data File Location", KeyEvent.VK_L);
+        JMenuItem viewFileLocation = new JMenuItem(MESSAGES.getString("app.menu.currentlocation"), KeyEvent.VK_L);
         viewFileLocation.addActionListener( new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent pEvent)
 			{
-				JOptionPane.showMessageDialog(aMap, "Your data is stored in " + SettingManager.getInstance().getDataFileName(), 
-						"Current Data File Location", JOptionPane.INFORMATION_MESSAGE);				
+				JOptionPane.showMessageDialog(aMap, MESSAGES.getString("app.message.currentlocation1") + 
+						SettingManager.getInstance().getDataFileName(), 
+						MESSAGES.getString("app.menu.currentlocation"), JOptionPane.INFORMATION_MESSAGE);				
 			}
 		});
         lDataMenu.add(viewFileLocation);
         
-        JMenuItem lDataFile = new JMenuItem("New Data File Location...", KeyEvent.VK_N);
+        JMenuItem lDataFile = new JMenuItem(MESSAGES.getString("app.menu.newlocation"), KeyEvent.VK_N);
         lDataFile.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(MESSAGES.getString("app.jsonfilefilterdescription"), "json");
                 chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose a new destination data file");
+                chooser.setDialogTitle(MESSAGES.getString("app.title.newlocation"));
                 int returnVal = chooser.showSaveDialog(aMap);
                 if(returnVal == JFileChooser.APPROVE_OPTION) 
                 {
@@ -232,8 +233,10 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 	if( new File(path).exists() )
                 	{
                 		goAhead = false;
-                		confirmMessage = "File " + path + " already exists. Override?";
-                		int confirmation = JOptionPane.showConfirmDialog(aMap, confirmMessage, "Confirm new data file", JOptionPane.OK_CANCEL_OPTION);
+                		confirmMessage = MESSAGES.getString("app.message.newlocation1") + path + " " + 
+                				MESSAGES.getString("app.message.newlocation2");
+                		int confirmation = JOptionPane.showConfirmDialog(aMap, confirmMessage, 
+                				MESSAGES.getString("app.title.confirmnewlocation"), JOptionPane.OK_CANCEL_OPTION);
                 		if( confirmation == JOptionPane.OK_OPTION )
                     	{
                 			goAhead = true;
@@ -260,7 +263,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lDataMenu.add(lDataFile);
         
-        JMenuItem lLoadMenu = new JMenuItem("Load from Data File...", KeyEvent.VK_L);
+        JMenuItem lLoadMenu = new JMenuItem(MESSAGES.getString("app.menu.loaddata"), KeyEvent.VK_L);
         lLoadMenu.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
@@ -307,7 +310,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         });
         lDataMenu.add(lLoadMenu);
         
-        JMenuItem lImport = new JMenuItem("Import Data...", KeyEvent.VK_I);
+        JMenuItem lImport = new JMenuItem(MESSAGES.getString("app.menu.importdata"), KeyEvent.VK_I);
         lImport.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
