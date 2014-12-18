@@ -362,60 +362,60 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 
 	private void createMapMenu(JMenuBar pMenuBar)
 	{
-		JMenu lMapMenu = new JMenu("Map");
+		JMenu lMapMenu = new JMenu(MESSAGES.getString("app.menu.map"));
         lMapMenu.setMnemonic(KeyEvent.VK_M);
         pMenuBar.add(lMapMenu);
         
-        JMenuItem lMap = new JMenuItem("Mapnik", KeyEvent.VK_N);
+        JMenuItem lMap = new JMenuItem(MESSAGES.getString("app.menu.mapnik"), KeyEvent.VK_N);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                setTitle(APP_NAME + " - Mapnik Map");
+                setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.mapnik"));
                 aMap.setTileSource(aTileSources[0]);
             }
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("OSM Cycle", KeyEvent.VK_C);
+        lMap = new JMenuItem(MESSAGES.getString("app.menu.osmcycle"), KeyEvent.VK_C);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                setTitle(APP_NAME + " - OSM Cycle Map");
+                setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.osmcycle"));
                 aMap.setTileSource(aTileSources[1]);
             }
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("Bing Aerial", KeyEvent.VK_B);
+        lMap = new JMenuItem(MESSAGES.getString("app.menu.bing"), KeyEvent.VK_B);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                setTitle(APP_NAME + " - Bing Aerial Map");
+                setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.bing"));
                 aMap.setTileSource(aTileSources[2]);
             }
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("MapQuest OSM", KeyEvent.VK_O);
+        lMap = new JMenuItem(MESSAGES.getString("app.map.osm"), KeyEvent.VK_O);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                setTitle(APP_NAME + " - MapQuest OSM Map");
+                setTitle(APP_NAME + " - " + MESSAGES.getString("app.menu.osm"));
                 aMap.setTileSource(aTileSources[3]);
             }
         });
         lMapMenu.add(lMap);
         
-        lMap = new JMenuItem("MapQuest Aerial", KeyEvent.VK_A);
+        lMap = new JMenuItem(MESSAGES.getString("app.menu.mqaerial"), KeyEvent.VK_A);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                setTitle("GeoDesk - MapQuest Open Aerial Map");
+                setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.mqaerial"));
                 aMap.setTileSource(aTileSources[4]);
             }
         });
