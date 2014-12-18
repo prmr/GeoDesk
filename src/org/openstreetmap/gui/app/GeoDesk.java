@@ -270,10 +270,10 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json", "geojson");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(MESSAGES.getString("app.jsonfilefilterdescription"), "json", "geojson");
                 chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose a new data file to load from");
-                chooser.setApproveButtonText("Load");
+                chooser.setDialogTitle(MESSAGES.getString("app.title.loaddialog"));
+                chooser.setApproveButtonText(MESSAGES.getString("app.button.load"));
                 int returnVal = chooser.showOpenDialog(aMap);
                 if(returnVal == JFileChooser.APPROVE_OPTION) 
                 {
@@ -281,7 +281,8 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
                 	
                 	if( !new File(path).exists() )
                 	{
-                		JOptionPane.showMessageDialog(aMap, path + " does not exist", "Error loading data file", JOptionPane.ERROR_MESSAGE);
+                		JOptionPane.showMessageDialog(aMap, path + MESSAGES.getString("app.message.doesnotexist1"),
+                				MESSAGES.getString("app.title.errorloading"), JOptionPane.ERROR_MESSAGE);
                 	}
                 	else
                 	{
@@ -316,11 +317,11 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             public void actionPerformed(ActionEvent pEvent) 
             {
                 JFileChooser chooser = new JFileChooser();
-                chooser.setApproveButtonText("Import");
+                chooser.setApproveButtonText(MESSAGES.getString("app.button.import"));
                 chooser.setSelectedFile(new File(SettingManager.getInstance().getDataFileName()));
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json", "geojson");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(MESSAGES.getString("app.jsonfilefilterdescription"), "json", "geojson");
                 chooser.setFileFilter(filter);
-                chooser.setDialogTitle("Choose existing data file to import from");
+                chooser.setDialogTitle(MESSAGES.getString("app.title.import"));
                 int returnVal = chooser.showOpenDialog(aMap);
                 if(returnVal == JFileChooser.APPROVE_OPTION) 
                 {
