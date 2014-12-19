@@ -41,6 +41,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import static org.openstreetmap.gui.app.GeoDesk.MESSAGES;
+
 import org.openstreetmap.gui.jmapviewer.JMVCommandEvent.CommandType;
 import org.openstreetmap.gui.jmapviewer.tiles.JobDispatcher;
 import org.openstreetmap.gui.jmapviewer.tiles.MemoryTileCache;
@@ -737,9 +739,9 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      */
     private void zoomChanged(int pOldZoomLevel) 
     {
-        aZoomSlider.setToolTipText("Zoom level " + aZoomLevel);
-        aZoomInButton.setToolTipText("Zoom to level " + (aZoomLevel + 1));
-        aZoomOutButton.setToolTipText("Zoom to level " + (aZoomLevel - 1));
+        aZoomSlider.setToolTipText(MESSAGES.getString("jmapviewer.tooltip.zlevel") + " " + aZoomLevel);
+        aZoomInButton.setToolTipText(MESSAGES.getString("jmapviewer.tooltip.ztolevel") + " " + (aZoomLevel + 1));
+        aZoomOutButton.setToolTipText(MESSAGES.getString("jmapviewer.tooltip.ztolevel") + " " + (aZoomLevel - 1));
         aZoomOutButton.setEnabled(aZoomLevel > aTileController.getTileSource().getMinZoom());
         aZoomInButton.setEnabled(aZoomLevel < aTileController.getTileSource().getMaxZoom());
     }
@@ -825,7 +827,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         }
         if (pTileSource.getMinZoom() < MIN_ZOOM)
         {
-            throw new RuntimeException("Minumim zoom level too low");
+            throw new RuntimeException("Minimum zoom level too low");
         }
         aTileSource = pTileSource;
         aTileController.setTileSource(pTileSource);
