@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.openstreetmap.gui.app.SettingManager;
+import static org.openstreetmap.gui.app.GeoDesk.MESSAGES;
 import org.openstreetmap.gui.persistence.JSONPersistence;
 
 /**
@@ -82,19 +83,20 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
             MapMarker[] lMarkers = aMap.getMapMarkersAt(aLastClickedPoint);
             if( lMarkers.length > 1 )
             {
-                JOptionPane.showMessageDialog(aMap, "Multiple markers selected. Select either a single marker, or an unmarked area of the map.", 
-                		"Marker Selection Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(aMap, MESSAGES.getString("jmapviewer.message.multiplemarkers"), 
+                		MESSAGES.getString("jmapviewer.title.multiplemarkers"), JOptionPane.ERROR_MESSAGE);
             }
             else if( lMarkers.length == 0 )
             {
                 JPopupMenu lPopup = new JPopupMenu();
-                JMenuItem menuItem = new JMenuItem("Add Marker");
+                JMenuItem menuItem = new JMenuItem(MESSAGES.getString("jmapviewer.menu.addmarker"));
                 menuItem.addActionListener(new ActionListener() 
                 {
                     public void actionPerformed(ActionEvent pEvent) 
                     {
                         MarkerInputPanel lMIP = new MarkerInputPanel();
-                        int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, "New Marker Data", JOptionPane.OK_CANCEL_OPTION);
+                        int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, 
+                        		MESSAGES.getString("jmapviewer.title.addmarker"), JOptionPane.OK_CANCEL_OPTION);
                         Coordinate lCoord = aMap.getPosition((int)aLastClickedPoint.getX(), (int)aLastClickedPoint.getY());
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
@@ -120,14 +122,15 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
             {
                 // Delete and edit are supported
                 JPopupMenu lPopup = new JPopupMenu();
-                JMenuItem menuItem = new JMenuItem("Delete Marker");
+                JMenuItem menuItem = new JMenuItem(MESSAGES.getString("jmapviewer.menu.deletemarker"));
                 final MapMarker lSelected = lMarkers[0];
                 menuItem.addActionListener( new ActionListener() 
                 {
                     public void actionPerformed(ActionEvent pEvent)
                     {
-                        int lResult = JOptionPane.showConfirmDialog(aMap, "Delete maker \"" + lSelected.getName() + 
-                        		"\"\nAre you sure?" , "Confirm Marker Deletion", JOptionPane.YES_NO_OPTION);
+                        int lResult = JOptionPane.showConfirmDialog(aMap, MESSAGES.getString("jmapviewer.message.deletemarker1") + 
+                        		lSelected.getName() + MESSAGES.getString("jmapviewer.message.deletemarker2") , 
+                        		MESSAGES.getString("jmapviewer.title.deletemarker"), JOptionPane.YES_NO_OPTION);
                         if( lResult == JOptionPane.YES_OPTION )
                         {
                             aMap.removeMapMarker(lSelected);
@@ -145,13 +148,14 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
                 });
                 lPopup.add(menuItem);
                 
-                menuItem = new JMenuItem("Edit Marker");
+                menuItem = new JMenuItem(MESSAGES.getString("jmapviewer.menu.editmarker"));
                 menuItem.addActionListener( new ActionListener() 
                 {
                     public void actionPerformed(ActionEvent pEvent) 
                     {
                         MarkerInputPanel lMIP = new MarkerInputPanel(lSelected.getName(), lSelected.getDescription());
-                        int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, "Edit Marker Data", JOptionPane.OK_CANCEL_OPTION);
+                        int lResult = JOptionPane.showConfirmDialog(aMap, lMIP, 
+                        		MESSAGES.getString("jmapviewer.title.editmarker"), JOptionPane.OK_CANCEL_OPTION);
                         if( lResult == JOptionPane.OK_OPTION )
                         {    
                             lSelected.setName(lMIP.getMarkerName());
@@ -211,7 +215,7 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
             {
                 lMessage += marker.getName() + "\n" + marker.getDescription() + "\n";
             }
-            JOptionPane.showMessageDialog(aMap, lMessage, "Location Information", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(aMap, lMessage, MESSAGES.getString("jmapviewer.title.location"), JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
