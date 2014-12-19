@@ -424,21 +424,19 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 	
 	private void createHelpMenu(JMenuBar pMenuBar)
 	{
-		JMenu lHelpMenu = new JMenu("Help");
+		JMenu lHelpMenu = new JMenu(MESSAGES.getString("app.menu.help"));
 		lHelpMenu.setMnemonic(KeyEvent.VK_H);
         pMenuBar.add(lHelpMenu);
-        final String message = "GeoDesk " + Version.instance().toString() + "\n\n" +
-        		"By Martin P. Robillard based on the JMapViewer\n" + 
-        		"framework by Jan Peter Stotz and others\n\n" +
-        		"LICENSE: GNU GPL Version 3\n\n" + 
-        		"See: http://martinrobillard.com/geodesk";
+        final String message = MESSAGES.getString("app.appname") + " " + 
+        		Version.instance().toString() + "\n\n" +
+        		MESSAGES.getString("app.message.about");
         
-        JMenuItem lMap = new JMenuItem("About", KeyEvent.VK_A);
+        JMenuItem lMap = new JMenuItem(MESSAGES.getString("app.menu.about"), KeyEvent.VK_A);
         lMap.addActionListener( new ActionListener() 
         {
             public void actionPerformed(ActionEvent pEvent) 
             {
-                JOptionPane.showMessageDialog(aMap, message, "About GeoDesk", JOptionPane.NO_OPTION);
+                JOptionPane.showMessageDialog(aMap, message, MESSAGES.getString("app.title.about"), JOptionPane.NO_OPTION);
             }
         });
         lHelpMenu.add(lMap);
