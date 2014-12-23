@@ -38,9 +38,7 @@ public final class OsmMercator
 	private static final int TILE_SIZE = 256;
 	private static final double MAX_LAT = 85.05112877980659;
 	private static final double MIN_LAT = -85.05112877980659;
-	// Constant initially found in the legacy code, revised with the number below
-//    private static final double EARTH_RADIUS = 6378137; // equatorial earth radius in meters for EPSG:3857 (Mercator) 
-	private static final double EARTH_RADIUS = 6371000; 
+	private static final double EARTH_RADIUS = 6371000; // An approximation
 
     private OsmMercator()
     {}
@@ -74,31 +72,6 @@ public final class OsmMercator
     }
 
     /**
-     * Gets the distance using Spherical law of cosines.
-     * TODO Fix the bug which produces an incorrect computation for Lat = 90
-     *
-     * @param pPoint1 The first coordinate
-	 * @param pPoint2 The second coordinate
-     * @return The distance in meters
-     * @pre pPoint1 != null
-     * @pre pPoint2 != null
-     */
-    public static double getDistance(Coordinate pPoint1, Coordinate pPoint2 ) 
-    {
-    	assert pPoint1 != null;
-    	assert pPoint2 != null;
-        double aStartLat = Math.toRadians(pPoint1.getLatitude());
-        double aStartLong = Math.toRadians(pPoint1.getLongitude());
-        double aEndLat = Math.toRadians(pPoint2.getLatitude());
-        double aEndLong = Math.toRadians(pPoint2.getLongitude());
-        double distance = Math.acos(Math.sin(aStartLat) * Math.sin(aEndLat)
-                + Math.cos(aStartLat) * Math.cos(aEndLat) *
-                Math.cos(aEndLong - aStartLong));
-
-        return EARTH_RADIUS * distance;		
-    }
-    
-    /**
      * Gets the distance using the Haversine Formula.
      *
      * @param pPoint1 The first coordinate
@@ -107,7 +80,7 @@ public final class OsmMercator
      * @pre pPoint1 != null
      * @pre pPoint2 != null
      */
-    public static double getDistance2(Coordinate pPoint1, Coordinate pPoint2 ) 
+    public static double getDistance(Coordinate pPoint1, Coordinate pPoint2 ) 
     {
     	assert pPoint1 != null;
     	assert pPoint2 != null;

@@ -399,6 +399,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         int y = aCenter.y + pMapPointY - getHeight() / 2;
         double lon = OsmMercator.xToLongitude(x, aZoomLevel);
         double lat = OsmMercator.yToLatitude(y, aZoomLevel);
+        System.out.println(lat + "," + lon); // TODO
         return new Coordinate(lat, lon);
     }
 
