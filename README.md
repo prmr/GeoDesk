@@ -12,5 +12,5 @@ which itself was based on the JOSM plugin "Slippy Map Chooser" by Tim Haussmann.
 LICENSE INFORMATION:
 
 This software is distributed according to the terms of GNU GENERAL PUBLIC LICENSE
-version 3.0 except for the source code in the org.jason package, which is subject 
+version 3.0 except for the source code in the org.json package, which is subject 
 to its own license (see the file headers).
