@@ -20,10 +20,10 @@
  *******************************************************************************/
 package org.openstreetmap.gui.jmapviewer;
 
-import java.awt.geom.Point2D;
 
 /**
- * This class represents a latitude-longitude pair.
+ * This class represents a latitude-longitude pair, in decimal degrees.
+ * Latitudes are in the range [-90,90]; Longitudes are in the range [-180,180]
  *
  * @author Jan Peter Stotz
  * @author Stefan Zeller
@@ -31,16 +31,22 @@ import java.awt.geom.Point2D;
  */
 public class Coordinate
 {
-	private Point2D.Double aData;
+	private double aLatitude;
+	private double aLongitude;
 
     /**
      * Creates a new geographic coordinate.
      * @param pLatitude The latitude coordinate
      * @param pLongitude The longitude coordinate
+     * @pre pLatitude >= -90 && pLatitude <= 90
+     * @pre pLongitude >= -180 && pLongitude <= 180
      */
     public Coordinate(double pLatitude, double pLongitude) 
-    {
-        aData = new Point2D.Double(pLongitude, pLatitude);
+    {   // CSOFF:
+    	assert pLatitude >= -90 && pLatitude <= 90;
+    	assert pLongitude >= -180 && pLongitude <= 180; // CSON:
+        aLatitude = pLatitude;
+        aLongitude = pLongitude;
     }
 
     /**
@@ -48,7 +54,7 @@ public class Coordinate
      */
     public double getLatitude() 
     {
-        return aData.y;
+        return aLatitude;
     }
 
     /**
@@ -56,12 +62,12 @@ public class Coordinate
      */
     public double getLongitude() 
     {
-        return aData.x;
+        return aLongitude;
     }
 
     @Override
     public String toString() 
     {
-        return "Coordinate[" + aData.y + ", " + aData.x + "]";
+        return "Coordinate (lat,lon) [" + aLatitude + ", " + aLongitude + "]";
     }
 }
