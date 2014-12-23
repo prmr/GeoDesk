@@ -33,8 +33,10 @@ package org.openstreetmap.gui.jmapviewer;
  */
 public final class OsmMercator 
 {
-	private static final long FULL_CIRCCLE_IN_DEGREES = 360L;
+	private static final long FULL_CIRCLE_IN_DEGREES = 360L;
 	private static final long HALF_CIRCLE_IN_DEGREES = 180L;
+	private static final double FULL_CIRCLE_IN_DEGREES_D = 360d;
+	private static final double HALF_CIRCLE_IN_DEGREES_D = 180d;
 	private static final int TILE_SIZE = 256;
 	private static final double MAX_LAT = 85.05112877980659;
 	private static final double MIN_LAT = -85.05112877980659;
@@ -51,6 +53,7 @@ public final class OsmMercator
     /**
      * Returns the absolute number of pixels in y or x, defined as: 2^Zoomlevel *
      * TILE_WIDTH where TILE_WIDTH is the width of a tile in pixels.
+     * // 0 -> 256, 1 -> 512, etc.
      *
      * @param pZoomlevel zoom level to request pixel data
      * @return number of pixels
@@ -117,13 +120,13 @@ public final class OsmMercator
     public static int longitudeToX(double pLongitude, int pZoomLevel)
     {
         int mp = getMaxPixels(pZoomLevel);
-        int x = (int) ((mp * (pLongitude + HALF_CIRCLE_IN_DEGREES)) / FULL_CIRCCLE_IN_DEGREES);
+        int x = (int) ((mp * (pLongitude + HALF_CIRCLE_IN_DEGREES)) / FULL_CIRCLE_IN_DEGREES);
         x = Math.min(x, mp - 1);
         return x;
     }
 
     /**
-     * Transforms latitude to pixelspace.
+     * Transforms latitude to pixel space.
      * <p>
      * Mathematical optimization<br>
      * <code>
@@ -164,7 +167,7 @@ public final class OsmMercator
      * Transforms pixel coordinate X to longitude.
      *
      * <p>
-     * Mathematical optimization<br>
+     * Mathematical optimization<br> (not implemented yet)
      * <code>
      * lon = toDegree((aX - falseEasting(aZoomlevel)) / radius(aZoomlevel))<br>
      * lon = 180 / PI * ((aX - getMaxPixels(aZoomlevel) / 2) / getMaxPixels(aZoomlevel) / (2 * PI)<br>
@@ -176,11 +179,19 @@ public final class OsmMercator
      * @param pX [0..2^Zoomlevel*TILE_WIDTH[
      * @param pZoomLevel The zoom level.
      * @return ]-180..180[
-     * CSOFF:
      */
     public static double xToLongitude(int pX, int pZoomLevel) 
     {
-        return ((360d * pX) / getMaxPixels(pZoomLevel)) - 180.0; //CSON:
+    	double raw = ((FULL_CIRCLE_IN_DEGREES_D * pX) / getMaxPixels(pZoomLevel)) - HALF_CIRCLE_IN_DEGREES_D; 
+        if( raw < -HALF_CIRCLE_IN_DEGREES_D )
+        {
+        	return FULL_CIRCLE_IN_DEGREES_D - Math.abs(raw);
+        }
+        else if( raw > HALF_CIRCLE_IN_DEGREES_D )
+        {
+        	return FULL_CIRCLE_IN_DEGREES_D - raw;
+        }
+        return raw;
     }
 
     /**

@@ -86,4 +86,16 @@ public class TestOsmMercator
         double distance = twoasin*6371000;
         assertEquals(10007543, distance, 1 );
 	}
+	
+	@Test
+	public void testXtoLongitude()
+	{
+		assertEquals(-180, OsmMercator.xToLongitude(0, 0),0);
+		assertEquals(-180, OsmMercator.xToLongitude(0, 1),0);
+		assertEquals(-180, OsmMercator.xToLongitude(0, 2),0);
+		assertEquals(0, OsmMercator.xToLongitude(128, 0),0);
+		assertEquals(0, OsmMercator.xToLongitude(256, 1),0);
+		assertEquals(138.1640625, OsmMercator.xToLongitude(-238,3),0.0001);
+		assertEquals(179.2969, OsmMercator.xToLongitude(2052, 3),0.0001);
+	}
 }
