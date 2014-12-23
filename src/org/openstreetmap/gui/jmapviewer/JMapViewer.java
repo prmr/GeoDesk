@@ -493,8 +493,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         Coordinate originCoord = getPosition(origin);
         Coordinate centerCoord = getPosition(center);
 
-        double mDistance = OsmMercator.getDistance(originCoord.getLatitude(), originCoord.getLongitude(),
-                centerCoord.getLatitude(), centerCoord.getLongitude());
+        double mDistance = OsmMercator.getDistance(originCoord, centerCoord );
 
         return mDistance/pDistance;
     }

@@ -38,7 +38,9 @@ public final class OsmMercator
 	private static final int TILE_SIZE = 256;
 	private static final double MAX_LAT = 85.05112877980659;
 	private static final double MIN_LAT = -85.05112877980659;
-    private static final double EARTH_RADIUS = 6378137; // equatorial earth radius for EPSG:3857 (Mercator) 
+	// Constant initially found in the legacy code, revised with the number below
+//    private static final double EARTH_RADIUS = 6378137; // equatorial earth radius in meters for EPSG:3857 (Mercator) 
+	private static final double EARTH_RADIUS = 6371000; 
 
     private OsmMercator()
     {}
@@ -54,74 +56,73 @@ public final class OsmMercator
      *
      * @param pZoomlevel zoom level to request pixel data
      * @return number of pixels
+     * @pre pZoomlevel >= 0
      */
-    public static int getMaxPixels(int pZoomlevel) 
+    private static int getMaxPixels(int pZoomlevel) 
     {
+    	assert pZoomlevel >= 0;
         return TILE_SIZE * (1 << pZoomlevel);
     }
 
     /**
-     * I'm not sure what the point of this function is.
      * @param pZoomLevel The zoom level
-     * @return Something useful, possibly.
+     * @return A negative value of half the tile width or height.
      */
-    public static int falseEasting(int pZoomLevel) 
-    {
-        return getMaxPixels(pZoomLevel) / 2;
-    }
-
-    /**
-     * I'm not sure what the point of this function is.
-     * @param pZoomLevel The zoom level
-     * @return Something useful, possibly.
-     */
-    public static int falseNorthing(int pZoomLevel) 
+    private static int falseNorthing(int pZoomLevel) 
     {
         return -1 * getMaxPixels(pZoomLevel) / 2;
     }
 
     /**
-     * Transform pixel space to coordinates and get the distance.
-     *
-     * @param pX1 the first x coordinate
-     * @param pY1 the first y coordinate
-     * @param pX2 the second x coordinate
-     * @param pY2 the second y coordinate
-     * 
-     * @param pZoomLevel the zoom level
-     * @return the distance
-     */
-    public static double getDistance(int pX1, int pY1, int pX2, int pY2, int pZoomLevel) 
-    {
-        double la1 = yToLatitude(pY1, pZoomLevel);
-        double lo1 = xToLongitude(pX1, pZoomLevel);
-        double la2 = yToLatitude(pY2, pZoomLevel);
-        double lo2 = xToLongitude(pX2, pZoomLevel);
-
-        return getDistance(la1, lo1, la2, lo2);
-    }
-
-    /**
      * Gets the distance using Spherical law of cosines.
+     * TODO Fix the bug which produces an incorrect computation for Lat = 90
      *
-     * @param pLatitude1 the Latitude in degrees
-     * @param pLongitude1 the Longitude in degrees
-     * @param pLatitude2 the Latitude from 2nd coordinate in degrees
-     * @param pLongitude2 the Longitude from 2nd coordinate in degrees
-     * @return the distance
+     * @param pPoint1 The first coordinate
+	 * @param pPoint2 The second coordinate
+     * @return The distance in meters
+     * @pre pPoint1 != null
+     * @pre pPoint2 != null
      */
-    public static double getDistance(double pLatitude1, double pLongitude1, double pLatitude2, double pLongitude2) 
+    public static double getDistance(Coordinate pPoint1, Coordinate pPoint2 ) 
     {
-        double aStartLat = Math.toRadians(pLatitude1);
-        double aStartLong = Math.toRadians(pLongitude1);
-        double aEndLat = Math.toRadians(pLatitude2);
-        double aEndLong = Math.toRadians(pLongitude2);
+    	assert pPoint1 != null;
+    	assert pPoint2 != null;
+        double aStartLat = Math.toRadians(pPoint1.getLatitude());
+        double aStartLong = Math.toRadians(pPoint1.getLongitude());
+        double aEndLat = Math.toRadians(pPoint2.getLatitude());
+        double aEndLong = Math.toRadians(pPoint2.getLongitude());
         double distance = Math.acos(Math.sin(aStartLat) * Math.sin(aEndLat)
                 + Math.cos(aStartLat) * Math.cos(aEndLat) *
                 Math.cos(aEndLong - aStartLong));
 
         return EARTH_RADIUS * distance;		
     }
+    
+    /**
+     * Gets the distance using the Haversine Formula.
+     *
+     * @param pPoint1 The first coordinate
+	 * @param pPoint2 The second coordinate
+     * @return The distance in meters
+     * @pre pPoint1 != null
+     * @pre pPoint2 != null
+     */
+    public static double getDistance2(Coordinate pPoint1, Coordinate pPoint2 ) 
+    {
+    	assert pPoint1 != null;
+    	assert pPoint2 != null;
+    	double startlat = Math.toRadians(pPoint1.getLatitude());
+        double startlong = Math.toRadians(pPoint1.getLongitude());
+        double endlat = Math.toRadians(pPoint2.getLatitude());
+        double endlon = Math.toRadians(pPoint2.getLongitude());
+    	
+        double deltaLongitude = endlon - startlong;
+        double deltaLatitude = endlat - startlat;
+        double component = Math.sin(deltaLatitude/2)*Math.sin(deltaLatitude/2) + 
+        		Math.cos(startlat) * Math.cos(endlat) * Math.sin(deltaLongitude/2)*Math.sin(deltaLongitude/2);
+        double component2 = 2*Math.asin(Math.min(1, Math.sqrt(component)));
+        return component2 * EARTH_RADIUS;
+   }
 
     /**
      * Transform longitude to pixel space.
