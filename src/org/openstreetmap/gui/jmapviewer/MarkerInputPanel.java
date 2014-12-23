@@ -32,6 +32,8 @@ import javax.swing.JTextField;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+import static org.openstreetmap.gui.app.GeoDesk.MESSAGES;
+
 /**
  * Used to provide input data for a map marker.
  * 
@@ -68,13 +70,13 @@ public class MarkerInputPanel extends JPanel
         JPanel lTop = new JPanel();
         lTop.setLayout(new FlowLayout(FlowLayout.LEFT));
         add( lTop, BorderLayout.NORTH);
-        lTop.add( new JLabel("Name:"), BorderLayout.NORTH);
+        lTop.add( new JLabel(MESSAGES.getString("jmapviewer.label.name")), BorderLayout.NORTH);
         lTop.add( aNameField, BorderLayout.NORTH);
         
         JPanel lCenter = new JPanel();
         add(lCenter);
         lCenter.setLayout(new BorderLayout());
-        lCenter.add(new JLabel("Description:"), BorderLayout.NORTH);
+        lCenter.add(new JLabel(MESSAGES.getString("jmapviewer.label.description")), BorderLayout.NORTH);
         JScrollPane lSPane = new JScrollPane(aDescriptionField);
         lCenter.add(lSPane, BorderLayout.CENTER);     
     }
