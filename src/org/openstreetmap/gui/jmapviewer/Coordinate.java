@@ -42,9 +42,11 @@ public class Coordinate
      * @pre pLongitude >= -180 && pLongitude <= 180
      */
     public Coordinate(double pLatitude, double pLongitude) 
-    {   // CSOFF:
-    	assert pLatitude >= -90 && pLatitude <= 90;
-    	assert pLongitude >= -180 && pLongitude <= 180; // CSON:
+    {  
+    	// CSOFF:
+    	assert pLatitude >= -90 && pLatitude <= 90 : String.format("latitude=%.2f", pLatitude);
+    	assert pLongitude >= -180 && pLongitude <= 180 : String.format("longitude=%.2f", pLongitude); 
+    	// CSON:
         aLatitude = pLatitude;
         aLongitude = pLongitude;
     }

@@ -51,8 +51,9 @@ public final class OsmMercator
     }
 
     /**
-     * Returns the absolute number of pixels in y or x, defined as: 2^Zoomlevel *
-     * TILE_WIDTH where TILE_WIDTH is the width of a tile in pixels.
+     * Returns the absolute number of map pixels in either y or x.
+     * This number is computed as: 2^Zoomlevel * TILE_WIDTH 
+     * where TILE_SIZE is the width and/or height of a tile in pixels.
      * // 0 -> 256, 1 -> 512, etc.
      *
      * @param pZoomlevel zoom level to request pixel data
@@ -166,22 +167,21 @@ public final class OsmMercator
     /**
      * Transforms pixel coordinate X to longitude.
      *
-     * <p>
-     * Mathematical optimization<br> (not implemented yet)
-     * <code>
-     * lon = toDegree((aX - falseEasting(aZoomlevel)) / radius(aZoomlevel))<br>
-     * lon = 180 / PI * ((aX - getMaxPixels(aZoomlevel) / 2) / getMaxPixels(aZoomlevel) / (2 * PI)<br>
-     * lon = 180 * ((aX - getMaxPixels(aZoomlevel) / 2) / getMaxPixels(aZoomlevel))<br>
-     * lon = 360 / getMaxPixels(aZoomlevel) * (aX - getMaxPixels(aZoomlevel) / 2)<br>
-     * lon = 360 * aX / getMaxPixels(aZoomlevel) - 180<br>
-     * </code>
-     * </p>
-     * @param pX [0..2^Zoomlevel*TILE_WIDTH[
+     * Mathematical derivation
+     *
+     * lon = toDegree((aX - falseEasting(aZoomlevel)) / radius(aZoomlevel))
+     * lon = 180 / PI * ((aX - getMaxPixels(aZoomlevel) / 2) / getMaxPixels(aZoomlevel) / (2 * PI)
+     * lon = 180 * ((aX - getMaxPixels(aZoomlevel) / 2) / getMaxPixels(aZoomlevel))
+     * lon = 360 / getMaxPixels(aZoomlevel) * (aX - getMaxPixels(aZoomlevel) / 2)
+     * lon = 360 * aX / getMaxPixels(aZoomlevel) - 180
+	 *
+     * @param pX [0..2^Zoomlevel*TILE_SIZE[
      * @param pZoomLevel The zoom level.
      * @return ]-180..180[
      */
     public static double xToLongitude(int pX, int pZoomLevel) 
     {
+    	assert pX >= 0 && pX < powerOfTwo(pZoomLevel)*TILE_SIZE: String.format("x=%d zoomLevel=%d", pX, pZoomLevel);
     	double raw = ((FULL_CIRCLE_IN_DEGREES_D * pX) / getMaxPixels(pZoomLevel)) - HALF_CIRCLE_IN_DEGREES_D; 
         if( raw < -HALF_CIRCLE_IN_DEGREES_D )
         {
@@ -192,6 +192,16 @@ public final class OsmMercator
         	return FULL_CIRCLE_IN_DEGREES_D - raw;
         }
         return raw;
+    }
+    
+    /**
+     * @param pPower The power of two. >= 0
+     * @return 2 to the power of pPower.
+     */
+    private static long powerOfTwo(int pPower)
+    {
+    	assert pPower >= 0;
+    	return 1 << pPower;
     }
 
     /**
