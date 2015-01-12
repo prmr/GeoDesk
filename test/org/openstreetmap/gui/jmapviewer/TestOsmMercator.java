@@ -98,4 +98,28 @@ public class TestOsmMercator
 		assertEquals(138.1640625, OsmMercator.xToLongitude(-238,3),0.0001);
 		assertEquals(179.2969, OsmMercator.xToLongitude(2052, 3),0.0001);
 	}
+	
+	@Test
+	public void testYtoLatitude()
+	{
+		final int tileSize = 256;
+		// Almost north pole: complete top of the map.
+		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 0),0.000001);
+		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 1),0.000001);
+		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 2),0.000001);
+		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 3),0.000001);
+		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 4),0.000001);
+		
+		// Almost south pole: complete bottom of the map
+		assertEquals(-85.05112877980659, OsmMercator.yToLatitude(tileSize, 0),0.000001);
+		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 1)), 1),0.000001);
+		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 2)), 2),0.000001);
+		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 3)), 3),0.000001);
+		
+		// Equator: middle of the map
+		assertEquals(0.0, OsmMercator.yToLatitude(tileSize/2, 0),0.000001);
+		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 1))/2, 1),0.000001);
+		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 2))/2, 2),0.000001);
+		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 3))/2, 3),0.000001);
+	}
 }

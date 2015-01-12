@@ -207,12 +207,13 @@ public final class OsmMercator
     /**
      * Transforms pixel coordinate Y to latitude.
      *
-     * @param pY [0..2^Zoomlevel*TILE_WIDTH[
+     * @param pY [0..2^Zoomlevel*TILE_SIZE[
      * @param pZoomLevel the zoom level
      * @return [MIN_LAT..MAX_LAT] is about [-85..85]
      */
     public static double yToLatitude(int pY, int pZoomLevel)
     {
+    	assert pY >= 0 && pY < powerOfTwo(pZoomLevel)*TILE_SIZE : String.format("y=%d zoomLevel=%d", pY, pZoomLevel);
     	int ycoordinate = pY;
     	ycoordinate += falseNorthing(pZoomLevel);
         double latitude = (Math.PI / 2) - (2 * Math.atan(Math.exp(-1.0 * ycoordinate / radius(pZoomLevel))));
