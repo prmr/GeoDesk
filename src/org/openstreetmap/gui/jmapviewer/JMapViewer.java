@@ -601,12 +601,13 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             }
         }
         
+        // TODO The commented code below creates invalid coordinates.
         if (aMapLegendVisible )
         {
-            paintLegend(pGraphics);
+//            paintLegend(pGraphics);
         }
-        aAttributionSupport.paintAttribution(pGraphics, getWidth(), getHeight(), getPosition(0, 0), 
-        		getPosition(getWidth(), getHeight()), aZoomLevel, this);
+//        aAttributionSupport.paintAttribution(pGraphics, getWidth(), getHeight(), getPosition(0, 0), 
+//        		getPosition(getWidth(), getHeight()), aZoomLevel, this);
     } //CSON: NPAthComplexity
     
     // CHECKSTYLE DISABLE MagicNumber FOR 18 LINES

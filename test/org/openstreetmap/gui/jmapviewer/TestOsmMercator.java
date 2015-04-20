@@ -95,8 +95,6 @@ public class TestOsmMercator
 		assertEquals(-180, OsmMercator.xToLongitude(0, 2),0);
 		assertEquals(0, OsmMercator.xToLongitude(128, 0),0);
 		assertEquals(0, OsmMercator.xToLongitude(256, 1),0);
-		assertEquals(138.1640625, OsmMercator.xToLongitude(-238,3),0.0001);
-		assertEquals(179.2969, OsmMercator.xToLongitude(2052, 3),0.0001);
 	}
 	
 	@Test
@@ -111,15 +109,79 @@ public class TestOsmMercator
 		assertEquals(85.05112877980659, OsmMercator.yToLatitude(0, 4),0.000001);
 		
 		// Almost south pole: complete bottom of the map
-		assertEquals(-85.05112877980659, OsmMercator.yToLatitude(tileSize, 0),0.000001);
-		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 1)), 1),0.000001);
-		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 2)), 2),0.000001);
-		assertEquals(-85.05112877980659, OsmMercator.yToLatitude((tileSize * (1 << 3)), 3),0.000001);
+		assertEquals(-84.9283, OsmMercator.yToLatitude(tileSize-1, 0),0.001);
+		assertEquals(-84.9901, OsmMercator.yToLatitude((tileSize * (1 << 1)-1), 1),0.001);
+		assertEquals(-85.0207, OsmMercator.yToLatitude((tileSize * (1 << 2))-1, 2),0.001);
+		assertEquals(-85.0359, OsmMercator.yToLatitude((tileSize * (1 << 3)-1), 3),0.001);
 		
 		// Equator: middle of the map
 		assertEquals(0.0, OsmMercator.yToLatitude(tileSize/2, 0),0.000001);
 		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 1))/2, 1),0.000001);
 		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 2))/2, 2),0.000001);
 		assertEquals(0.0, OsmMercator.yToLatitude((tileSize* (1 << 3))/2, 3),0.000001);
+	}
+	
+	@Test
+	public void testLongitudeToX()
+	{
+		// Test the left side of the map
+		assertEquals(0, OsmMercator.longitudeToX(-180, 0));
+		assertEquals(0, OsmMercator.longitudeToX(-180, 1));
+		assertEquals(0, OsmMercator.longitudeToX(-180, 2));
+		
+		// Test the right side of the map
+		assertEquals(255, OsmMercator.longitudeToX(180, 0));
+		assertEquals(256*2-1, OsmMercator.longitudeToX(180, 1));
+		assertEquals(256*4-1, OsmMercator.longitudeToX(180, 2));
+		
+		// Test the middle of the map
+		assertEquals(256/2, OsmMercator.longitudeToX(0, 0));
+		assertEquals(256*2/2, OsmMercator.longitudeToX(0, 1));
+		assertEquals(256*4/2, OsmMercator.longitudeToX(0, 2));
+		
+		// Test all points using the converse function. 
+		// Assumes there are no errors in xToLongitude
+		for( int i = 0; i < 256; i++ )
+		{
+			assertEquals(i, OsmMercator.longitudeToX(OsmMercator.xToLongitude(i, 0),0));
+		}
+		for( int i = 0; i < 512; i++ )
+		{
+			assertEquals(i, OsmMercator.longitudeToX(OsmMercator.xToLongitude(i, 1),1));
+		}
+		for( int i = 0; i < 1024; i++ )
+		{
+			assertEquals(i, OsmMercator.longitudeToX(OsmMercator.xToLongitude(i, 2),2));
+		}
+	}
+	
+	@Test
+	public void testLatitudeToY()
+	{
+		final int tileSize = 256;
+		// Almost north pole: complete top of the map.
+		assertEquals(0, OsmMercator.latitudeToY(85.0511, 0));
+		assertEquals(0, OsmMercator.latitudeToY(85.0511, 1));
+		assertEquals(0, OsmMercator.latitudeToY(85.0511, 2));
+		assertEquals(0, OsmMercator.latitudeToY(85.0511, 3));
+
+		// Almost south pole: complete bottom of the map
+		// Somehow there's a bit of drift on the south pole
+		assertEquals(tileSize-1, OsmMercator.latitudeToY(-85, 0));
+		assertEquals((tileSize * (1 << 1)-1), OsmMercator.latitudeToY(-85, 1));
+		assertEquals((tileSize * (1 << 2)-2), OsmMercator.latitudeToY(-85, 2));
+		assertEquals((tileSize * (1 << 3)-4), OsmMercator.latitudeToY(-85, 3));
+		assertEquals((tileSize * (1 << 4)-7), OsmMercator.latitudeToY(-85, 4));
+		
+		// Equator: middle of the map
+		assertEquals(tileSize/2, OsmMercator.latitudeToY(0.0, 0));
+		assertEquals((tileSize* (1 << 1))/2, OsmMercator.latitudeToY(0.0, 1));
+		assertEquals((tileSize* (1 << 2))/2, OsmMercator.latitudeToY(0.0, 2));
+		assertEquals((tileSize* (1 << 3))/2, OsmMercator.latitudeToY(0.0, 3));
+		assertEquals((tileSize* (1 << 4))/2, OsmMercator.latitudeToY(0.0, 4));
+
+		
+		// The latitudeToY function is not an accurate converse of the yToLatitude, so 
+		// we can't write a test as for the longitude.
 	}
 }

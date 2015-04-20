@@ -70,7 +70,7 @@ public final class OsmMercator
      * @param pZoomLevel The zoom level
      * @return A negative value of half the tile width or height.
      */
-    private static int falseNorthing(int pZoomLevel) 
+    public static int falseNorthing(int pZoomLevel) 
     {
         return -1 * getMaxPixels(pZoomLevel) / 2;
     }
@@ -120,6 +120,8 @@ public final class OsmMercator
      */
     public static int longitudeToX(double pLongitude, int pZoomLevel)
     {
+    	assert pLongitude >= -180 && pLongitude <= 180;
+    	assert pZoomLevel >= 0;
         int mp = getMaxPixels(pZoomLevel);
         int x = (int) ((mp * (pLongitude + HALF_CIRCLE_IN_DEGREES)) / FULL_CIRCLE_IN_DEGREES);
         x = Math.min(x, mp - 1);
@@ -139,22 +141,14 @@ public final class OsmMercator
      * y = getMaxPixel(aZoomlevel) * ((log(u) / (-4 * PI)) + 1/2)<br>
      * </code>
      * </p>
-     * @param pLatitude [-90...90]
+     * @param pLatitude [MIN_LAT...MAX_LAT]
      * @param pZoomLevel The zoom level.
      * @return [0..2^Zoomlevel*TILE_SIZE[
      */
     public static int latitudeToY(double pLatitude, int pZoomLevel) 
     {
-    	double latitude = pLatitude;
-        if(pLatitude < MIN_LAT)
-        {
-        	latitude = MIN_LAT;
-        }
-        else if(pLatitude > MAX_LAT)
-        {
-        	latitude = MAX_LAT;
-        }
-        double sinLat = Math.sin(Math.toRadians(latitude));
+    	assert pLatitude >= MIN_LAT && pLatitude <= MAX_LAT : String.format("lat=%f zoomLevel=%d", pLatitude, pZoomLevel);
+    	double sinLat = Math.sin(Math.toRadians(pLatitude));
         double log = Math.log((1.0 + sinLat) / (1.0 - sinLat));
         int mp = getMaxPixels(pZoomLevel);
         // CSOFF:
@@ -182,16 +176,7 @@ public final class OsmMercator
     public static double xToLongitude(int pX, int pZoomLevel) 
     {
     	assert pX >= 0 && pX < powerOfTwo(pZoomLevel)*TILE_SIZE: String.format("x=%d zoomLevel=%d", pX, pZoomLevel);
-    	double raw = ((FULL_CIRCLE_IN_DEGREES_D * pX) / getMaxPixels(pZoomLevel)) - HALF_CIRCLE_IN_DEGREES_D; 
-        if( raw < -HALF_CIRCLE_IN_DEGREES_D )
-        {
-        	return FULL_CIRCLE_IN_DEGREES_D - Math.abs(raw);
-        }
-        else if( raw > HALF_CIRCLE_IN_DEGREES_D )
-        {
-        	return FULL_CIRCLE_IN_DEGREES_D - raw;
-        }
-        return raw;
+    	return ((FULL_CIRCLE_IN_DEGREES_D * pX) / getMaxPixels(pZoomLevel)) - HALF_CIRCLE_IN_DEGREES_D; 
     }
     
     /**

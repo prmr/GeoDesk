@@ -65,7 +65,6 @@ public class TestGeoJsonObject
 	public void testCollection()
 	{
 		JSONObject object = new JSONObject(aCollection);
-		System.out.println(object.toString());
 		Set<String> keySet = object.keySet();
 		assertEquals( 3, keySet.size());
 		assertEquals("GeometryCollection", object.getString("type"));
