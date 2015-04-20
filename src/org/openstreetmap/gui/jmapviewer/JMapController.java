@@ -210,6 +210,10 @@ public class JMapController implements MouseListener, MouseMotionListener, Mouse
         else if( pEvent.getClickCount() == 1 && pEvent.getButton() == MouseEvent.BUTTON2 )
         {
             MapMarker[] lMarkers = aMap.getMapMarkersAt(pEvent.getPoint());
+            if( lMarkers.length == 0 )
+            {
+            	return;
+            }
             String lMessage = "";
             for( MapMarker marker : lMarkers )
             {
