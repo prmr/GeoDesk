@@ -120,7 +120,7 @@ public final class OsmMercator
      */
     public static int longitudeToX(double pLongitude, int pZoomLevel)
     {
-    	assert pLongitude >= -180 && pLongitude <= 180;
+    	assert pLongitude >= -HALF_CIRCLE_IN_DEGREES && pLongitude <= HALF_CIRCLE_IN_DEGREES;
     	assert pZoomLevel >= 0;
         int mp = getMaxPixels(pZoomLevel);
         int x = (int) ((mp * (pLongitude + HALF_CIRCLE_IN_DEGREES)) / FULL_CIRCLE_IN_DEGREES);

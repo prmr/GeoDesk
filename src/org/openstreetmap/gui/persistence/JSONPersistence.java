@@ -111,9 +111,9 @@ public final class JSONPersistence
 		MarkerData lReturn = new MarkerData();
 
 		// if the feature is a waypoint
-		if (pFeature.has("properties") && pFeature.getJSONObject("properties").has("gpxtype")
-				&& pFeature.getJSONObject("properties").getString("gpxtype").equals("wptType")
-				&& pFeature.has("geometry"))
+		if (pFeature.has("properties") && pFeature.getJSONObject("properties").has("gpxtype") && 
+				pFeature.getJSONObject("properties").getString("gpxtype").equals("wptType") && 
+				pFeature.has("geometry"))
 		{
 
 			try
