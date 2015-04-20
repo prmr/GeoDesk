@@ -40,7 +40,7 @@ public final class SettingManager
     private static final String P_DEFAULT_APP_DATA_FILE = "defaultAppDataFile";
     private static final String P_APP_DATA_FILE = "appDataFile";
     private static final String PROPERTIES_FILE = ".geodesk";
-    private static final String DEFAULT_DATA_FILE = "geodesk-data.xml";
+    private static final String DEFAULT_DATA_FILE = "geodesk-data.json";
     private static final String ENV_VAR_USER_PROFILE = "USERPROFILE";
     private static final String ENV_VAR_APP_DATA = "APPDATA";
     
