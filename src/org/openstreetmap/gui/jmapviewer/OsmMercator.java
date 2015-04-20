@@ -180,6 +180,17 @@ public final class OsmMercator
     }
     
     /**
+     * @param pPixel A pixel coordinate to check for validity.
+     * @param pZoomLevel the zoom level.
+     * @return If pX is a pixel in the map.
+     */
+    public static boolean inMap( int pPixel, int pZoomLevel )
+    {
+    	assert pZoomLevel >= 0;
+    	return pPixel >= 0 && pPixel < powerOfTwo(pZoomLevel)*TILE_SIZE;
+    }
+    
+    /**
      * @param pPower The power of two. >= 0
      * @return 2 to the power of pPower.
      */

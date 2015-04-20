@@ -184,4 +184,21 @@ public class TestOsmMercator
 		// The latitudeToY function is not an accurate converse of the yToLatitude, so 
 		// we can't write a test as for the longitude.
 	}
+	
+	@Test
+	public void testInMap()
+	{
+		assertTrue(OsmMercator.inMap(0, 0));
+		assertTrue(OsmMercator.inMap(0, 1));
+		assertTrue(OsmMercator.inMap(0, 2));
+		assertTrue(OsmMercator.inMap(0, 3));
+		assertFalse(OsmMercator.inMap(-1, 0));
+		assertFalse(OsmMercator.inMap(-1, 1));
+		assertFalse(OsmMercator.inMap(-1, 2));
+		assertFalse(OsmMercator.inMap(-1, 3));
+		assertTrue(OsmMercator.inMap(255, 0));
+		assertFalse(OsmMercator.inMap(256, 0));
+		assertTrue(OsmMercator.inMap(511, 1));
+		assertFalse(OsmMercator.inMap(512, 1));
+	}
 }

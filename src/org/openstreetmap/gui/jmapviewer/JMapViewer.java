@@ -376,9 +376,10 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      * Converts the relative pixel coordinate (regarding the top left corner of
      * the displayed map) into a latitude / longitude coordinate.
      *
-     * @param pMapPoint relative pixel coordinate regarding the top left corner of the
-     *            	   displayed map
-     * @return latitude / longitude
+     * @param pMapPoint relative pixel coordinate regarding the top 
+     * left corner of the displayed map.
+     * @return latitude / longitude or null if the parameters are not
+     * a valid coordinate.
      */
     public Coordinate getPosition(Point pMapPoint) 
     {
@@ -391,12 +392,17 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      *
      * @param pMapPointX X coordinate on the map.
      * @param pMapPointY Y coordinate on the map.
-     * @return latitude / longitude
+     * @return latitude / longitude or null if the parameters are not
+     * a valid coordinate.
      */
     public Coordinate getPosition(int pMapPointX, int pMapPointY)
     {
         int x = aCenter.x + pMapPointX - getWidth() / 2;
         int y = aCenter.y + pMapPointY - getHeight() / 2;
+        if( !OsmMercator.inMap(x, aZoomLevel) || !OsmMercator.inMap(y, aZoomLevel) )
+        {
+        	return null;
+        }
         double lon = OsmMercator.xToLongitude(x, aZoomLevel);
         double lat = OsmMercator.yToLatitude(y, aZoomLevel);
         return new Coordinate(lat, lon);
@@ -478,9 +484,11 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     }
 
     /**
-     * Gets the meter per pixel.
-     *
-     * @return the meter per pixel
+     * Computes the value by taking a diagonal line between the top-right corner 
+     * of the component (5,5) and its center, and computing the distance in
+     * both pixels and meters.
+     * 
+     * @return the number of meters per pixel, or 0 if this number cannot be computed.
      * CHECKSTYLE DISABLE MagicNumber FOR 5 LINES
      */
     public double getMeterPerPixel() 
@@ -488,14 +496,19 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         Point origin = new Point(5, 5);
         Point center = new Point(getWidth()/2, getHeight()/2);
 
-        double pDistance = center.distance(origin);
+        double distanceInPixels = center.distance(origin);
 
         Coordinate originCoord = getPosition(origin);
         Coordinate centerCoord = getPosition(center);
+        
+        if( originCoord == null || centerCoord == null)
+        {
+        	return 0;
+        }
 
-        double mDistance = OsmMercator.getDistance(originCoord, centerCoord );
+        double distanceInMeters = OsmMercator.getDistance(originCoord, centerCoord );
 
-        return mDistance/pDistance;
+        return distanceInMeters/distanceInPixels;
     }
 
     // CSOFF:
@@ -601,11 +614,12 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             }
         }
         
-        // TODO The commented code below creates invalid coordinates.
         if (aMapLegendVisible )
         {
-//            paintLegend(pGraphics);
+            paintLegend(pGraphics);
         }
+        
+     // TODO The commented code below creates invalid coordinates.
 //        aAttributionSupport.paintAttribution(pGraphics, getWidth(), getHeight(), getPosition(0, 0), 
 //        		getPosition(getWidth(), getHeight()), aZoomLevel, this);
     } //CSON: NPAthComplexity
@@ -613,13 +627,17 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     // CHECKSTYLE DISABLE MagicNumber FOR 18 LINES
     private void paintLegend(Graphics pGraphics)
     {
+        long lMper100Pix = Math.round(getMeterPerPixel()*100);
+        if( lMper100Pix == 0 )
+        {
+        	return;
+        }
         Graphics2D lGraphics = (Graphics2D)pGraphics;
         lGraphics.setStroke(new BasicStroke(3));
         lGraphics.drawLine(LEGEND_OFFSET, getHeight()-LEGEND_OFFSET, 100 + LEGEND_OFFSET, getHeight()-LEGEND_OFFSET);
         lGraphics.drawLine(LEGEND_OFFSET, getHeight()-LEGEND_OFFSET+5, LEGEND_OFFSET, getHeight()-LEGEND_OFFSET);
         lGraphics.drawLine(100+LEGEND_OFFSET, getHeight()-LEGEND_OFFSET+5, 100+LEGEND_OFFSET, getHeight()-LEGEND_OFFSET);
         lGraphics.setFont(lGraphics.getFont().deriveFont(11f)); 
-        long lMper100Pix = Math.round(getMeterPerPixel()*100);
         if( lMper100Pix < 1000 )
         {
             lGraphics.drawString(String.format("%dm", lMper100Pix), LEGEND_OFFSET+5, getHeight()-LEGEND_OFFSET+15);
@@ -714,6 +732,10 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             return;
         }
         Coordinate zoomPos = getPosition(pNewCenter);
+        if( zoomPos == null )
+        {
+        	zoomPos = new Coordinate(0, 0);
+        }
         JobDispatcher.getInstance().cancelOutstandingJobs();
         // requests
         setDisplayPositionByLatLon(pNewCenter, zoomPos.getLatitude(), zoomPos.getLongitude(), pNewZoomLevel);
