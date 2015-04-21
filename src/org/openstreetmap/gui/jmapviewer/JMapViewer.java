@@ -71,6 +71,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
 	private static final int DEFAULT_LATITUDE = 50;
 	private static final int DEFAULT_LONGITUDE = 9;
 	private static final int DEFAULT_ZOOM_LEVEL = 3;
+	private static final int TILE_SIZE = 256;
 	
     private static final long serialVersionUID = 1L;
 
@@ -399,10 +400,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     {
         int x = aCenter.x + pMapPointX - getWidth() / 2;
         int y = aCenter.y + pMapPointY - getHeight() / 2;
-        if( !OsmMercator.inMap(x, aZoomLevel) || !OsmMercator.inMap(y, aZoomLevel) )
-        {
-        	return null;
-        }
         double lon = OsmMercator.xToLongitude(x, aZoomLevel);
         double lat = OsmMercator.yToLatitude(y, aZoomLevel);
         return new Coordinate(lat, lon);
@@ -482,29 +479,51 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             return null;
         }
     }
+    
+    
+    private int mapSize()
+    {
+    	return TILE_SIZE*(1 << aZoomLevel);
+    }
 
     /**
-     * Computes the value by taking a diagonal line between the top-right corner 
-     * of the component (5,5) and its center, and computing the distance in
-     * both pixels and meters.
+     * Computes the value by taking a diagonal line between the top-left and the  
+     * bottom right corners of the component (5,5), and computing the distance in
+     * both pixels and meters. If the map does not take up the entire component,
+     * the closest corner of the map is used instead.
      * 
-     * @return the number of meters per pixel, or 0 if this number cannot be computed.
+     * @return the number of meters per pixel.
      * CHECKSTYLE DISABLE MagicNumber FOR 5 LINES
      */
     public double getMeterPerPixel() 
     {
-        Point origin = new Point(5, 5);
-        Point center = new Point(getWidth()/2, getHeight()/2);
-
-        double distanceInPixels = center.distance(origin);
-
-        Coordinate originCoord = getPosition(origin);
-        Coordinate centerCoord = getPosition(center);
-        
-        if( originCoord == null || centerCoord == null)
+        int x = 0;
+        if( aCenter.x < getWidth()/2  )
         {
-        	return 0;
+        	x = getWidth()/2 - aCenter.x;
         }
+        int y = 0;
+        if( aCenter.y < getHeight()/2  )
+        {
+        	y = getHeight()/2 - aCenter.y;
+        }
+        Point topLeft = new Point(x, y);
+        x = getWidth()-1;
+        y = getHeight()-1;
+        if( mapSize() - aCenter.x < getWidth()/2 )
+        {
+        	x = getWidth()/2 + mapSize() - aCenter.x-1;
+        }
+        if( mapSize() - aCenter.y < getHeight()/2 )
+        {
+        	y = getHeight()/2 + mapSize() - aCenter.y-1;
+        }
+        Point bottomRight = new Point(x, y);
+        
+        double distanceInPixels = bottomRight.distance(topLeft);
+
+        Coordinate originCoord = getPosition(topLeft);
+        Coordinate centerCoord = getPosition(bottomRight);
 
         double distanceInMeters = OsmMercator.getDistance(originCoord, centerCoord );
 
@@ -628,10 +647,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     private void paintLegend(Graphics pGraphics)
     {
         long lMper100Pix = Math.round(getMeterPerPixel()*100);
-        if( lMper100Pix == 0 )
-        {
-        	return;
-        }
         Graphics2D lGraphics = (Graphics2D)pGraphics;
         lGraphics.setStroke(new BasicStroke(3));
         lGraphics.drawLine(LEGEND_OFFSET, getHeight()-LEGEND_OFFSET, 100 + LEGEND_OFFSET, getHeight()-LEGEND_OFFSET);
