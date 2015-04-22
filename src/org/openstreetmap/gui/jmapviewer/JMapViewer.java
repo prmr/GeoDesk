@@ -390,16 +390,21 @@ public class JMapViewer extends JPanel implements TileLoaderListener
     /**
      * Converts the relative pixel coordinate (regarding the top left corner of
      * the displayed map) into a latitude / longitude coordinate.
+     * 
+     * If the point is not on the map, the closest approximation is found.
      *
      * @param pMapPointX X coordinate on the map.
      * @param pMapPointY Y coordinate on the map.
-     * @return latitude / longitude or null if the parameters are not
-     * a valid coordinate.
+     * @return latitude / longitude.
      */
     public Coordinate getPosition(int pMapPointX, int pMapPointY)
     {
         int x = aCenter.x + pMapPointX - getWidth() / 2;
         int y = aCenter.y + pMapPointY - getHeight() / 2;
+        x = Math.max(0, x);
+        x = Math.min(mapSize()-1, x);
+        y = Math.max(0, y);
+        y = Math.min(mapSize()-1, y);
         double lon = OsmMercator.xToLongitude(x, aZoomLevel);
         double lat = OsmMercator.yToLatitude(y, aZoomLevel);
         return new Coordinate(lat, lon);
@@ -764,10 +769,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             return;
         }
         Coordinate zoomPos = getPosition(pNewCenter);
-        if( zoomPos == null )
-        {
-        	zoomPos = new Coordinate(0, 0);
-        }
         JobDispatcher.getInstance().cancelOutstandingJobs();
         // requests
         setDisplayPositionByLatLon(pNewCenter, zoomPos.getLatitude(), zoomPos.getLongitude(), pNewZoomLevel);
