@@ -404,6 +404,23 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         double lat = OsmMercator.yToLatitude(y, aZoomLevel);
         return new Coordinate(lat, lon);
     }
+    
+    /* Works just like getPosition, but does not allow coordinate outside
+     * the map range.
+     */
+    private Coordinate getPositionBuffered(Point pPoint)
+    {
+    	int x = aCenter.x + pPoint.x - getWidth() / 2;
+        int y = aCenter.y + pPoint.y - getHeight() / 2;
+        x = Math.min(0, x);
+        x = Math.max(mapSize()-1, x);
+        y = Math.min(0, y);
+        y = Math.max(mapSize()-1, y);
+        System.out.println(String.format("(%d,%d)", x, y));
+        double lon = OsmMercator.xToLongitude(x, aZoomLevel);
+        double lat = OsmMercator.yToLatitude(y, aZoomLevel);
+        return new Coordinate(lat, lon);
+    }
 
     /**
      * Calculates the position on the map of a given coordinate.
@@ -497,35 +514,35 @@ public class JMapViewer extends JPanel implements TileLoaderListener
      */
     public double getMeterPerPixel() 
     {
-        int x = 0;
-        if( aCenter.x < getWidth()/2  )
-        {
-        	x = getWidth()/2 - aCenter.x;
-        }
-        int y = 0;
-        if( aCenter.y < getHeight()/2  )
-        {
-        	y = getHeight()/2 - aCenter.y;
-        }
-        Point topLeft = new Point(x, y);
-        x = getWidth()-1;
-        y = getHeight()-1;
-        if( mapSize() - aCenter.x < getWidth()/2 )
-        {
-        	x = getWidth()/2 + mapSize() - aCenter.x-1;
-        }
-        if( mapSize() - aCenter.y < getHeight()/2 )
-        {
-        	y = getHeight()/2 + mapSize() - aCenter.y-1;
-        }
-        Point bottomRight = new Point(x, y);
+    	// Try to use the top right and bottom left corners of the viewer
+    	// as coordinates for computing distance along a diagonal.
+    	Point topLeft = new Point(0, 0);
+    	Point bottomRight = new Point(getWidth()-1, getHeight()-1);
+    	
+    	// Convert to map coordinates
+        topLeft.x = aCenter.x + topLeft.x - getWidth() / 2;
+        topLeft.y = aCenter.y + topLeft.y - getHeight() / 2;
+        bottomRight.x = aCenter.x + bottomRight.x - getWidth() / 2;
+        bottomRight.y = aCenter.y + bottomRight.y - getHeight() / 2;
+        
+        // Make sure the coordinates are within bounds
+        topLeft.x = Math.max(0, topLeft.x);
+        topLeft.x = Math.min(mapSize()-1, topLeft.x);
+        topLeft.y = Math.max(0, topLeft.y);
+        topLeft.y = Math.min(mapSize()-1, topLeft.y);
+        bottomRight.x = Math.max(0, bottomRight.x);
+        bottomRight.x = Math.min(mapSize()-1, bottomRight.x);
+        bottomRight.y = Math.max(0, bottomRight.y);
+        bottomRight.y = Math.min(mapSize()-1, bottomRight.y);     
         
         double distanceInPixels = bottomRight.distance(topLeft);
+        
+        Coordinate topLeftCoord = new Coordinate(OsmMercator.yToLatitude(topLeft.y, aZoomLevel), 
+        		OsmMercator.xToLongitude(topLeft.x, aZoomLevel));
+        Coordinate bottomRightCoord = new Coordinate(OsmMercator.yToLatitude(bottomRight.y, aZoomLevel), 
+        		OsmMercator.xToLongitude(bottomRight.x, aZoomLevel));
 
-        Coordinate originCoord = getPosition(topLeft);
-        Coordinate centerCoord = getPosition(bottomRight);
-
-        double distanceInMeters = OsmMercator.getDistance(originCoord, centerCoord );
+        double distanceInMeters = OsmMercator.getDistance(topLeftCoord, bottomRightCoord );
 
         return distanceInMeters/distanceInPixels;
     }
