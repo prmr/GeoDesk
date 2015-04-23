@@ -660,9 +660,8 @@ public class JMapViewer extends JPanel implements TileLoaderListener
             paintLegend(pGraphics);
         }
         
-     // TODO The commented code below creates invalid coordinates.
-//        aAttributionSupport.paintAttribution(pGraphics, getWidth(), getHeight(), getPosition(0, 0), 
-//        		getPosition(getWidth(), getHeight()), aZoomLevel, this);
+        aAttributionSupport.paintAttribution(pGraphics, getWidth(), getHeight(), getPosition(0, 0), 
+        		getPosition(getWidth(), getHeight()), aZoomLevel, this);
     } //CSON: NPAthComplexity
     
     // CHECKSTYLE DISABLE MagicNumber FOR 18 LINES
