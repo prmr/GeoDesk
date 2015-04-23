@@ -19,7 +19,7 @@ public class TestGeoJsonObject
 	private final String aCollection = "{ \"type\": \"GeometryCollection\"," +
 			" \"geometries\": [" + 
 			aCapeTown + "," + aMontreal + "]," + 
-			"  \"properties\": { \"geodesk-version\": \"0.2.0\" }}";
+			"  \"properties\": { \"geodesk-version\": \"0.3.0\" }}";
 	
 	@Test
 	public void testParse()
@@ -68,7 +68,7 @@ public class TestGeoJsonObject
 		Set<String> keySet = object.keySet();
 		assertEquals( 3, keySet.size());
 		assertEquals("GeometryCollection", object.getString("type"));
-		assertEquals("0.2.0", object.getJSONObject("properties").getString("geodesk-version"));
+		assertEquals("0.3.0", object.getJSONObject("properties").getString("geodesk-version"));
 		JSONArray locations = object.getJSONArray("geometries");
 		assertEquals(2, locations.length());
 	}

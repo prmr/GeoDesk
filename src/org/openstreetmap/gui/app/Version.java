@@ -29,7 +29,7 @@ package org.openstreetmap.gui.app;
  */
 public final class Version
 {
-	private static final Version VERSION = new Version(0, 2, 0);
+	private static final Version VERSION = new Version(0, 3, 0);
 	
 	private int aMajor = -1;
 	private int aMinor = -1;

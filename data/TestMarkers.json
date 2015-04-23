@@ -13,6 +13,6 @@
 	  	 "type":"Point",
 	  	 "coordinates":[-73.596039,45.489502]}
 	  ],
- "properties":{"geodesk-version":"0.2.0"},
+ "properties":{"geodesk-version":"0.3.0"},
  "type":"GeometryCollection"
 }

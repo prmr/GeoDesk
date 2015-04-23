@@ -23,6 +23,6 @@
          ]
       }
    ],
-   "properties": {"geodesk-version": "0.2"},
+   "properties": {"geodesk-version": "0.3"},
    "type": "GeometryCollection"
 }

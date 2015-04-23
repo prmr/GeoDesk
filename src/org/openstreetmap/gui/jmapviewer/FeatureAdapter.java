@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 
 /**
- * Retire this class with Release 0.2. Most of this code is part
+ * Retire this class with Release 0.4. Most of this code is part
  * of an incomplete development to the feature to view terms of use.
  */
 public final class FeatureAdapter 
