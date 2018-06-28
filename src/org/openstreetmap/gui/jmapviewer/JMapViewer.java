@@ -410,24 +410,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         return new Coordinate(lat, lon);
     }
     
-    /* Works just like getPosition, but does not allow coordinate outside
-     * the map range.
-     */
-    private Coordinate getPositionBuffered(Point pPoint)
-    {
-    	int x = aCenter.x + pPoint.x - getWidth() / 2;
-        int y = aCenter.y + pPoint.y - getHeight() / 2;
-        x = Math.min(0, x);
-        x = Math.max(mapSize()-1, x);
-        y = Math.min(0, y);
-        y = Math.max(mapSize()-1, y);
-        System.out.println(String.format("(%d,%d)", x, y));
-        double lon = OsmMercator.xToLongitude(x, aZoomLevel);
-        double lat = OsmMercator.yToLatitude(y, aZoomLevel);
-        return new Coordinate(lat, lon);
-    }
-
-    /**
+     /**
      * Calculates the position on the map of a given coordinate.
      *
      * @param pLatitude The latitude 
@@ -892,7 +875,6 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         {
             setZoom(pTileSource.getMaxZoom());
         }
-        aAttributionSupport.initialize(pTileSource);
         repaint();
     }
 

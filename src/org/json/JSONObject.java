@@ -298,7 +298,7 @@ public class JSONObject {
      */
     public JSONObject(Object object, String names[]) {
         this();
-        Class c = object.getClass();
+        Class<?> c = object.getClass();
         for (int i = 0; i < names.length; i += 1) {
             String name = names[i];
             try {
@@ -631,7 +631,7 @@ public class JSONObject {
         if (object == null) {
             return null;
         }
-        Class klass = object.getClass();
+        Class<?> klass = object.getClass();
         Field[] fields = klass.getFields();
         int length = fields.length;
         if (length == 0) {
@@ -981,7 +981,7 @@ public class JSONObject {
     }
 
     private void populateMap(Object bean) {
-        Class klass = bean.getClass();
+    	Class<?> klass = bean.getClass();
 
 // If klass is a System class then set includeSuperClass to false.
 
@@ -1070,7 +1070,7 @@ public class JSONObject {
      *             If the key is null or if the number is invalid.
      */
     public JSONObject put(String key, double value) throws JSONException {
-        this.put(key, new Double(value));
+        this.put(key, Double.valueOf(value));
         return this;
     }
 
@@ -1086,7 +1086,7 @@ public class JSONObject {
      *             If the key is null.
      */
     public JSONObject put(String key, int value) throws JSONException {
-        this.put(key, new Integer(value));
+        this.put(key, Integer.valueOf(value));
         return this;
     }
 
@@ -1102,7 +1102,7 @@ public class JSONObject {
      *             If the key is null.
      */
     public JSONObject put(String key, long value) throws JSONException {
-        this.put(key, new Long(value));
+        this.put(key, Long.valueOf(value));
         return this;
     }
 
@@ -1362,7 +1362,7 @@ public class JSONObject {
                         return d;
                     }
                 } else {
-                    Long myLong = new Long(string);
+                    Long myLong = Long.valueOf(string);
                     if (string.equals(myLong.toString())) {
                         if (myLong == myLong.intValue()) {
                             return myLong.intValue();
@@ -1488,7 +1488,8 @@ public class JSONObject {
      * @throws JSONException
      *             If the value is or contains an invalid number.
      */
-    public static String valueToString(Object value) throws JSONException {
+    @SuppressWarnings("unchecked")
+	public static String valueToString(Object value) throws JSONException {
         if (value == null || value.equals(null)) {
             return "null";
         }
@@ -1535,7 +1536,8 @@ public class JSONObject {
      *            The object to wrap
      * @return The wrapped value
      */
-    public static Object wrap(Object object) {
+    @SuppressWarnings("unchecked")
+	public static Object wrap(Object object) {
         try {
             if (object == null) {
                 return NULL;
@@ -1586,7 +1588,8 @@ public class JSONObject {
         return this.write(writer, 0, 0);
     }
 
-    static final Writer writeValue(Writer writer, Object value,
+    @SuppressWarnings("unchecked")
+	static final Writer writeValue(Writer writer, Object value,
             int indentFactor, int indent) throws JSONException, IOException {
         if (value == null || value.equals(null)) {
             writer.write("null");
