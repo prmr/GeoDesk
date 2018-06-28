@@ -48,8 +48,6 @@ import org.openstreetmap.gui.jmapviewer.MapMarker;
 import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.CycleOsmTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOpenAerialTileSource;
-import org.openstreetmap.gui.jmapviewer.tilesources.MapQuestOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.MapnikOsmTileSource;
 import org.openstreetmap.gui.jmapviewer.tilesources.TileSource;
 import org.openstreetmap.gui.persistence.JSONPersistence;
@@ -67,9 +65,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
 	
     private static final String APP_NAME = MESSAGES.getString("app.appname") + " " + Version.instance().toString();
     
-    private TileSource[] aTileSources = {new MapnikOsmTileSource(),
-            new CycleOsmTileSource(), new BingAerialTileSource(), 
-            new MapQuestOsmTileSource(), new MapQuestOpenAerialTileSource()};
+    private TileSource[] aTileSources = {new MapnikOsmTileSource(), new CycleOsmTileSource(), new BingAerialTileSource()};
     private JMapViewer aMap = null;
 
     private JLabel aZoomValue = null;
@@ -83,7 +79,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
         
         aMap = new JMapViewer();
         aMap.addJMVListener(this);
-        aMap.setTileSource(aTileSources[3]);
+        aMap.setTileSource(aTileSources[0]);
         
         buildMenus();
 
@@ -395,28 +391,6 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
             {
                 setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.bing"));
                 aMap.setTileSource(aTileSources[2]);
-            }
-        });
-        lMapMenu.add(lMap);
-        
-        lMap = new JMenuItem(MESSAGES.getString("app.map.osm"), KeyEvent.VK_O);
-        lMap.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                setTitle(APP_NAME + " - " + MESSAGES.getString("app.menu.osm"));
-                aMap.setTileSource(aTileSources[3]);
-            }
-        });
-        lMapMenu.add(lMap);
-        
-        lMap = new JMenuItem(MESSAGES.getString("app.menu.mqaerial"), KeyEvent.VK_A);
-        lMap.addActionListener( new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent pEvent) 
-            {
-                setTitle(APP_NAME + " - " + MESSAGES.getString("app.map.mqaerial"));
-                aMap.setTileSource(aTileSources[4]);
             }
         });
         lMapMenu.add(lMap);
