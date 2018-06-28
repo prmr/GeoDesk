@@ -453,9 +453,6 @@ public class OsmFileCacheTileLoader extends OsmTileLoader
             prepareHttpUrlConnection(urlConn);
             urlConn.setRequestMethod("HEAD");
             urlConn.setReadTimeout(30000); // 30 seconds read timeout
-            // System.out.println("Tile age: " + new
-            // Date(urlConn.getLastModified()) + " / "
-            // + new Date(fileAge));
             long lastModified = urlConn.getLastModified();
             if(lastModified == 0)
             {
@@ -472,9 +469,6 @@ public class OsmFileCacheTileLoader extends OsmTileLoader
             prepareHttpUrlConnection(urlConn);
             urlConn.setRequestMethod("HEAD");
             urlConn.setReadTimeout(30000); // 30 seconds read timeout
-            // System.out.println("Tile age: " + new
-            // Date(urlConn.getLastModified()) + " / "
-            // + new Date(fileAge));
             String osmETag = urlConn.getHeaderField("ETag");
             if(osmETag == null)
             {

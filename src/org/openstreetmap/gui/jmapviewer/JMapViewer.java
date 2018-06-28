@@ -1,7 +1,7 @@
 /*******************************************************************************
  * GeoDesk - Desktop application to view and edit geographic markers
  *
- *     Copyright (C) 2014 Martin P. Robillard, Jan Peter Stotz, and others
+ *     Copyright (C) 2014, 2018 Martin P. Robillard, Jan Peter Stotz, and others
  *     
  *     See: http://martinrobillard.com/geodesk
  *
@@ -186,7 +186,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         int size = 18;
         try 
         {
-            ImageIcon icon = new ImageIcon(getClass().getResource("images/plus.png"));
+            ImageIcon icon = new ImageIcon("images/plus.png");
             aZoomInButton = new JButton(icon);
         } 
         catch (Exception e) 
@@ -206,7 +206,7 @@ public class JMapViewer extends JPanel implements TileLoaderListener
         add(aZoomInButton);
         try 
         {
-            ImageIcon icon = new ImageIcon(getClass().getResource("images/minus.png"));
+            ImageIcon icon = new ImageIcon("images/minus.png");
             aZoomOutButton = new JButton(icon);
         } 
         catch(Exception e) 

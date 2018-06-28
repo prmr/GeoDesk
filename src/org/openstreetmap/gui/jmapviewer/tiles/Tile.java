@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ public class Tile
     {
     	try
     	{
-    		return ImageIO.read(JMapViewer.class.getResourceAsStream(pRelativePath));
+    		return ImageIO.read(new File(pRelativePath));
     	}
     	catch(IOException e)
     	{

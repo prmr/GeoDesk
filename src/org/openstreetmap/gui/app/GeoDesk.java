@@ -1,7 +1,7 @@
 /*******************************************************************************
  * GeoDesk - Desktop application to view and edit geographic markers
  *
- *     Copyright (C) 2014 Martin P. Robillard, Jan Peter Stotz, and others
+ *     Copyright (C) 2014, 2018 Martin P. Robillard, Jan Peter Stotz, and others
  *     
  *     See: http://martinrobillard.com/geodesk
  *
@@ -75,7 +75,7 @@ public class GeoDesk extends JFrame implements JMapViewerEventListener
      */
     public GeoDesk() 
     {
-        super(APP_NAME + " - " + MESSAGES.getString("app.map.osm"));
+        super(APP_NAME + " - " + MESSAGES.getString("app.map.mapnik"));
         
         aMap = new JMapViewer();
         aMap.addJMVListener(this);

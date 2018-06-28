@@ -1,7 +1,7 @@
 /*******************************************************************************
  * GeoDesk - Desktop application to view and edit geographic markers
  *
- *     Copyright (C) 2014 Martin P. Robillard, Jan Peter Stotz, and others
+ *     Copyright (C) 2014, 2015 Martin P. Robillard, Jan Peter Stotz, and others
  *     
  *     See: http://martinrobillard.com/geodesk
  *

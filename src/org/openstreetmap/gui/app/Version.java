@@ -1,7 +1,7 @@
 /*******************************************************************************
  * GeoDesk - Desktop application to view and edit geographic markers
  *
- *     Copyright (C) 2014 Martin P. Robillard, Jan Peter Stotz, and others
+ *     Copyright (C) 2014, 2015 Martin P. Robillard, Jan Peter Stotz, and others
  *     
  *     See: http://martinrobillard.com/geodesk
  *
@@ -29,7 +29,7 @@ package org.openstreetmap.gui.app;
  */
 public final class Version
 {
-	private static final Version VERSION = new Version(0, 3, 0);
+	private static final Version VERSION = new Version(0, 4, 0);
 	
 	private int aMajor = -1;
 	private int aMinor = -1;

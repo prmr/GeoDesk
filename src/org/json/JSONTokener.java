@@ -8,7 +8,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 /*
-Copyright (c) 2002 JSON.org
+Copyright (c) 2002, 2014 JSON.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

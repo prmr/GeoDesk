@@ -21,6 +21,7 @@
 package org.openstreetmap.gui.jmapviewer.tilesources;
 
 import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -226,7 +227,7 @@ public class BingAerialTileSource extends AbstractTileSource
     {
         try 
         {
-            return ImageIO.read(getClass().getResourceAsStream("/org/openstreetmap/gui/jmapviewer/images/bing_maps.png"));
+            return ImageIO.read(new File("images/bing_maps.png"));
         } 
         catch (IOException e) 
         {
@@ -266,12 +267,10 @@ public class BingAerialTileSource extends AbstractTileSource
                     {
                         InputSource xml = new InputSource(getAttributionUrl().openStream());
                         List<Attribution> r = parseAttributionText(xml);
-                        System.out.println("Successfully loaded Bing attribution data.");
                         return r;
                     } 
                     catch (IOException ex) 
                     {
-                        System.err.println("Could not connect to Bing API. Will retry in " + waitTimeSec + " seconds.");
                         Thread.sleep(waitTimeSec * MILLIS_IN_SECOND);
                         waitTimeSec *= 2;
                     }
